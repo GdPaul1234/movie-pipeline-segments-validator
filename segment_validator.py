@@ -12,7 +12,7 @@ from movie_pipeline_segments_validator.main import main as run_gui
 def has_any_edl(segment_file: Path) -> bool:
     media_path = segment_file.name.replace('.segments.json', '')
     return len(list(segment_file_edl for segment_file_edl in segment_file.parent.glob(f'{media_path}*.*yml*') if segment_file_edl.suffix != '.txt')) > 0 \
-        or segment_file.with_suffix('.yml.done').is_file()
+        or segment_file.with_name(media_path).with_suffix('.yml.done').is_file()
 
 
 def ask_paths_item_type():
