@@ -46,13 +46,13 @@ Given a video named `Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts`:
     detected_segments_schema = Schema({ str: Regex(r'(?:(?:\d{2}:\d{2}:\d{2}\.\d{2,3})-(?:\d{2}:\d{2}:\d{2}\.\d{2,3}),)+') })
     ```
 
-    > **NOTE**
-    >
-    > Each key of the `.segments.json` document is the name given to the detected parts of a video that should be kept.
-    >
-    > The segments to be checked are populated from this file.
-    >
-    > Whenever you change the video you are reviewing, the currently reviewed segments that you want to keep are saved to this file.
+  > **NOTE**
+  >
+  > Each key of the `.segments.json` document is the name given to the detected parts of a video that should be kept.
+  >
+  > The segments to be checked are populated from this file.
+  >
+  > Whenever you change the video you are reviewing, the currently reviewed segments that you want to keep are saved to this file.
 
 ## Release History
 
