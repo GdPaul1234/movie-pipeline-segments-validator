@@ -15,7 +15,7 @@ poetry install
 
 Just run ```python segment_validator.py```, choose a file or a folder to review and follow the instruction on screen.
 
-TODO: add pictures
+![Reviewing movie segments with movie pipeline segments validator](screenshot.png)
 
 ### Requirements
 
