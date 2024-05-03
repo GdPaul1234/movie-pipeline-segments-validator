@@ -33,7 +33,8 @@ class Segment:
 
 
 class SegmentContainer:
-    _segments: set[Segment] = set()
+    def __init__(self) -> None:
+        self._segments: set[Segment] = set()
 
     @property
     def segments(self):
