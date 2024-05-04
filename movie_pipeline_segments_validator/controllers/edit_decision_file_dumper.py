@@ -3,12 +3,10 @@ from pathlib import Path
 
 import yaml
 
-from movie_pipeline.services.edl_scaffolder import MovieProcessedFileGenerator, channel_pattern, get_title_strategy_context
-
-from ..domain.segment_container import SegmentContainer
 from ..domain import edl_content_schema
-
-from settings import Settings
+from ..domain.segment_container import SegmentContainer
+from ..services.edl_scaffolder import MovieProcessedFileGenerator, channel_pattern, get_title_strategy_context
+from ..settings import Settings
 
 
 def extract_title(source_path: Path, config: Settings):
@@ -21,7 +19,7 @@ def extract_title(source_path: Path, config: Settings):
 
     channel = matches.group(1)
     title_strategy_name = title_strategy_context.titles_strategies.get(channel) or 'NaiveTitleExtractor'
-    mod = importlib.import_module('movie_pipeline.lib.title_extractor.title_extractor')
+    mod = importlib.import_module('movie_pipeline_segments_validator.lib.title_extractor.title_extractor')
     title_strategy = getattr(mod, title_strategy_name)(title_strategy_context.title_cleaner)
 
     return MovieProcessedFileGenerator(source_path, title_strategy, title_strategy_context.series_extracted_metadata).extract_title()

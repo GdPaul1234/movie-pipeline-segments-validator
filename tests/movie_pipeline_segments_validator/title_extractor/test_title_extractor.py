@@ -3,14 +3,14 @@ from pathlib import Path
 import json
 import unittest
 
-from movie_pipeline.lib.title_extractor.title_cleaner import TitleCleaner
-from movie_pipeline.lib.title_extractor.title_extractor import (
+from movie_pipeline_segments_validator.lib.title_extractor.title_cleaner import TitleCleaner
+from movie_pipeline_segments_validator.lib.title_extractor.title_extractor import (
     NaiveTitleExtractor,
     SerieSubTitleAwareTitleExtractor,
     SerieTitleAwareTitleExtractor,
     SubtitleTitleExpanderExtractor
 )
-from movie_pipeline.services.edl_scaffolder import MovieProcessedFileGenerator
+from movie_pipeline_segments_validator.services.edl_scaffolder import MovieProcessedFileGenerator
 
 movie_metadata_path = Path(__file__).parent.joinpath('Channel 1_Movie Name_2022-12-05-2203-20.ts.metadata.json')
 serie_metadata_path = Path(__file__).parent.joinpath("Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts.metadata.json")

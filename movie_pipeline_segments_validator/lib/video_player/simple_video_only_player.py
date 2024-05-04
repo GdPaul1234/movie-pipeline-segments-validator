@@ -6,8 +6,8 @@ import ffmpeg
 import PySimpleGUI as sg
 from deffcode import Sourcer
 
-from ..lib.video_player import IVideoPlayer
-from ..domain.events import VIDEO_NEW_FRAME_EVENT, VIDEO_POSITION_UPDATED_EVENT
+from .video_player import IVideoPlayer
+from ...domain.events import VIDEO_NEW_FRAME_EVENT, VIDEO_POSITION_UPDATED_EVENT
 
 logger = logging.getLogger(__name__)
 

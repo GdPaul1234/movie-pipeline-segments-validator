@@ -1,13 +1,13 @@
 from pathlib import Path
 from typing import Any
 
-from pydantic import ConfigDict, BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from settings import Settings
 from ..controllers.import_segments_from_file import import_segments
-from ..lib.simple_video_only_player import SimpleVideoOnlyPlayerConsumer
-from ..lib.video_player import IVideoPlayer
 from ..domain.segment_container import Segment, SegmentContainer
+from ..lib.video_player.simple_video_only_player import SimpleVideoOnlyPlayerConsumer
+from ..lib.video_player.video_player import IVideoPlayer
+from ..settings import Settings
 
 
 class SegmentValidatorContext(BaseModel):

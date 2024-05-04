@@ -1,9 +1,8 @@
 from pydantic import TypeAdapter
 from pydantic.dataclasses import dataclass
 
-from util import seconds_to_position
-
 from ..domain.detected_segments import humanize_segments
+from ..lib.util import seconds_to_position
 
 
 @dataclass(eq=True, order=True, frozen=True)

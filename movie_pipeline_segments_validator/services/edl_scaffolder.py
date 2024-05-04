@@ -1,7 +1,7 @@
-from dataclasses import dataclass
-import logging
 import json
+import logging
 import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -9,9 +9,9 @@ import yaml
 from schema import Schema
 
 from ..lib.title_extractor.title_cleaner import TitleCleaner
-from ..lib.title_extractor.title_serie_extractor import extract_title_serie_episode_from_metadata
 from ..lib.title_extractor.title_extractor import ITitleExtractor
-from settings import Settings
+from ..lib.title_extractor.title_serie_extractor import extract_title_serie_episode_from_metadata
+from movie_pipeline_segments_validator.settings import Settings
 
 logger = logging.getLogger(__name__)
 

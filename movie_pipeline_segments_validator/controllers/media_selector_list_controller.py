@@ -3,8 +3,6 @@ from typing import Any, cast
 
 import PySimpleGUI as sg
 
-from settings import Settings
-
 from ..domain.context import SegmentValidatorContext
 from ..domain.events import (APPLICATION_LOADED_EVENT,
                              MEDIA_SELECTOR_UPDATED_EVENT, PREFILL_NAME_EVENT,
@@ -13,6 +11,7 @@ from ..domain.events import (APPLICATION_LOADED_EVENT,
 from ..domain.keys import (FLASH_TOP_NOTICE_KEY, MEDIA_SELECTOR_CONTAINER_KEY,
                            MEDIA_SELECTOR_KEY,
                            TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY)
+from ..settings import Settings
 from ..views.texts import TEXTS
 from .edit_decision_file_dumper import extract_title
 from .import_segments_from_file import prepend_last_segments_to_segment_file

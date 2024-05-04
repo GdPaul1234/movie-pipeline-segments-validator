@@ -2,35 +2,22 @@ from pathlib import Path
 from typing import cast
 
 import PySimpleGUI as sg
-from settings import Settings
-
-
-from .domain.events import (
-    APPLICATION_LOADED_EVENT,
-    CONFIGURE_EVENT,
-    PREFILL_NAME_EVENT,
-)
-
-from .domain.keys import (
-    FLASH_TOP_NOTICE_KEY,
-    MEDIA_SELECTOR_CONTAINER_KEY,
-    MEDIA_SELECTOR_KEY,
-    OUTPUT_FILENAME_INPUT_KEY,
-    SEGMENT_TIMELINE_KEY,
-    SKIP_BACKUP_CHECKBOX_KEY,
-    TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY
-)
 
 from .controllers.media_selector_list_controller import load_new_media
-
-from .views.detector_selector import handle_detector, layout as detector_selector
+from .domain.events import (APPLICATION_LOADED_EVENT, CONFIGURE_EVENT,
+                            PREFILL_NAME_EVENT)
+from .domain.keys import (FLASH_TOP_NOTICE_KEY, MEDIA_SELECTOR_CONTAINER_KEY,
+                          MEDIA_SELECTOR_KEY, OUTPUT_FILENAME_INPUT_KEY,
+                          SEGMENT_TIMELINE_KEY, SKIP_BACKUP_CHECKBOX_KEY,
+                          TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY)
+from .settings import Settings
+from .views.detector_selector import handle_detector,  layout as detector_selector
 from .views.media_control import handle_media_control, layout as media_control
 from .views.media_selector_list import handle_media_selector_list, layout as media_selector_list
 from .views.segments_list import handle_segments_list, layout as segments_list, render_values
-from .views.segments_timeline import handle_segments_timeline, layout as segments_timeline
+from .views.segments_timeline import handle_segments_timeline,layout as segments_timeline
 from .views.timeline import handle_timeline, layout as timeline
 from .views.video import handle_video, layout as video
-
 from .views.texts import TEXTS
 
 

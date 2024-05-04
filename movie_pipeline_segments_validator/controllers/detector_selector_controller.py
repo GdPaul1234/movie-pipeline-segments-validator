@@ -2,14 +2,12 @@ from typing import Any, cast
 
 import PySimpleGUI as sg
 
+from ..controllers.segments_list_controller import delete_segments
 from ..domain.context import SegmentValidatorContext
 from ..domain.events import SELECTED_DETECTOR_UPDATED_EVENT
 from ..domain.keys import DETECTOR_SELECTOR_KEY
 from ..domain.movie_segments import MovieSegments
 from ..domain.segment_container import Segment, SegmentContainer
-
-from ..controllers.segments_list_controller import delete_segments
-
 from ..views.segments_list import render_values
 
 
