@@ -29,7 +29,5 @@ handlers = {
 
 
 def handle_media_selector_list(window: sg.Window, event: str, values: dict[str, Any]):
-    try:
-        handlers[WidgetEvent(event)](window, event, values)
-    except KeyError:
-        pass
+    handlers[WidgetEvent(event)](window, event, values)
+

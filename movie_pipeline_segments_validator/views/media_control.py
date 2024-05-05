@@ -43,9 +43,6 @@ def layout():
 
 
 def handle_media_control(window: sg.Window, event: str, values: dict[str, Any]):
-    try:
-        if isinstance(event, str):
-            evt = event.split('::')[0]
-            handlers[WidgetEvent(evt)](window, event, values)
-    except KeyError:
-        pass
+    if isinstance(event, str):
+        evt = event.split('::')[0]
+        handlers[WidgetEvent(evt)](window, event, values)

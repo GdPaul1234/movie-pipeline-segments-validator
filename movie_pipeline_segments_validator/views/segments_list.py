@@ -46,7 +46,5 @@ handlers = {
 
 
 def handle_segments_list(window: sg.Window, event: str, values: dict[str, Any]):
-    try:
-        handlers[WidgetEvent(event)](window, event, values)
-    except KeyError:
-        pass
+    handlers[WidgetEvent(event)](window, event, values)
+

@@ -118,6 +118,9 @@ def main(filepath: Path | list[Path], config: Settings):
             cast(sg.Input, window[WidgetKey.OUTPUT_FILENAME_INPUT_KEY.value]).update(value=values[WidgetEvent.PREFILL_NAME_EVENT.value])
 
         for handler in handlers:
-            handler(window, event, values)
+            try:
+                handler(window, event, values)
+            except (KeyError, ValueError):
+                pass
 
     window.close()
