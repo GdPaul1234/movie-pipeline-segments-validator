@@ -5,7 +5,7 @@ import yaml
 
 from ..domain import edl_content_schema
 from ..domain.segment_container import SegmentContainer
-from ..services.edl_scaffolder import MovieProcessedFileGenerator, channel_pattern, get_title_strategy_context
+from .edl_scaffolder import MovieProcessedFileGenerator, channel_pattern, get_title_strategy_context
 from ..settings import Settings
 
 

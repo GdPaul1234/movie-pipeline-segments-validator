@@ -1,10 +1,9 @@
 from typing import Any
 import PySimpleGUI as sg
 
-from ..domain.events import CONFIGURE_EVENT, SEGMENT_TIMELINE_UPDATED_EVENT, TIMELINE_POSTION_UPDATED_EVENT, SEGMENTS_UPDATED_EVENT, VIDEO_LOADED_EVENT, VIDEO_POSITION_UPDATED_EVENT
-from ..domain.keys import SEGMENT_TIMELINE_KEY
-from ..domain.context import TimelineContext
 from ..controllers.segments_timeline_controller import draw_current_position_indicator, draw_segments, resize_timeline, update_current_position_indicator_position, update_selected_segment
+from ..domain.widget import WidgetEvent, WidgetKey
+from ..domain.context import TimelineContext
 
 GRAPH_SIZE = (480, 30)
 
@@ -30,21 +29,23 @@ def layout():
             pad=0,
             background_color='#a6b2be',
             metadata=TimelineContext(),
-            key=SEGMENT_TIMELINE_KEY
+            key=WidgetKey.SEGMENT_TIMELINE_KEY.value
         )
     ]
 
 
 handlers = {
-    VIDEO_LOADED_EVENT: draw_current_position_indicator,
-    CONFIGURE_EVENT: resize_timeline,
-    SEGMENTS_UPDATED_EVENT: draw_segments,
-    SEGMENT_TIMELINE_UPDATED_EVENT: update_selected_segment,
-    TIMELINE_POSTION_UPDATED_EVENT: update_current_position_indicator_position,
-    VIDEO_POSITION_UPDATED_EVENT: update_current_position_indicator_position
+    WidgetEvent.VIDEO_LOADED_EVENT: draw_current_position_indicator,
+    WidgetEvent.CONFIGURE_EVENT: resize_timeline,
+    WidgetEvent.SEGMENTS_UPDATED_EVENT: draw_segments,
+    WidgetEvent.SEGMENT_TIMELINE_UPDATED_EVENT: update_selected_segment,
+    WidgetEvent.TIMELINE_POSTION_UPDATED_EVENT: update_current_position_indicator_position,
+    WidgetEvent.VIDEO_POSITION_UPDATED_EVENT: update_current_position_indicator_position
 }
 
 
 def handle_segments_timeline(window: sg.Window, event: str, values: dict[str, Any]):
-    if event in handlers.keys():
-        handlers[event](window, event, values)
+    try:
+        handlers[WidgetEvent(event)](window, event, values)
+    except KeyError:
+        pass

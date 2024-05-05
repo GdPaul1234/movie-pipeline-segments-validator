@@ -1,9 +1,8 @@
 from typing import Any
 import PySimpleGUI as sg
 
-from ..domain.keys import SEGMENT_LIST_TABLE_KEY
-from ..domain.events import SEGMENT_ADD_EVENT, SEGMENT_DELETE_EVENT, SEGMENT_MERGE_EVENT, SEGMENT_LIST_UPDATED_EVENT, SEGMENT_SET_START_EVENT, SEGMENT_SET_END_EVENT, SEGMENT_TIMELINE_SELECTED_EVENT, SEGMENTS_VALIDATED_EVENT
 from ..controllers.segments_list_controller import _render_values, add_segment, delete_segments, edit_segment, merge_segments, focus_timeline_selected_segment, forward_updated_event, validate_segments
+from ..domain.widget import WidgetEvent, WidgetKey
 
 render_values = _render_values
 
@@ -29,23 +28,25 @@ def layout():
             expand_x=True,
             expand_y=True,
             pad=0,
-            key=SEGMENT_LIST_TABLE_KEY
+            key=WidgetKey.SEGMENT_LIST_TABLE_KEY.value
         )
     ]
 
 
 handlers = {
-    SEGMENT_ADD_EVENT: add_segment,
-    SEGMENT_DELETE_EVENT: delete_segments,
-    SEGMENT_MERGE_EVENT: merge_segments,
-    SEGMENT_LIST_UPDATED_EVENT: forward_updated_event,
-    SEGMENT_TIMELINE_SELECTED_EVENT: focus_timeline_selected_segment,
-    SEGMENT_SET_START_EVENT: edit_segment,
-    SEGMENT_SET_END_EVENT: edit_segment,
-    SEGMENTS_VALIDATED_EVENT: validate_segments
+    WidgetEvent.SEGMENT_ADD_EVENT: add_segment,
+    WidgetEvent.SEGMENT_DELETE_EVENT: delete_segments,
+    WidgetEvent.SEGMENT_MERGE_EVENT: merge_segments,
+    WidgetEvent.SEGMENT_LIST_UPDATED_EVENT: forward_updated_event,
+    WidgetEvent.SEGMENT_TIMELINE_SELECTED_EVENT: focus_timeline_selected_segment,
+    WidgetEvent.SEGMENT_SET_START_EVENT: edit_segment,
+    WidgetEvent.SEGMENT_SET_END_EVENT: edit_segment,
+    WidgetEvent.SEGMENTS_VALIDATED_EVENT: validate_segments
 }
 
 
 def handle_segments_list(window: sg.Window, event: str, values: dict[str, Any]):
-    if event in handlers.keys():
-        handlers[event](window, event, values)
+    try:
+        handlers[WidgetEvent(event)](window, event, values)
+    except KeyError:
+        pass

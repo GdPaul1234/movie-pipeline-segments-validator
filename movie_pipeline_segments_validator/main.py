@@ -4,12 +4,7 @@ from typing import cast
 import PySimpleGUI as sg
 
 from .controllers.media_selector_list_controller import load_new_media
-from .domain.events import (APPLICATION_LOADED_EVENT, CONFIGURE_EVENT,
-                            PREFILL_NAME_EVENT)
-from .domain.keys import (FLASH_TOP_NOTICE_KEY, MEDIA_SELECTOR_CONTAINER_KEY,
-                          MEDIA_SELECTOR_KEY, OUTPUT_FILENAME_INPUT_KEY,
-                          SEGMENT_TIMELINE_KEY, SKIP_BACKUP_CHECKBOX_KEY,
-                          TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY)
+from .domain.widget import WidgetEvent, WidgetKey
 from .settings import Settings
 from .views.detector_selector import handle_detector,  layout as detector_selector
 from .views.media_control import handle_media_control, layout as media_control
@@ -43,8 +38,8 @@ def main_layout():
         detector_selector(),
         segments_list(),
         [
-            sg.Input('Nom du fichier converti.mp4', size=(25, 0), pad=((0, 0), (5, 0)), key=OUTPUT_FILENAME_INPUT_KEY),
-            sg.Checkbox('Skip backup', key=SKIP_BACKUP_CHECKBOX_KEY)
+            sg.Input('Nom du fichier converti.mp4', size=(25, 0), pad=((0, 0), (5, 0)), key=WidgetKey.OUTPUT_FILENAME_INPUT_KEY.value),
+            sg.Checkbox('Skip backup', key=WidgetKey.SKIP_BACKUP_CHECKBOX_KEY.value)
         ],
         [sg.Button('Validate', expand_x=True, pad=((0, 0), (5, 0)))]
     ]
@@ -53,7 +48,7 @@ def main_layout():
         [
             [sg.VPush()],
             sg.Column([
-                [sg.Text(TEXTS['review_segments_description'], key=FLASH_TOP_NOTICE_KEY, font='Any 12'),]
+                [sg.Text(TEXTS['review_segments_description'], key=WidgetKey.FLASH_TOP_NOTICE_KEY.value, font='Any 12'),]
             ], element_justification='c', expand_x=True)
         ],
         [
@@ -62,14 +57,14 @@ def main_layout():
                     sg.pin(
                         sg.Frame(TEXTS['movies_to_be_processed'], [
                             media_selector_list()
-                        ], key=MEDIA_SELECTOR_CONTAINER_KEY, visible=False, size=(250, 1), expand_y=True, pad=0),
+                        ], key=WidgetKey.MEDIA_SELECTOR_CONTAINER_KEY.value, visible=False, size=(250, 1), expand_y=True, pad=0),
                         expand_y=True
                     )
                 ],
                 [
                     sg.Button(
                         '>>',
-                        key=TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY,
+                        key=WidgetKey.TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY.value,
                         tooltip='Toggle visibility of the media selector',
                         size=(3, 1)
                     )
@@ -104,11 +99,11 @@ def main(filepath: Path | list[Path], config: Settings):
     first_media_path = filepath if isinstance(filepath, Path) else filepath[0]
 
     window = create_window()
-    window.write_event_value(APPLICATION_LOADED_EVENT, [media_paths])
-    load_new_media(window, '', { MEDIA_SELECTOR_KEY: [first_media_path], 'config': config })
+    window.write_event_value(WidgetEvent.APPLICATION_LOADED_EVENT.value, [media_paths])
+    load_new_media(window, '', { WidgetKey.MEDIA_SELECTOR_KEY.value: [first_media_path], 'config': config })
 
-    window[SEGMENT_TIMELINE_KEY].expand(True, False, False)
-    window.bind('<Configure>', CONFIGURE_EVENT)
+    window[WidgetKey.SEGMENT_TIMELINE_KEY.value].expand(True, False, False)
+    window.bind('<Configure>', WidgetEvent.CONFIGURE_EVENT.value)
     render_values(window)
 
     while True:
@@ -119,8 +114,8 @@ def main(filepath: Path | list[Path], config: Settings):
         if event == sg.TIMEOUT_EVENT:
             continue
 
-        if event == PREFILL_NAME_EVENT:
-            cast(sg.Input, window[OUTPUT_FILENAME_INPUT_KEY]).update(value=values[PREFILL_NAME_EVENT])
+        if event == WidgetEvent.PREFILL_NAME_EVENT.value:
+            cast(sg.Input, window[WidgetKey.OUTPUT_FILENAME_INPUT_KEY.value]).update(value=values[WidgetEvent.PREFILL_NAME_EVENT.value])
 
         for handler in handlers:
             handler(window, event, values)

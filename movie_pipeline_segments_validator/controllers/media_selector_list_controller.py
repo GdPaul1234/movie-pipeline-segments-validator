@@ -3,68 +3,47 @@ from typing import Any, cast
 
 import PySimpleGUI as sg
 
+from ..services import media_selector_service
+
 from ..domain.context import SegmentValidatorContext
-from ..domain.events import (APPLICATION_LOADED_EVENT,
-                             MEDIA_SELECTOR_UPDATED_EVENT, PREFILL_NAME_EVENT,
-                             SEGMENT_IMPORTED_EVENT, SEGMENTS_SAVED_EVENT,
-                             VIDEO_LOADED_EVENT)
-from ..domain.keys import (FLASH_TOP_NOTICE_KEY, MEDIA_SELECTOR_CONTAINER_KEY,
-                           MEDIA_SELECTOR_KEY,
-                           TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY)
-from ..settings import Settings
+from ..domain.widget import WidgetEvent, WidgetKey
 from ..views.texts import TEXTS
-from .edit_decision_file_dumper import extract_title
-from .import_segments_from_file import prepend_last_segments_to_segment_file
-
-
-def has_any_edl(media_path: Path) -> bool:
-    segment_file_path = media_path.with_suffix(f'{media_path.suffix}.segments.json')
-    return len(list(segment_file_edl for segment_file_edl in segment_file_path.parent.glob(f'{media_path.name}*.*yml*') if segment_file_edl.suffix != '.txt')) > 0 \
-        or media_path.with_suffix('.yml.done').is_file()
-
-
-def init_metadata(window: sg.Window, filepath: Path, config: Settings):
-    window.metadata = SegmentValidatorContext.init_context(filepath, config)
-
-    window.write_event_value(VIDEO_LOADED_EVENT, True)
-    window.write_event_value(SEGMENT_IMPORTED_EVENT, True)
-
-
-def prefill_name(window: sg.Window, filepath: Path, config: Settings):
-    if has_any_edl(filepath):
-        sg.popup_auto_close(f'Validated segments already exists for {filepath}', title='Aborting segments validation')
-        window.write_event_value(SEGMENTS_SAVED_EVENT, True)
-
-    else:
-        filename = extract_title(filepath, config)
-        window.write_event_value(PREFILL_NAME_EVENT, f'{filename}.mp4')
 
 
 def populate_media_selector(window: sg.Window, _event: str, values: dict[str, Any]):
-    selector = cast(sg.Listbox, window[MEDIA_SELECTOR_KEY])
+    selector = cast(sg.Listbox, window[WidgetKey.MEDIA_SELECTOR_KEY.value])
 
-    media_paths, = values[APPLICATION_LOADED_EVENT]
+    media_paths, = values[WidgetEvent.APPLICATION_LOADED_EVENT.value]
     selector.update(values=media_paths, set_to_index=0)
 
 
 def load_new_media(window: sg.Window, _event: str, values: dict[str, Any]):
-    flash_notice_label = cast(sg.Text, window[FLASH_TOP_NOTICE_KEY])
-    selector = cast(sg.Listbox, window[MEDIA_SELECTOR_KEY])
+    flash_notice_label = cast(sg.Text, window[WidgetKey.FLASH_TOP_NOTICE_KEY.value])
+    selector = cast(sg.Listbox, window[WidgetKey.MEDIA_SELECTOR_KEY.value])
     metadata = cast(SegmentValidatorContext | None, window.metadata)
-    filepath = cast(Path, values[MEDIA_SELECTOR_KEY][0])
+    filepath = cast(Path, values[WidgetKey.MEDIA_SELECTOR_KEY.value][0])
 
     if metadata is not None:
-        old_filepath = metadata.filepath
-        old_segments =metadata.segment_container
-        prepend_last_segments_to_segment_file(old_filepath, old_segments)
+        media_selector_service.flush_segments_of_previous_loaded_media(metadata)
 
     flash_notice_label.update(value=TEXTS['loading_media'])
     window.refresh()
 
     if filepath.is_file():
         config = metadata.config if metadata else values['config']
-        init_metadata(window, filepath, config)
-        prefill_name(window, filepath, config)
+
+        # init metadata
+        window.metadata = SegmentValidatorContext.init_context(filepath, config)
+        window.write_event_value(WidgetEvent.VIDEO_LOADED_EVENT.value, True)
+        window.write_event_value(WidgetEvent.SEGMENT_IMPORTED_EVENT.value, True)
+
+        # prefill name
+        try:
+            extracted_title = media_selector_service.prefill_name(window.metadata)
+            window.write_event_value(WidgetEvent.PREFILL_NAME_EVENT.value, f'{extracted_title}.mp4')
+        except ValueError as e:
+            sg.popup_auto_close(str(e), title='Aborting segments validation')
+            window.write_event_value(WidgetEvent.SEGMENTS_SAVED_EVENT.value, True)
 
     flash_notice_label.update(value=TEXTS['review_segments_description'])
     window.set_title(f'Segments Reviewer - {str(filepath)}')
@@ -73,8 +52,8 @@ def load_new_media(window: sg.Window, _event: str, values: dict[str, Any]):
 
 
 def toggle_media_selector_visibility(window: sg.Window, _event: str, _values: dict[str, Any]):
-    media_selector_container = cast(sg.Frame, window[MEDIA_SELECTOR_CONTAINER_KEY])
-    toggle_media_selector_button = cast(sg.Button, window[TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY])
+    media_selector_container = cast(sg.Frame, window[WidgetKey.MEDIA_SELECTOR_CONTAINER_KEY.value])
+    toggle_media_selector_button = cast(sg.Button, window[WidgetKey.TOGGLE_MEDIA_SELECTOR_VISIBILITY_KEY.value])
 
     media_selector_container_visibility = not media_selector_container.visible
     toggle_media_selector_button.update(text='<<' if media_selector_container_visibility else '>>')
@@ -82,7 +61,7 @@ def toggle_media_selector_visibility(window: sg.Window, _event: str, _values: di
 
 
 def remove_validated_media_from_media_selector(window: sg.Window, _event: str, _values: dict[str, Any]):
-    selector = cast(sg.Listbox, window[MEDIA_SELECTOR_KEY])
+    selector = cast(sg.Listbox, window[WidgetKey.MEDIA_SELECTOR_KEY.value])
     metadata = cast(SegmentValidatorContext, window.metadata)
 
     medias: list[Path] = selector.get_list_values()
@@ -91,5 +70,5 @@ def remove_validated_media_from_media_selector(window: sg.Window, _event: str, _
     updated_medias = [media for media in medias if media != metadata.filepath]
     selector.update(values=updated_medias)
 
-    window.write_event_value(MEDIA_SELECTOR_UPDATED_EVENT, [next_media])
+    window.write_event_value(WidgetEvent.MEDIA_SELECTOR_UPDATED_EVENT.value, [next_media])
 

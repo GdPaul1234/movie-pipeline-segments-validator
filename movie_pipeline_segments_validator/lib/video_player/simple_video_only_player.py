@@ -7,7 +7,7 @@ import PySimpleGUI as sg
 from deffcode import Sourcer
 
 from .video_player import IVideoPlayer
-from ...domain.events import VIDEO_NEW_FRAME_EVENT, VIDEO_POSITION_UPDATED_EVENT
+from ...domain.widget import WidgetEvent
 
 logger = logging.getLogger(__name__)
 
@@ -47,13 +47,13 @@ class SimpleVideoOnlyPlayerConsumer(IVideoPlayer):
 
         if self._current_position < 0 or self._current_position >= (self._duration - 1):
             self._current_position = 0.
-            window.write_event_value(VIDEO_POSITION_UPDATED_EVENT, 0.)
+            window.write_event_value(WidgetEvent.VIDEO_POSITION_UPDATED_EVENT.value, 0.)
             return
 
         if frame is not None:
             logger.debug(self._current_position)
-            window.write_event_value(VIDEO_NEW_FRAME_EVENT, (self._size, frame))
-            window.write_event_value(VIDEO_POSITION_UPDATED_EVENT, self._current_position)
+            window.write_event_value(WidgetEvent.VIDEO_NEW_FRAME_EVENT.value, (self._size, frame))
+            window.write_event_value(WidgetEvent.VIDEO_POSITION_UPDATED_EVENT.value, self._current_position)
 
     def set_relative_position(self, delta: float, window: sg.Window):
         self.set_position(self._current_position + delta, window)

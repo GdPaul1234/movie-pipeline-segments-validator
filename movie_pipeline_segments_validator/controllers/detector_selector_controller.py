@@ -2,17 +2,15 @@ from typing import Any, cast
 
 import PySimpleGUI as sg
 
-from ..controllers.segments_list_controller import delete_segments
+from movie_pipeline_segments_validator.services import detector_service
+
 from ..domain.context import SegmentValidatorContext
-from ..domain.events import SELECTED_DETECTOR_UPDATED_EVENT
-from ..domain.keys import DETECTOR_SELECTOR_KEY
-from ..domain.movie_segments import MovieSegments
-from ..domain.segment_container import Segment, SegmentContainer
+from ..domain.widget import WidgetEvent, WidgetKey
 from ..views.segments_list import render_values
 
 
 def populate_detector_selector(window: sg.Window, _event: str, _values: dict[str, Any]):
-    selector = cast(sg.Combo, window[DETECTOR_SELECTOR_KEY])
+    selector = cast(sg.Combo, window[WidgetKey.DETECTOR_SELECTOR_KEY.value])
     metadata = cast(SegmentValidatorContext, window.metadata)
 
     # Update available detectors
@@ -22,22 +20,10 @@ def populate_detector_selector(window: sg.Window, _event: str, _values: dict[str
     # Import the first detector result if available
     if len(detectors) >= 1:
         selector.update(value=detectors[0])
-        window.write_event_value(SELECTED_DETECTOR_UPDATED_EVENT, detectors[0])
+        window.write_event_value(WidgetEvent.SELECTED_DETECTOR_UPDATED_EVENT.value, detectors[0])
 
 
 def import_segments_from_selected_detector(window: sg.Window, _event: str, values: dict[str, Any]):
-    metadata = cast(SegmentValidatorContext, window.metadata)
-
-    metadata.selected_segments = list(metadata.segment_container.segments)
-    delete_segments(window, _event, values)
-
-    metadata.segment_container = SegmentContainer()
-
-    imported_detector_segments = MovieSegments(
-        raw_segments=metadata.imported_segments[values[DETECTOR_SELECTOR_KEY]]
-    )
-
-    for segment in imported_detector_segments.segments:
-        metadata.segment_container.add(Segment(*segment))
-
+    detector_key = values[WidgetKey.DETECTOR_SELECTOR_KEY.value]
+    detector_service.import_segments_from_selected_detector(window.metadata, detector_key)
     render_values(window)
