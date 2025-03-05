@@ -15,7 +15,7 @@ def extract_title(source_path: Path, config: Settings):
     matches = channel_pattern.search(source_path.stem)
 
     if not matches:
-        return 'Nom du fichier  converti.mp4'
+        return 'Nom du fichier converti.mp4'
 
     channel = matches.group(1)
     title_strategy_name = title_strategy_context.titles_strategies.get(channel) or 'NaiveTitleExtractor'
