@@ -5,14 +5,9 @@ from typing import Literal, cast
 import PySimpleGUI as sg
 import os
 
+from .services.media_selector_service import list_medias
 from .settings import Settings
 from .main import main as run_gui
-
-
-def has_any_edl(segment_file: Path) -> bool:
-    media_path = segment_file.name.replace('.segments.json', '')
-    return len(list(segment_file_edl for segment_file_edl in segment_file.parent.glob(f'{media_path}*.*yml*') if segment_file_edl.suffix != '.txt')) > 0 \
-        or segment_file.with_name(media_path).with_suffix('.yml.done').is_file()
 
 
 def ask_paths_item_type():
@@ -23,12 +18,12 @@ def ask_paths_item_type():
             [sg.Button('Open File', key='file'),
                 sg.Button('Open Directory', key='directory')]
         ], element_justification='center', justification='center')]
-    ]).read(close=True) # type: ignore
+    ]).read(close=True)  # type: ignore
 
     return cast(Literal['file', 'directory'] | None, event)
 
 
-def ask_paths() -> list[Path]:
+def ask_paths(config: Settings) -> list[Path]:
     paths = []
 
     while not (len(paths)):
@@ -40,9 +35,11 @@ def ask_paths() -> list[Path]:
                 paths = list(map(Path, filter(bool, [sg.popup_get_file('Select a video file')])))
             case 'directory':
                 if (folder_path := sg.popup_get_folder('Select a folder')) is not None:
-                    paths = [segment_file.with_name(segment_file.name.replace('.segments.json', ''))
-                            for segment_file in Path(folder_path).glob('*.segments.json')
-                            if not has_any_edl(segment_file)]
+                    paths = [
+                        media_path.path
+                        for media_path in list_medias(Path(folder_path), config)
+                        if media_path.state == 'waiting_segment_review'
+                    ]
 
     return paths
 
@@ -65,7 +62,7 @@ def main():
     os.chdir(options.config_path.parent)
     config = Settings(_env_file=options.config_path, _env_file_encoding='utf-8')  # type: ignore
 
-    if len(paths := ask_paths()):
+    if len(paths := ask_paths(config)):
         run_gui(paths, config)
 
 
