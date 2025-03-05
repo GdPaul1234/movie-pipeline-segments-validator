@@ -10,7 +10,7 @@ class Segment:
     start: float
     end: float
 
-    def  __post_init__(self):
+    def __post_init__(self):
         if self.start > self.end:
             raise ValueError('Incoherent Segment')
 
