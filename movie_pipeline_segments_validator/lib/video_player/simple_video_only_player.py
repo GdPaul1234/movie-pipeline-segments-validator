@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import shutil
 from typing import cast
 
 import ffmpeg
@@ -26,7 +27,10 @@ class SimpleVideoOnlyPlayerConsumer(IVideoPlayer):
         self._source = source
         self._current_position = 0.
 
-        sourcer = Sourcer(str(source)).probe_stream()
+        if not(custom_ffmpeg := shutil.which('ffmpeg')):
+            raise ValueError('ffmpeg is not installed')
+
+        sourcer = Sourcer(str(source), custom_ffmpeg=custom_ffmpeg).probe_stream()
         self._metadata = cast(dict, sourcer.retrieve_metadata())
         self._duration = self._metadata['source_duration_sec']
         self._size = self._metadata['source_video_resolution']
