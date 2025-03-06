@@ -15,7 +15,7 @@ from movie_pipeline_segments_validator.services.edl_scaffolder import MovieProce
 movie_metadata_path = Path(__file__).parent.joinpath('Channel 1_Movie Name_2022-12-05-2203-20.ts.metadata.json')
 serie_metadata_path = Path(__file__).parent.joinpath("Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts.metadata.json")
 
-blacklist_path = Path(__file__).parent.parent.joinpath('ressources', 'test_title_re_blacklist.txt')
+blacklist_path = Path(__file__).parent.parent.parent.joinpath('ressources', 'test_title_re_blacklist.txt')
 default_title_cleaner = TitleCleaner(blacklist_path)
 
 

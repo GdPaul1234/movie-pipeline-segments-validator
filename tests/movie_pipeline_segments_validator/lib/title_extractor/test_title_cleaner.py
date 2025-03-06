@@ -3,7 +3,7 @@ import unittest
 
 from movie_pipeline_segments_validator.lib.title_extractor.title_cleaner import TitleCleaner
 
-blacklist_path = Path(__file__).parent.parent.joinpath('ressources', 'test_title_re_blacklist.txt')
+blacklist_path = Path(__file__).parent.parent.parent.joinpath('ressources', 'test_title_re_blacklist.txt')
 
 
 class TestTitleCleaner(unittest.TestCase):
