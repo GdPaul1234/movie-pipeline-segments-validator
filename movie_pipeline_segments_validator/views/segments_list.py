@@ -1,7 +1,7 @@
 from typing import Any
 import PySimpleGUI as sg
 
-from ..controllers.segments_list_controller import _render_values, add_segment, delete_segments, edit_segment, merge_segments, focus_timeline_selected_segment, forward_updated_event, validate_segments
+from ..adapters.pysimplegui.segments_list_controller import _render_values, add_segment, delete_segments, edit_segment, merge_segments, focus_timeline_selected_segment, forward_updated_event, validate_segments
 from ..domain.widget import WidgetEvent, WidgetKey
 
 render_values = _render_values

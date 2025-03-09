@@ -2,7 +2,7 @@ from typing import Any
 
 import PySimpleGUI as sg
 
-from ..controllers.detector_selector_controller import import_segments_from_selected_detector, populate_detector_selector
+from ..adapters.pysimplegui.detector_selector_controller import import_segments_from_selected_detector, populate_detector_selector
 from ..domain.widget import WidgetEvent, WidgetKey
 
 handlers = {

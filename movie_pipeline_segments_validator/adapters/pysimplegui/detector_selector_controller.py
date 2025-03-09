@@ -4,9 +4,9 @@ import PySimpleGUI as sg
 
 from movie_pipeline_segments_validator.services import detector_service
 
-from ..domain.context import SegmentValidatorContext
-from ..domain.widget import WidgetEvent, WidgetKey
-from ..views.segments_list import render_values
+from ...domain.context import SegmentValidatorContext
+from ...domain.widget import WidgetEvent, WidgetKey
+from ...views.segments_list import render_values
 
 
 def populate_detector_selector(window: sg.Window, _event: str, _values: dict[str, Any]):

@@ -3,9 +3,9 @@ from typing import Any, cast
 import PySimpleGUI as sg
 from decoratorOperations import debounce
 
-from ..lib.video_player.video_player import IVideoPlayer
-from ..domain.context import SegmentValidatorContext
-from ..domain.widget import WidgetKey
+from ...lib.video_player.video_player import IVideoPlayer
+from ...domain.context import SegmentValidatorContext
+from ...domain.widget import WidgetKey
 
 
 @debounce(0.1)

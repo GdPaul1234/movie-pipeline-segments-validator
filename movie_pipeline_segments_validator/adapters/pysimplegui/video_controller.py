@@ -5,8 +5,8 @@ from decoratorOperations import throttle
 from PIL import Image, ImageTk
 from PIL.Image import Resampling
 
-from ..domain.context import SegmentValidatorContext
-from ..domain.widget import WidgetEvent, WidgetKey
+from ...domain.context import SegmentValidatorContext
+from ...domain.widget import WidgetEvent, WidgetKey
 
 
 @throttle(2)

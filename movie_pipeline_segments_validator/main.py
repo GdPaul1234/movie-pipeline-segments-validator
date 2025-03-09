@@ -3,7 +3,7 @@ from typing import cast
 
 import PySimpleGUI as sg
 
-from .controllers.media_selector_list_controller import load_new_media
+from .adapters.pysimplegui.media_selector_list_controller import load_new_media
 from .domain.widget import WidgetEvent, WidgetKey
 from .settings import Settings
 from .views.detector_selector import handle_detector,  layout as detector_selector
