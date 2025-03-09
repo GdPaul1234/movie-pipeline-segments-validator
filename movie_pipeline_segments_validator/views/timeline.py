@@ -1,7 +1,7 @@
 from typing import Any
 import PySimpleGUI as sg
 
-from ..controllers.timeline_controller import init_timeline_slider, seek_to_position, update_timeline_slider
+from ..adapters.pysimplegui.timeline_controller import init_timeline_slider, seek_to_position, update_timeline_slider
 from ..domain.widget import WidgetEvent, WidgetKey
 
 def layout():

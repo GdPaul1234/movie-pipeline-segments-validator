@@ -2,7 +2,7 @@ from typing import Any
 
 import PySimpleGUI as sg
 
-from ..controllers.media_control_controller import goto_selected_segment, set_relative_position, set_video_information, update_video_position
+from ..adapters.pysimplegui.media_control_controller import goto_selected_segment, set_relative_position, set_video_information, update_video_position
 from ..domain.widget import WidgetEvent, WidgetKey
 
 

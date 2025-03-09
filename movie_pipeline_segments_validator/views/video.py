@@ -2,7 +2,7 @@ from typing import Any
 
 import PySimpleGUI as sg
 
-from ..controllers.video_controller import render_video_new_frame, rerender_video
+from ..adapters.pysimplegui.video_controller import render_video_new_frame, rerender_video
 from ..domain.widget import WidgetEvent, WidgetKey
 
 

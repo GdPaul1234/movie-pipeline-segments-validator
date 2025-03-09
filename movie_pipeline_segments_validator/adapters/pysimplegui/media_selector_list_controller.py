@@ -3,11 +3,11 @@ from typing import Any, cast
 
 import PySimpleGUI as sg
 
-from ..services import media_selector_service
+from ...services import media_selector_service
 
-from ..domain.context import SegmentValidatorContext
-from ..domain.widget import WidgetEvent, WidgetKey
-from ..views.texts import TEXTS
+from ...domain.context import SegmentValidatorContext
+from ...domain.widget import WidgetEvent, WidgetKey
+from ...views.texts import TEXTS
 
 
 def populate_media_selector(window: sg.Window, _event: str, values: dict[str, Any]):

@@ -2,10 +2,10 @@ from typing import Any, cast
 
 import PySimpleGUI as sg
 
-from ..domain.context import SegmentValidatorContext
-from ..domain.widget import WidgetEvent, WidgetKey
-from ..domain.segment_container import Segment
-from ..services import segment_service
+from ...domain.context import SegmentValidatorContext
+from ...domain.widget import WidgetEvent, WidgetKey
+from ...domain.segment_container import Segment
+from ...services import segment_service
 
 
 def _get_selected_segments(window: sg.Window):

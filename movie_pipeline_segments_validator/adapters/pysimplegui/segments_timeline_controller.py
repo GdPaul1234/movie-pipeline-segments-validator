@@ -2,8 +2,8 @@ from typing import Any, cast
 
 import PySimpleGUI as sg
 
-from ..domain.widget import WidgetEvent, WidgetKey
-from ..services import timeline_service
+from ...domain.widget import WidgetEvent, WidgetKey
+from ...services import timeline_service
 
 
 def draw_segments(window: sg.Window, _event = None, _values = None):
