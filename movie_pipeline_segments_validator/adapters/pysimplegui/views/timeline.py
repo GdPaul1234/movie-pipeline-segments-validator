@@ -1,8 +1,10 @@
 from typing import Any
+
 import PySimpleGUI as sg
 
-from ..adapters.pysimplegui.timeline_controller import init_timeline_slider, seek_to_position, update_timeline_slider
-from ..domain.widget import WidgetEvent, WidgetKey
+from ..config.widget import WidgetEvent, WidgetKey
+from ..controllers.timeline_controller import init_timeline_slider, seek_to_position, update_timeline_slider
+
 
 def layout():
     return [

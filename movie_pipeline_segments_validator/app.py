@@ -1,13 +1,14 @@
 import argparse
 import logging
+import os
 from pathlib import Path
 from typing import Literal, cast
-import PySimpleGUI as sg
-import os
 
+import PySimpleGUI as sg
+
+from .adapters.pysimplegui.main import main as run_gui
 from .services.media_selector_service import list_medias
 from .settings import Settings
-from .main import main as run_gui
 
 
 def ask_paths_item_type():
@@ -15,8 +16,7 @@ def ask_paths_item_type():
         [sg.Column([
             [sg.Text('Welcome to Movie Pipeline Segments Validator', font='Any 12')],
             [sg.Text('Choose a file or a directory to begin')],
-            [sg.Button('Open File', key='file'),
-                sg.Button('Open Directory', key='directory')]
+            [sg.Button('Open File', key='file'), sg.Button('Open Directory', key='directory')]
         ], element_justification='center', justification='center')]
     ]).read(close=True)  # type: ignore
 

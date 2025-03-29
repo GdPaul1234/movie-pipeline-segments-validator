@@ -2,8 +2,8 @@ from typing import Any
 
 import PySimpleGUI as sg
 
-from ..adapters.pysimplegui.media_control_controller import goto_selected_segment, set_relative_position, set_video_information, update_video_position
-from ..domain.widget import WidgetEvent, WidgetKey
+from ..config.widget import WidgetEvent, WidgetKey
+from ..controllers.media_control_controller import goto_selected_segment, set_relative_position, set_video_information, update_video_position
 
 
 def btn(text, /, *, key=None, size=(6,1), pad=(1,1)):

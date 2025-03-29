@@ -1,9 +1,10 @@
 from typing import Any
+
 import PySimpleGUI as sg
 
-from ..adapters.pysimplegui.segments_timeline_controller import draw_current_position_indicator, draw_segments, resize_timeline, update_current_position_indicator_position, update_selected_segment
-from ..domain.widget import WidgetEvent, WidgetKey
-from ..domain.context import TimelineContext
+from ....domain.context import TimelineContext
+from ..config.widget import WidgetEvent, WidgetKey
+from ..controllers.segments_timeline_controller import draw_current_position_indicator, draw_segments, resize_timeline, update_current_position_indicator_position, update_selected_segment
 
 GRAPH_SIZE = (480, 30)
 

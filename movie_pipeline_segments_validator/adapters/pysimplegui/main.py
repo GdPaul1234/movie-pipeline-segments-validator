@@ -3,14 +3,14 @@ from typing import cast
 
 import PySimpleGUI as sg
 
-from .adapters.pysimplegui.media_selector_list_controller import load_new_media
-from .domain.widget import WidgetEvent, WidgetKey
-from .settings import Settings
-from .views.detector_selector import handle_detector,  layout as detector_selector
+from ...settings import Settings
+from .config.widget import WidgetEvent, WidgetKey
+from .controllers.media_selector_list_controller import load_new_media
+from .views.detector_selector import handle_detector, layout as detector_selector
 from .views.media_control import handle_media_control, layout as media_control
 from .views.media_selector_list import handle_media_selector_list, layout as media_selector_list
 from .views.segments_list import handle_segments_list, layout as segments_list, render_values
-from .views.segments_timeline import handle_segments_timeline,layout as segments_timeline
+from .views.segments_timeline import handle_segments_timeline, layout as segments_timeline
 from .views.timeline import handle_timeline, layout as timeline
 from .views.video import handle_video, layout as video
 from .views.texts import TEXTS
