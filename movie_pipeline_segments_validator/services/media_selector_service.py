@@ -22,7 +22,7 @@ def prefill_name(context: SegmentValidatorContext):
     if has_any_edl(context.filepath, context.config):
         raise ValueError(f'Validated segments already exists for {context.filepath}')
 
-    return extract_title(context.filepath, context.config)
+    return context.title
 
 
 def list_medias(filepath: Path, config: Settings) -> list[MediaPath]:

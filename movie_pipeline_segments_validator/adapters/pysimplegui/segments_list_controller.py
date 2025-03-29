@@ -73,10 +73,12 @@ def edit_segment(window: sg.Window, event: str, _values: dict[str, Any]):
 
 
 def validate_segments(window: sg.Window, _event: str, values: dict[str, Any]):
-    title = values[WidgetKey.OUTPUT_FILENAME_INPUT_KEY.value]
-    skip_backup = values[WidgetKey.SKIP_BACKUP_CHECKBOX_KEY.value]
+    metadata = cast(SegmentValidatorContext, window.metadata)
 
-    if edl_path := segment_service.validate_segments(window.metadata, title, skip_backup):
+    metadata.title = values[WidgetKey.OUTPUT_FILENAME_INPUT_KEY.value]
+    metadata.skip_backup = values[WidgetKey.SKIP_BACKUP_CHECKBOX_KEY.value]
+
+    if edl_path := segment_service.validate_segments(window.metadata):
         sg.popup_auto_close(edl_path, title='Segments saved')
         window.write_event_value(WidgetEvent.SEGMENTS_SAVED_EVENT.value, True)
     else:
