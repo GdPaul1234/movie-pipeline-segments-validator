@@ -33,7 +33,7 @@ def load_new_media(window: sg.Window, _event: str, values: dict[str, Any]):
         config = metadata.config if metadata else values['config']
 
         # init metadata
-        window.metadata = SegmentValidatorContext.init_context(filepath, config)
+        window.metadata = SegmentValidatorContext(filepath, config)
         window.write_event_value(WidgetEvent.VIDEO_LOADED_EVENT.value, True)
         window.write_event_value(WidgetEvent.SEGMENT_IMPORTED_EVENT.value, True)
 
