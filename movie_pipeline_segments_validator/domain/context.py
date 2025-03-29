@@ -13,10 +13,14 @@ from ..settings import Settings
 class SegmentValidatorContext:
     filepath: Path
     config: Settings
-    imported_segments: dict[str, str]
-    media_player: IVideoPlayer = field(repr=False)
+    imported_segments: dict[str, str] = field(init=False)
+    media_player: IVideoPlayer = field(init=False, repr=False)
     segment_container: SegmentContainer = field(default_factory=SegmentContainer)
     selected_segments: list[Segment] = field(default_factory=list)
+
+    def __post_init__(self):
+        self.media_player = SimpleVideoOnlyPlayerConsumer(self.filepath)
+        self.imported_segments = import_segments(self.filepath)
 
     @property
     def position(self) -> float:
@@ -29,18 +33,6 @@ class SegmentValidatorContext:
     @property
     def position_percent(self) -> float:
         return self.position / self.duration
-
-    @classmethod
-    def init_context(cls, filepath: Path, config: Settings):
-        media_player = SimpleVideoOnlyPlayerConsumer(filepath)
-        imported_segments = import_segments(filepath)
-
-        return cls(
-            media_player=media_player,
-            filepath=filepath,
-            imported_segments=imported_segments,
-            config=config
-        )
 
 
 @dataclass
