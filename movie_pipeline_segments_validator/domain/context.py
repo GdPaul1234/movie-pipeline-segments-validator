@@ -1,24 +1,22 @@
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
-
-from ..services.import_segments_from_file import import_segments
 from ..domain.segment_container import Segment, SegmentContainer
 from ..lib.video_player.simple_video_only_player import SimpleVideoOnlyPlayerConsumer
 from ..lib.video_player.video_player import IVideoPlayer
+from ..services.import_segments_from_file import import_segments
 from ..settings import Settings
 
 
-class SegmentValidatorContext(BaseModel):
-    segment_container: SegmentContainer = SegmentContainer()
-    selected_segments: list[Segment] = []
-    imported_segments: dict[str, str]
-    media_player: IVideoPlayer
+@dataclass
+class SegmentValidatorContext:
     filepath: Path
     config: Settings
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    imported_segments: dict[str, str]
+    media_player: IVideoPlayer = field(repr=False)
+    segment_container: SegmentContainer = field(default_factory=SegmentContainer)
+    selected_segments: list[Segment] = field(default_factory=list)
 
     @property
     def position(self) -> float:
@@ -45,11 +43,13 @@ class SegmentValidatorContext(BaseModel):
         )
 
 
-class TimelineSegment(BaseModel):
-    fid: Any = None
+@dataclass
+class TimelineSegment:
     value: Segment
+    fid: Any = None
 
 
-class TimelineContext(BaseModel):
+@dataclass
+class TimelineContext:
     position_handle: Any = None
-    segments: list[TimelineSegment] = []
+    segments: list[TimelineSegment] = field(default_factory=list)
