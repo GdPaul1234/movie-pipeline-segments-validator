@@ -1,14 +1,14 @@
 import logging
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import cast
 
 import ffmpeg
 import PySimpleGUI as sg
 from deffcode import Sourcer
 
+from ...adapters.pysimplegui.config.widget import WidgetEvent
 from .video_player import IVideoPlayer
-from ...domain.widget import WidgetEvent
 
 logger = logging.getLogger(__name__)
 

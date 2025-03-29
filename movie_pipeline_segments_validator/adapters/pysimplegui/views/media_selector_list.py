@@ -2,8 +2,8 @@ from typing import Any
 
 import PySimpleGUI as sg
 
-from ..adapters.pysimplegui.media_selector_list_controller import load_new_media, populate_media_selector, remove_validated_media_from_media_selector, toggle_media_selector_visibility
-from ..domain.widget import WidgetEvent, WidgetKey
+from ..config.widget import WidgetEvent, WidgetKey
+from ..controllers.media_selector_list_controller import load_new_media, populate_media_selector, remove_validated_media_from_media_selector, toggle_media_selector_visibility
 
 
 def layout():

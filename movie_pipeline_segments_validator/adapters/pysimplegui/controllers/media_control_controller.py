@@ -2,9 +2,9 @@ from typing import Any, cast
 
 import PySimpleGUI as sg
 
-from ...domain.context import SegmentValidatorContext
-from ...domain.widget import WidgetEvent, WidgetKey
-from ...lib.util import seconds_to_position
+from ....domain.context import SegmentValidatorContext
+from ....lib.util import seconds_to_position
+from ..config.widget import WidgetEvent, WidgetKey
 
 
 def set_relative_position(window: sg.Window, event: str, _values: dict[str, Any]):

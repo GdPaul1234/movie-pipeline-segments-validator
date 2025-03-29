@@ -2,8 +2,8 @@ from typing import Any
 
 import PySimpleGUI as sg
 
-from ..adapters.pysimplegui.detector_selector_controller import import_segments_from_selected_detector, populate_detector_selector
-from ..domain.widget import WidgetEvent, WidgetKey
+from ..config.widget import WidgetEvent, WidgetKey
+from ..controllers.detector_selector_controller import import_segments_from_selected_detector, populate_detector_selector
 
 handlers = {
     WidgetEvent.SEGMENT_IMPORTED_EVENT: populate_detector_selector,
