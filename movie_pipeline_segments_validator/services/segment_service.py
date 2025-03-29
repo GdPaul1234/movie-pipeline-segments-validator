@@ -33,10 +33,10 @@ def edit_segment(context: SegmentValidatorContext, edge: Literal['start', 'end']
     context.segment_container.edit(context.selected_segments[0], edited_segment)
 
 
-def validate_segments(context: SegmentValidatorContext, title: str, skip_backup=False):
+def validate_segments(context: SegmentValidatorContext):
     return dump_decision_file(
-        title=title,
+        title=context.title,
         source_path=context.filepath,
         segment_container=context.segment_container,
-        skip_backup=skip_backup
+        skip_backup=context.skip_backup
     )
