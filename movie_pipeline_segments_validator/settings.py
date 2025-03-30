@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field
 from pydantic.types import DirectoryPath, FilePath
@@ -10,6 +11,7 @@ class PathSettings(BaseModel):
     title_strategies: Optional[FilePath] = None
     title_re_blacklist: Optional[FilePath] = None
     series_extracted_metadata: Optional[FilePath] = None
+    db_path: Path = Path.home() / '.movie_pipeline_segments_validator' / 'sessions'
 
 
 class MediaSelectorSettings(BaseModel):
