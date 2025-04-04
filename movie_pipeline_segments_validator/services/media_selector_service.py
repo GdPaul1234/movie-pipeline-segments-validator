@@ -2,7 +2,6 @@ from pathlib import Path
 
 from ..domain.context import SegmentValidatorContext
 from ..domain.media_path import MediaPath
-from ..services.edit_decision_file_dumper import extract_title
 from ..settings import Settings
 from .import_segments_from_file import prepend_last_segments_to_segment_file
 

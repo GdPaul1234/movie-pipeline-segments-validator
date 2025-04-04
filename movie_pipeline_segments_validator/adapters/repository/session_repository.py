@@ -36,7 +36,7 @@ def build_media(media: MediaPath, config: Settings):
     return Media(
         filepath=media.path,
         state=media.state,
-        title=title,
+        title=f'{title}.mp4',
         skip_backup=skip_backup,
         imported_segments=imported_segments,
         segments=imported_detector_segments
@@ -75,12 +75,10 @@ class SessionRepository:
 
         return session
 
-    def update_media(self, session_id: str, session_validator_context: SegmentValidatorContext) -> Session | None:
+    def update_media(self, session_id: str, session_validator_context: SegmentValidatorContext) -> Session:
         new_media = Media.from_segment_validator_context(session_validator_context)
 
-        if not (session := self.get(session_id)):
-            return None
-
+        session = self.get(session_id)
         session.updated_at = datetime.datetime.now()
         session.medias = [
             new_media if media.filepath == new_media.filepath else media
