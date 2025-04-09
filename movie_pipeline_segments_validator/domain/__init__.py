@@ -1,6 +1,6 @@
 from schema import Optional, Regex, Schema
 
-FILENAME_REGEX = r"^[\w&àéèï'!()\[\], #-.]+\.mp4$"
+FILENAME_REGEX = r"^[\w&àéèï'!()\[\], #-.:]+\.mp4$"
 STR_SEGMENT_REGEX = r'(?:(?:\d{2}:\d{2}:\d{2}\.\d{2,3})-(?:\d{2}:\d{2}:\d{2}\.\d{2,3}),)+'
 
 edl_content_schema = Schema({

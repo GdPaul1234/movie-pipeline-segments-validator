@@ -61,7 +61,10 @@ class TestSessionRepository(unittest.TestCase):
         # init medias list
         self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in session.medias])
         self.assertEqual(['no_segment', 'waiting_segment_review'], [media.state for media in session.medias])
-        self.assertEqual([{}, json.loads(self.serie_segments_content)], [media.imported_segments for media in session.medias])
+        self.assertEqual([
+            {}, {k: f'{v},' for k, v in json.loads(self.serie_segments_content).items()}],
+            [media.imported_segments for media in session.medias]
+        )
 
         # import saved segments
         video_context = session.medias[0]
@@ -103,7 +106,7 @@ class TestSessionRepository(unittest.TestCase):
 
         serie_context.title = serie_context.title.replace('.mp4', '.invalid_ext')
 
-        expected_error_message = re.escape("String should match pattern '^[\\w&àéèï'!()\\[\\], #-.]+\\.mp4$' [type=string_pattern_mismatch, input_value='Serie Name S01E16.invalid_ext', input_type=str]")
+        expected_error_message = re.escape("String should match pattern '^[\\w&àéèï'!()\\[\\], #-.:]+\\.mp4$' [type=string_pattern_mismatch, input_value='Serie Name S01E16.invalid_ext', input_type=str]")
         with self.assertRaisesRegex(ValidationError, expected_error_message):
             self.session_repository.update_media(session.id, serie_context)
 

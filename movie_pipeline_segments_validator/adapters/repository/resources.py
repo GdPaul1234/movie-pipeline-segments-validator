@@ -27,7 +27,7 @@ class Segment(BaseModel):
 class Media(BaseModel):
     filepath: Annotated[FilePath, Field(description='media file path')]
     state: Annotated[MediaPathState, Field(description='media state')]
-    title: Annotated[str, Field(default='', pattern=FILENAME_REGEX, description='ouput title, must end with .mp4')]
+    title: Annotated[str, Field(default='', pattern=FILENAME_REGEX, description='ouput title, must ends with .mp4')]
     skip_backup: Annotated[bool, Field(default=False, description='skip backup step')]
     imported_segments: Annotated[dict[str, StrSegment], Field(description='imported segments from `{filepath}.segments.json`')]
     segments: Annotated[list[Segment], Field(default_factory=list, description='segments for edit decision list ouput')]

@@ -18,8 +18,15 @@ class MediaSelectorSettings(BaseModel):
     media_extension: str = Field(pattern=r'^\.\w+$', default='.ts')
 
 
+class ServerSettings(BaseModel):
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+    DEBUG_MODE: bool = True
+
+
 class Settings(BaseSettings):
     Paths: PathSettings
     MediaSelector: MediaSelectorSettings = MediaSelectorSettings()
+    Server: ServerSettings = ServerSettings()
 
     model_config = SettingsConfigDict(env_nested_delimiter='__')
