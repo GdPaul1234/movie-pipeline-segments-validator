@@ -17,8 +17,16 @@ def delete_selected_segments(context: SegmentValidatorContext):
 def merge_selected_segments(context: SegmentValidatorContext):
     if len(context.selected_segments) < 2:
         raise ValueError('At least of 2 selected segments are required')
+    
+    start, end = min(context.selected_segments), max(context.selected_segments)
 
-    context.segment_container.merge(context.selected_segments)
+    all_selected_segments = [
+        segment
+        for segment in context.segment_container.segments
+        if start <= segment <= end
+    ]
+
+    context.segment_container.merge(all_selected_segments)
 
 
 def edit_segment(context: SegmentValidatorContext, edge: Literal['start', 'end']):

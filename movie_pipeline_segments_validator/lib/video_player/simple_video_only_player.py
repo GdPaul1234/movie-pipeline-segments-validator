@@ -5,7 +5,6 @@ from typing import cast
 
 import ffmpeg
 import PySimpleGUI as sg
-from deffcode import Sourcer
 
 from ...adapters.pysimplegui.config.widget import WidgetEvent
 from .video_player import IVideoPlayer
@@ -30,6 +29,7 @@ class SimpleVideoOnlyPlayerConsumer(IVideoPlayer):
         if not(custom_ffmpeg := shutil.which('ffmpeg')):
             raise ValueError('ffmpeg is not installed')
 
+        from deffcode import Sourcer
         sourcer = Sourcer(str(source), custom_ffmpeg=custom_ffmpeg).probe_stream()
         self._metadata = cast(dict, sourcer.retrieve_metadata())
         self._duration = self._metadata['source_duration_sec']
@@ -43,7 +43,7 @@ class SimpleVideoOnlyPlayerConsumer(IVideoPlayer):
     def duration(self):
         return self._duration
 
-    def set_position(self, position: float, window: sg.Window):
+    def set_position(self, position: float, window: sg.Window | None=None) -> None:
         self._current_position = position
 
         stream = ffmpeg.input(str(self._source))
@@ -51,14 +51,18 @@ class SimpleVideoOnlyPlayerConsumer(IVideoPlayer):
 
         if self._current_position < 0 or self._current_position >= (self._duration - 1):
             self._current_position = 0.
-            window.write_event_value(WidgetEvent.VIDEO_POSITION_UPDATED_EVENT.value, 0.)
+
+            if window is not None:
+                window.write_event_value(WidgetEvent.VIDEO_POSITION_UPDATED_EVENT.value, 0.)
+
             return
 
         if frame is not None:
             logger.debug(self._current_position)
-            window.write_event_value(WidgetEvent.VIDEO_NEW_FRAME_EVENT.value, (self._size, frame))
-            window.write_event_value(WidgetEvent.VIDEO_POSITION_UPDATED_EVENT.value, self._current_position)
 
-    def set_relative_position(self, delta: float, window: sg.Window):
+            if window is not None:
+                window.write_event_value(WidgetEvent.VIDEO_NEW_FRAME_EVENT.value, (self._size, frame))
+                window.write_event_value(WidgetEvent.VIDEO_POSITION_UPDATED_EVENT.value, self._current_position)
+
+    def set_relative_position(self, delta: float, window: sg.Window | None=None) -> None:
         self.set_position(self._current_position + delta, window)
-

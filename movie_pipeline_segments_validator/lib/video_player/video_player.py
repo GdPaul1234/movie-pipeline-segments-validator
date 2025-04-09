@@ -16,8 +16,8 @@ class IVideoPlayer(ABC):
     def duration(self) -> float:
         ...
 
-    def set_position(self, position: float, window: sg.Window) -> None:
+    def set_position(self, position: float, window: sg.Window | None=None) -> None:
         ...
 
-    def set_relative_position(self, delta: float, window: sg.Window):
+    def set_relative_position(self, delta: float, window: sg.Window | None=None) -> None:
         ...
