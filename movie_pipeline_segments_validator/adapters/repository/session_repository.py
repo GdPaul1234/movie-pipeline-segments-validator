@@ -3,11 +3,11 @@ import dbm
 import logging
 import uuid
 from itertools import islice
-from pathlib import Path
 from typing import Any
 
 import yaml
 from pydantic import TypeAdapter
+from pydantic.types import DirectoryPath
 
 from ...adapters.repository.resources import Media, Segment, Session
 from ...domain.context import SegmentValidatorContext
@@ -28,7 +28,12 @@ def build_media(media: MediaPath, config: Settings):
     title = eld_file_content.get('filename', extract_title(media.path, config))
     skip_backup = eld_file_content.get('skip_backup', False)
 
-    imported_segments = import_segments(media.path)
+    imported_segments = { 
+        k: f"{v.removesuffix(',')}," 
+        for k, v in import_segments(media.path).items()
+        if v != ''
+    }
+
     raw_segments = items[0][1] if len(
         items := list(imported_segments.items())) > 0 else ''
     imported_detector_segments = [Segment(start=segment[0], end=segment[1]) for segment in MovieSegments(raw_segments).segments]
@@ -48,7 +53,7 @@ class SessionRepository:
         self._config = config
         self._session_type_adapter = TypeAdapter(Session)
 
-    def create(self, root_path: Path) -> Session:
+    def create(self, root_path: DirectoryPath) -> Session:
         new_session = Session(
             id=uuid.uuid4().hex,
             created_at=datetime.datetime.now(),
