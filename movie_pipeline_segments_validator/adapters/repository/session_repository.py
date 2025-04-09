@@ -59,7 +59,10 @@ class SessionRepository:
             created_at=datetime.datetime.now(),
             updated_at=datetime.datetime.now(),
             root_path=root_path,
-            medias=[build_media(media, self._config) for media in list_medias(root_path, self._config)]
+            medias={
+                media.path.stem: build_media(media, self._config)
+                for media in list_medias(root_path, self._config)
+            }
         )
 
         with dbm.open(self._config.Paths.db_path, 'c') as db:
@@ -85,10 +88,10 @@ class SessionRepository:
 
         session = self.get(session_id)
         session.updated_at = datetime.datetime.now()
-        session.medias = [
-            new_media if media.filepath == new_media.filepath else media
-            for media in session.medias
-        ]
+        session.medias = {
+            k: new_media if media.filepath == new_media.filepath else media
+            for k, media in session.medias.items()
+        }
 
         return self.set(session)
 

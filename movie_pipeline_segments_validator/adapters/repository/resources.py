@@ -63,4 +63,4 @@ class Session(BaseModel):
     created_at: PastDatetime
     updated_at: PastDatetime
     root_path: Annotated[DirectoryPath, Field(description='root path for medias')]
-    medias: Annotated[list[Media], Field(description='medias in root_path to process')]
+    medias: Annotated[dict[str, Media], Field(description='medias in root_path to process indexed by stem (filename without extension)')]
