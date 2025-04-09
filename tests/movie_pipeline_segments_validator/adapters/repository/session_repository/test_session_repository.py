@@ -59,15 +59,15 @@ class TestSessionRepository(unittest.TestCase):
         self.assertTrue(self.config.Paths.db_path.with_suffix('.dat').is_file())
 
         # init medias list
-        self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in session.medias])
-        self.assertEqual(['no_segment', 'waiting_segment_review'], [media.state for media in session.medias])
+        self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in session.medias.values()])
+        self.assertEqual(['no_segment', 'waiting_segment_review'], [media.state for media in session.medias.values()])
         self.assertEqual([
             {}, {k: f'{v},' for k, v in json.loads(self.serie_segments_content).items()}],
-            [media.imported_segments for media in session.medias]
+            [media.imported_segments for media in session.medias.values()]
         )
 
         # import saved segments
-        video_context = session.medias[0]
+        video_context = session.medias[self.video_path.stem]
         self.assertEqual({}, video_context.imported_segments)
 
 
@@ -85,7 +85,7 @@ class TestSessionRepository(unittest.TestCase):
 
     def test_update_media_valid(self):
         session = self.session_repository.create(self.input_dir_path)
-        serie_context = session.medias[1].to_segment_validator_context(self.config)
+        serie_context = session.medias[self.serie_path.stem].to_segment_validator_context(self.config)
 
         segment_container = SegmentContainer()
         segment_container.add(Segment(start=1526, end=3246))
@@ -95,14 +95,14 @@ class TestSessionRepository(unittest.TestCase):
 
         updated_session = self.session_repository.update_media(session.id, serie_context)
 
-        updated_serie_media = updated_session.medias[1]
+        updated_serie_media = updated_session.medias[self.serie_path.stem]
         self.assertEqual('segment_reviewed', updated_serie_media.state)
         self.assertEqual([MediaSegment(start=1526, end=3246)], updated_serie_media.segments)
 
 
     def test_update_media_invalid(self):
         session = self.session_repository.create(self.input_dir_path)
-        serie_context = session.medias[1].to_segment_validator_context(self.config)
+        serie_context = session.medias[self.serie_path.stem].to_segment_validator_context(self.config)
 
         serie_context.title = serie_context.title.replace('.mp4', '.invalid_ext')
 
