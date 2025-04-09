@@ -5,7 +5,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 
-from ...adapters.repository.resources import Session
+from ...adapters.repository.resources import Media, Session
 from ...adapters.repository.session_repository import SessionRepository
 from ...settings import Settings
 
@@ -40,3 +40,7 @@ def get_media(session: Annotated[Session, Depends(get_session)], media_stem: str
         return session.medias[media_stem]
     except KeyError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Media '{e.args[0]}' not found")
+
+
+def get_segment_validator_context(media: Annotated[Media, Depends(get_media)], config: Annotated[Settings, Depends(get_settings)]):
+    return media.to_segment_validator_context(config)
