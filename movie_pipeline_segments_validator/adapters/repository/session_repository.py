@@ -88,10 +88,7 @@ class SessionRepository:
 
         session = self.get(session_id)
         session.updated_at = datetime.datetime.now()
-        session.medias = {
-            k: new_media if media.filepath == new_media.filepath else media
-            for k, media in session.medias.items()
-        }
+        session.medias[new_media.filepath.stem] = new_media
 
         return self.set(session)
 
