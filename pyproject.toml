@@ -1,13 +1,16 @@
-[tool.poetry]
+[project]
 name = "movie-pipeline-segments-validator"
-version = "0.1.42"
+version = "0.2.0"
 description = "A simple GUI to validate detected segments and to generate edit decision files for movie-pipeline"
-authors = ["GdPaul1234 <paul.godin1234@outlook.fr>"]
 readme = "README.md"
-packages = [{include = "movie_pipeline_segments_validator"}]
+authors = [{email = "GdPaul1234 <paul.godin1234@outlook.fr>"}]
 
-[tool.poetry.scripts]
+[project.scripts]
 movie_pipeline_segments_validator = "movie_pipeline_segments_validator.app:main"
+movie_pipeline_segments_validator_server = "movie_pipeline_segments_validator.adapters.http.main:run_server"
+
+[tool.poetry]
+packages = [{include = "movie_pipeline_segments_validator"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

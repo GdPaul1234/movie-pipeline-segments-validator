@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from pathlib import Path
 from typing import Annotated
 
 from pydantic import BaseModel, Field, PastDatetime, computed_field
@@ -15,22 +16,42 @@ StrSegment = Annotated[str, Field(pattern=STR_SEGMENT_REGEX)]
 
 
 class Segment(BaseModel):
-    start: Annotated[NonNegativeFloat, Field(description='segment start position in seconds')]
-    end: Annotated[NonNegativeFloat, Field(description='segment end position in seconds')]
+    start: Annotated[NonNegativeFloat, Field(description='segment start position in seconds', examples=[1526])]
+    end: Annotated[NonNegativeFloat, Field(description='segment end position in seconds', examples=[3246])]
 
-    @computed_field
+    @computed_field(description='segment duration in seconds', examples=[1720])
     @property
     def duration(self) -> float:
         return self.end - self.start
 
 
 class Media(BaseModel):
-    filepath: Annotated[FilePath, Field(description='media file path')]
+    filepath: Annotated[
+        FilePath,
+        Field(description='media file path', examples=[r'V:\PVR\Channel 1_Movie Name_2022-12-05-2203-20.ts'])
+    ]
     state: Annotated[MediaPathState, Field(description='media state')]
-    title: Annotated[str, Field(default='', pattern=FILENAME_REGEX, description='ouput title, must ends with .mp4')]
+    title: Annotated[
+        str,
+        Field(
+            default='',
+            pattern=FILENAME_REGEX,
+            description='output title, must ends with .mp4',
+            examples=['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4']
+        )
+    ]
     skip_backup: Annotated[bool, Field(default=False, description='skip backup step')]
-    imported_segments: Annotated[dict[str, StrSegment], Field(description='imported segments from `{filepath}.segments.json`')]
-    segments: Annotated[list[Segment], Field(default_factory=list, description='segments for edit decision list ouput')]
+    imported_segments: Annotated[
+        dict[str, StrSegment],
+        Field(
+            description='imported segments from `{filepath}.segments.json`',
+            examples=[{
+                "result_2024-10-05T11:40:39.732479": "00:25:26.000-00:34:06.000,00:40:10.000-01:01:23.000,01:07:34.000-01:17:59.000",
+                "auto": "00:00:00.000-01:05:54.840,00:42:38.980-01:49:59.300,01:05:54.840-01:49:59.300"
+            }]
+        )
+    ]
+    segments: Annotated[list[Segment], Field(default_factory=list, description='segments for edit decision list output')]
 
     def to_segment_validator_context(self, config: Settings):
         segment_container = SegmentContainer()
@@ -62,5 +83,5 @@ class Session(BaseModel):
     id: Annotated[str, Field(description='session id')]
     created_at: PastDatetime
     updated_at: PastDatetime
-    root_path: Annotated[DirectoryPath, Field(description='root path for medias')]
-    medias: Annotated[dict[str, Media], Field(description='medias in root_path to process indexed by stem (filename without extension)')]
+    root_path: Annotated[DirectoryPath, Field(description='root path for medias', examples=[r'V:\PVR'])]
+    medias: Annotated[dict[str, Media], Field(description='medias to process in root_path indexed by stem (filename without extension)')]
