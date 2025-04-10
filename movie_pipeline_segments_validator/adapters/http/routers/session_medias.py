@@ -25,7 +25,13 @@ def show_media(
 
 
 class ValidateSegmentsOut(BaseModel):
-    edl_path: Annotated[FilePath, Field(description='Movie Pipeline EDL (Edit Decision List) file location')]
+    edl_path: Annotated[
+        FilePath,
+        Field(
+            description='Movie Pipeline EDL (Edit Decision List) file location',
+            examples=[r'V:\PVR\Channel 1_Movie Name_2022-12-05-2203-20.ts.yml']
+        )
+    ]
 
 
 @router.post('/{media_stem}/validate_segments')

@@ -15,7 +15,7 @@ router = APIRouter(
 
 
 class SessionCreateBody(BaseModel):
-    root_path: Annotated[DirectoryPath, Field(description='root path for medias')]
+    root_path: Annotated[DirectoryPath, Field(description='root path for medias', examples=[r'V:\PVR'])]
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED)

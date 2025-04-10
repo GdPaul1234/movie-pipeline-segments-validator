@@ -17,6 +17,9 @@ Just run ```python segment_validator.py```, choose a file or a folder to review 
 
 ![Reviewing movie segments with movie pipeline segments validator](screenshot.png)
 
+An API is also available. Run ```python server.py```, and open [http://localhost:8000/docs](http://localhost:8000/docs)
+to access the built-in documentation.
+
 ### Requirements
 
 A video MUST meet the following requirements to be processed by this program.
@@ -56,8 +59,17 @@ Given a video named `Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts`:
 
 ## Release History
 
+- V0.2.0
+  - Introduce new API for headless segment validations. Documentation is available at localhost:8000/docs
+
+- V0.1.4
+  - Deprecate pysimplegui renderer
+
+- V0.1.3
+  - Create movie_pipeline_segment_validator package
+
 - V0.1.2
-  - Update the title extractor to the last version.
+  - Update the title extractor to the latest version.
     - Given a file containing the series name and the name of each episode with the formatted episode number,
         the title extractor can derive the formatted episode number of the series
         from the extracted episode name of the video.
