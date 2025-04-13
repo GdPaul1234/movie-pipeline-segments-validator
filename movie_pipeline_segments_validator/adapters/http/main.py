@@ -1,5 +1,6 @@
 import os
 from importlib.metadata import metadata, version
+from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI
@@ -13,7 +14,7 @@ from .routers import session_medias, sessions
 def run_server():
     cwd = os.getcwd()
     config = get_settings()
-    os.chdir(cwd)
+    os.chdir(Path(__file__).parent.parent.parent if config.Server.DEBUG_MODE else cwd)
 
     uvicorn.run(
         'movie_pipeline_segments_validator.adapters.http.main:app',
@@ -27,7 +28,7 @@ app = FastAPI(
     title="movie-pipeline-segments-validator",
     version=version('movie_pipeline_segments_validator'),
     summary='A simple API to validate detected segments and generate edit decision files for movie-pipeline',
-    description='\n'.join(metadata('movie_pipeline_segments_validator')['Description'].splitlines()[4:]).strip()
+    description='\n'.join(metadata('movie_pipeline_segments_validator')['Description'].splitlines()[22:]).strip()
 )
 
 app.add_middleware(GZipMiddleware)
