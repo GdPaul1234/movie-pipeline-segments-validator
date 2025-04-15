@@ -42,4 +42,4 @@ def validate_media_segments(
     if (eld_path := segment_service.validate_segments(segment_validator_context)) is not None:
         return ValidateSegmentsOut(edl_path=eld_path)
 
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='EDL content is invalid')
+    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='EDL content is invalid')
