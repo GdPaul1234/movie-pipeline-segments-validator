@@ -1,14 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+import ffmpeg
+from fastapi import APIRouter, Depends, HTTPException, Path, Response, status
 from pydantic import BaseModel, Field
-from pydantic.types import FilePath
-
-from movie_pipeline_segments_validator.services import segment_service
+from pydantic.types import FilePath, NonNegativeFloat
 
 from ....adapters.http.dependencies import get_media, get_segment_validator_context
 from ....adapters.repository.resources import Media
 from ....domain.context import SegmentValidatorContext
+from ....lib.video_player.simple_video_only_player import extract_frame
+from ....services import segment_service
 
 router = APIRouter(
     prefix='/sessions/{session_id}/medias',
@@ -43,3 +44,18 @@ def validate_media_segments(
         return ValidateSegmentsOut(edl_path=eld_path)
 
     raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='EDL content is invalid')
+
+
+@router.get('/{media_stem}/frames/{position_s}s')
+def show_video_frame(
+    media_stem: Annotated[str, Path(title='media stem (filename without extension)')],
+    position_s: Annotated[NonNegativeFloat, Path(title='position in seconds')],
+    segment_validator_context: Annotated[SegmentValidatorContext, Depends(get_segment_validator_context)]
+):
+    try:
+        stream = ffmpeg.input(str(segment_validator_context.filepath))
+        frame = extract_frame(stream, position_s, vcodec='mjpeg')
+        return Response(content=frame, media_type='image/jpeg')
+
+    except ffmpeg.Error as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=e.stderr)
