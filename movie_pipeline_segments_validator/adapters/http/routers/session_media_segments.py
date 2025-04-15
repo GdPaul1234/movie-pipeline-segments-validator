@@ -81,7 +81,7 @@ def edit_segment(
         return session_repository.update_media(session.id, segment_validator_context).medias[media_stem]
 
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.args[0])
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=e.args[0])
 
 
 class SegmentsDeleteBody(BaseModel):
