@@ -34,8 +34,7 @@ def build_media(media: MediaPath, config: Settings):
         if v != ''
     }
 
-    raw_segments = items[0][1] if len(
-        items := list(imported_segments.items())) > 0 else ''
+    raw_segments = items[0][1] if len(items := list(imported_segments.items())) > 0 else ''
     imported_detector_segments = [Segment(start=segment[0], end=segment[1]) for segment in MovieSegments(raw_segments).segments]
 
     return Media(
