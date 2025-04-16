@@ -1,17 +1,16 @@
-import json
 import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from types import SimpleNamespace
+from typing import Any, cast
 
-import yaml
 from schema import Schema
 
 from ..lib.title_extractor.title_cleaner import TitleCleaner
 from ..lib.title_extractor.title_extractor import ITitleExtractor
 from ..lib.title_extractor.title_serie_extractor import extract_title_serie_episode_from_metadata
-from movie_pipeline_segments_validator.settings import Settings
+from ..settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -41,23 +40,10 @@ class TitleStrategyContext:
 
 
 def get_title_strategy_context(config: Settings) -> TitleStrategyContext:
-    title_strategies_path = config.Paths.title_strategies
-    series_extracted_metadata_path = config.Paths.series_extracted_metadata
+    titles_strategies = title_strategies_schema.validate(config.PathsContent.title_strategies or {})
+    series_extracted_metadata = config.PathsContent.series_extracted_metadata or {}
 
-    if title_strategies_path is not None:
-        titles_strategies = yaml.safe_load(title_strategies_path.read_text('utf-8'))
-        titles_strategies = title_strategies_schema.validate(titles_strategies)
-    else:
-        titles_strategies = {}
-
-    if series_extracted_metadata_path is not None:
-        series_extracted_metadata = json.loads(series_extracted_metadata_path.read_text(encoding='utf-8'))
-    else:
-        series_extracted_metadata = {}
-
-    if (blacklist_path := config.Paths.title_re_blacklist) is not None:
-        title_cleaner = TitleCleaner(blacklist_path)
-    else:
-        raise FileNotFoundError(blacklist_path)
+    blacklist_path = cast(Path, SimpleNamespace(read_text=lambda: config.PathsContent.title_re_blacklist or ''))
+    title_cleaner = TitleCleaner(blacklist_path)
 
     return TitleStrategyContext(titles_strategies, series_extracted_metadata, title_cleaner)
