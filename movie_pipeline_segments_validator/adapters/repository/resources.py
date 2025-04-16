@@ -33,15 +33,15 @@ class Media(BaseModel):
     state: Annotated[
         MediaPathState,
         Field(
-        description=textwrap.dedent('''
-            media state:
-              * `waiting_metadata` - No metadata file exists
-              * `no_segment` - Metadata file exists, but no segments file exists 
-              * `waiting_segment_review` - Both metadata and segments files exist but no review
-              * `segment_reviewed` - Segments have been reviewed
-              * `media_processing` - Processing is in progress
-              * `media_processed` -  Processing is complete
-        ''')
+            description=textwrap.dedent('''
+                media state:
+                * `waiting_metadata` - No metadata file exists
+                * `no_segment` - Metadata file exists, but no segments file exists 
+                * `waiting_segment_review` - Both metadata and segments files exist but no review
+                * `segment_reviewed` - Segments have been reviewed
+                * `media_processing` - Processing is in progress
+                * `media_processed` -  Processing is complete
+            ''')
         )
     ]
     title: Annotated[
