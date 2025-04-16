@@ -1,4 +1,5 @@
 from abc import ABC
+from functools import lru_cache
 from pathlib import Path
 import json
 import re
@@ -10,7 +11,8 @@ title_pattern = re.compile(r"_([\w&àéèï'!., ()\[\]#-]+)_")
 forbidden_char_pattern = re.compile(r'[\/:*?<>|"]')
 
 
-def load_metadata(movie_path: Path):
+@lru_cache
+def load_metadata(movie_path: Path, cache_busting_key: int):
     movie_metadata_path = movie_path.with_suffix(f'{movie_path.suffix}.metadata.json')
 
     if movie_metadata_path.exists():
@@ -21,12 +23,12 @@ class ITitleExtractor(ABC):
     def __init__(self, title_cleaner: TitleCleaner) -> None:
         self._cleaner = title_cleaner
 
-    def extract_title(self, movie_path: Path) -> str:
+    def extract_title(self, movie_path: Path, cache_busting_key=0) -> str:
         ...
 
 
 class NaiveTitleExtractor(ITitleExtractor):
-    def extract_title(self, movie_path: Path) -> str:
+    def extract_title(self, movie_path: Path, cache_busting_key=0) -> str:
         return self._cleaner.clean_title(naive_title(movie_path, None, title_pattern=title_pattern))
 
 
@@ -34,8 +36,8 @@ class SubtitleTitleExpanderExtractor(ITitleExtractor):
     title_pattern = re.compile(r"([^.]+)\.")
     episode_pattern = re.compile(r". '([^']+)'")
 
-    def extract_title(self, movie_path: Path) -> str:
-        metadata = load_metadata(movie_path)
+    def extract_title(self, movie_path: Path, cache_busting_key=0) -> str:
+        metadata = load_metadata(movie_path, cache_busting_key)
         return self._cleaner.clean_title(expanded_subtitle_title(movie_path, metadata, base_title_pattern=title_pattern, title_pattern=self.title_pattern, episode_pattern=self.episode_pattern))
 
 
@@ -43,8 +45,8 @@ class SerieSubTitleAwareTitleExtractor(ITitleExtractor):
     episode_extractor_params = ('sub_title', re.compile(r'(\d+)[/-]\d+'))
     season_extractor_params = ('sub_title', re.compile(r'Saison (\d+)'))
 
-    def extract_title(self, movie_path: Path) -> str:
-        metadata = load_metadata(movie_path)
+    def extract_title(self, movie_path: Path, cache_busting_key=0) -> str:
+        metadata = load_metadata(movie_path, cache_busting_key)
         return self._cleaner.clean_title(subtitle_aware_title(movie_path, metadata, title_pattern=title_pattern, episode_extractor_params=self.episode_extractor_params, season_extractor_params=self.season_extractor_params))
 
 
@@ -52,6 +54,6 @@ class SerieTitleAwareTitleExtractor(ITitleExtractor):
     episode_extractor_params = ('title', re.compile(r'(\d+)-\d+'))
     season_extractor_params = ('title', re.compile(r'Saison (\d+)'))
 
-    def extract_title(self, movie_path: Path) -> str:
-        metadata = load_metadata(movie_path)
+    def extract_title(self, movie_path: Path, cache_busting_key=0) -> str:
+        metadata = load_metadata(movie_path, cache_busting_key)
         return self._cleaner.clean_title(subtitle_aware_title(movie_path, metadata, title_pattern=title_pattern, episode_extractor_params=self.episode_extractor_params, season_extractor_params=self.season_extractor_params))

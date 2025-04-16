@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 import json
+import time
 import unittest
 
 from movie_pipeline_segments_validator.lib.title_extractor.title_cleaner import TitleCleaner
@@ -36,14 +37,14 @@ class TestTitleExtractor(unittest.TestCase):
     def test_movie_naive_title_extractor(self):
         movie_file_path = movie_metadata_path.with_name(movie_metadata_path.name.removesuffix('.metadata.json'))
         title_extractor = NaiveTitleExtractor(default_title_cleaner)
-        extracted_title = title_extractor.extract_title(movie_file_path)
+        extracted_title = title_extractor.extract_title(movie_file_path, cache_busting_key=int(time.time() * 1000))
 
         self.assertEqual('Movie Name', extracted_title)
 
     def test_serie_naive_title_extractor(self):
         serie_file_path = serie_metadata_path.with_name(serie_metadata_path.name.removesuffix('.metadata.json'))
         title_extractor = NaiveTitleExtractor(default_title_cleaner)
-        extracted_title = title_extractor.extract_title(serie_file_path)
+        extracted_title = title_extractor.extract_title(serie_file_path, cache_busting_key=int(time.time() * 1000))
 
         self.assertEqual("Serie Name. 'Title...", extracted_title)
 
@@ -55,7 +56,7 @@ class TestTitleExtractor(unittest.TestCase):
 
         with file_path_with_metadata_content(content, movie_metadata_path) as movie_file_path:
             title_extractor = SubtitleTitleExpanderExtractor(default_title_cleaner)
-            extracted_title = title_extractor.extract_title(movie_file_path)
+            extracted_title = title_extractor.extract_title(movie_file_path, cache_busting_key=int(time.time() * 1000))
             self.assertEqual("Movie Name, le titre long", extracted_title)
 
     def test_serie_subtitle_title_expander_title_extractor(self):
@@ -66,7 +67,7 @@ class TestTitleExtractor(unittest.TestCase):
 
         with file_path_with_metadata_content(content, serie_metadata_path) as serie_file_path:
             title_extractor = SubtitleTitleExpanderExtractor(default_title_cleaner)
-            extracted_title = title_extractor.extract_title(serie_file_path)
+            extracted_title = title_extractor.extract_title(serie_file_path, cache_busting_key=int(time.time() * 1000))
             self.assertEqual("Serie Name__Title overflow!", extracted_title)
 
     def test_serie_subtitle_aware_title_extractor(self):
@@ -79,7 +80,7 @@ class TestTitleExtractor(unittest.TestCase):
 
         with file_path_with_metadata_content(content, test_serie_metadata_path) as serie_file_path:
             title_extractor = SerieSubTitleAwareTitleExtractor(default_title_cleaner)
-            extracted_title = title_extractor.extract_title(serie_file_path)
+            extracted_title = title_extractor.extract_title(serie_file_path, cache_busting_key=int(time.time() * 1000))
             self.assertEqual("Serie Name S01E16", extracted_title)
 
     def test_serie_title_aware_title_extractor(self):
@@ -92,7 +93,7 @@ class TestTitleExtractor(unittest.TestCase):
 
         with file_path_with_metadata_content(content, test_serie_metadata_path) as serie_file_path:
             title_extractor = SerieTitleAwareTitleExtractor(default_title_cleaner)
-            extracted_title = title_extractor.extract_title(serie_file_path)
+            extracted_title = title_extractor.extract_title(serie_file_path, cache_busting_key=int(time.time() * 1000))
             self.assertEqual("Serie Name S01E02", extracted_title)
 
     def test_serie_title_aware_title_with_season_extractor(self):
@@ -105,7 +106,7 @@ class TestTitleExtractor(unittest.TestCase):
 
         with file_path_with_metadata_content(content, test_serie_metadata_path) as serie_file_path:
             title_extractor = SerieTitleAwareTitleExtractor(default_title_cleaner)
-            extracted_title = title_extractor.extract_title(serie_file_path)
+            extracted_title = title_extractor.extract_title(serie_file_path, cache_busting_key=int(time.time() * 1000))
             self.assertEqual("Serie Name S02E04", extracted_title)
 
     def test_extract_serie_title_from_series_extracted_metadata(self):
