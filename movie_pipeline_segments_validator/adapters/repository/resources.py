@@ -10,6 +10,7 @@ from ...domain.context import SegmentValidatorContext
 from ...domain.media_path import MediaPath, MediaPathState
 from ...domain.segment_container import Segment as SegmentContainerSegment
 from ...domain.segment_container import SegmentContainer
+from ...lib.video_player.simple_video_only_player import NoOpVideoPositionForwarder
 from ...settings import Settings
 
 StrSegment = Annotated[str, Field(pattern=STR_SEGMENT_REGEX)]
@@ -75,6 +76,7 @@ class Media(BaseModel):
         return SegmentValidatorContext(
             filepath=self.filepath,
             config=config,
+            media_player=NoOpVideoPositionForwarder(self.filepath),
             title=self.title,
             skip_backup=self.skip_backup,
             segment_container=segment_container

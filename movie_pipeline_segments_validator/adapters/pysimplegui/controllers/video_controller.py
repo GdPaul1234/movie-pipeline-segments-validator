@@ -12,7 +12,7 @@ from ..config.widget import WidgetEvent, WidgetKey
 @throttle(2)
 def _rerender_video_after_resizing(window: sg.Window):
     metadata = cast(SegmentValidatorContext, window.metadata)
-    metadata.media_player.set_position(metadata.position, window)
+    metadata.media_player.set_position(metadata.position, window=window)
 
 
 def _compute_size(window: sg.Window, size: tuple[int, int]):

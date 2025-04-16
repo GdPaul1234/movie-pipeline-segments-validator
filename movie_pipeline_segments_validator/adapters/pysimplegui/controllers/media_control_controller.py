@@ -26,7 +26,10 @@ def goto_selected_segment(window: sg.Window, event: str, _values: dict[str, Any]
         return
 
     _, position = event.split('::')
-    window.perform_long_operation(lambda: player.set_position(getattr(selected_segments[0], position), window), WidgetEvent.TASK_DONE_EVENT.value)
+    window.perform_long_operation(
+        lambda: player.set_position(getattr(selected_segments[0], position), window=window), 
+        WidgetEvent.TASK_DONE_EVENT.value
+    )
 
 
 def set_video_information(window: sg.Window, _event: str, _values: dict[str, Any]):
