@@ -4,6 +4,7 @@ from typing import Any, cast
 import PySimpleGUI as sg
 
 from ....domain.context import SegmentValidatorContext
+from ....lib.video_player.simple_video_only_player import SgVideoOnlyPlayerConsumer
 from ....services import media_selector_service
 from ..config.widget import WidgetEvent, WidgetKey
 from ..views.texts import TEXTS
@@ -32,7 +33,7 @@ def load_new_media(window: sg.Window, _event: str, values: dict[str, Any]):
         config = metadata.config if metadata else values['config']
 
         # init metadata
-        window.metadata = SegmentValidatorContext(filepath, config)
+        window.metadata = SegmentValidatorContext(filepath, config, SgVideoOnlyPlayerConsumer(filepath))
         window.write_event_value(WidgetEvent.VIDEO_LOADED_EVENT.value, True)
         window.write_event_value(WidgetEvent.SEGMENT_IMPORTED_EVENT.value, True)
 

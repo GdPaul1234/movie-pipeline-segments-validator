@@ -5,7 +5,6 @@ from typing import Any
 from movie_pipeline_segments_validator.services.edit_decision_file_dumper import extract_title
 
 from ..domain.segment_container import Segment, SegmentContainer
-from ..lib.video_player.simple_video_only_player import SimpleVideoOnlyPlayerConsumer
 from ..lib.video_player.video_player import IVideoPlayer
 from ..services.import_segments_from_file import import_segments
 from ..settings import Settings
@@ -15,15 +14,14 @@ from ..settings import Settings
 class SegmentValidatorContext:
     filepath: Path
     config: Settings
+    media_player: IVideoPlayer = field(repr=False)
     title: str = ''
     skip_backup: bool = False
     imported_segments: dict[str, str] = field(init=False)
     segment_container: SegmentContainer = field(default_factory=SegmentContainer)
-    media_player: IVideoPlayer = field(init=False, repr=False)
     selected_segments: list[Segment] = field(default_factory=list)
 
     def __post_init__(self):
-        self.media_player = SimpleVideoOnlyPlayerConsumer(self.filepath)
         self.imported_segments = import_segments(self.filepath)
 
         if self.title == '':

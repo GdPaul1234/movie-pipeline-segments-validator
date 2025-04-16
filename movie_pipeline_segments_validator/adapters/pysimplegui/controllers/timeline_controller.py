@@ -10,7 +10,7 @@ from ..config.widget import WidgetKey
 
 @debounce(0.1)
 def _seek_to_position(media_player: IVideoPlayer, new_position: float, window: sg.Window):
-    media_player.set_position(new_position, window)
+    media_player.set_position(new_position, window=window)
 
 
 def init_timeline_slider(window: sg.Window, _event: str, _values: dict[str, Any]):
