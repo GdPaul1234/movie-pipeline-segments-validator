@@ -1,5 +1,4 @@
 import os
-from functools import cache
 from pathlib import Path
 from typing import Annotated
 
@@ -10,8 +9,7 @@ from ...adapters.repository.session_repository import SessionRepository
 from ...settings import Settings
 
 
-@cache
-def get_settings():
+def get_config_path():
     config_path = Path(os.getenv('CONFIG_PATH', default=Path.home() / '.movie_pipeline_segments_validator' / 'config.env'))
     
     if not config_path.is_file():
@@ -19,9 +17,12 @@ def get_settings():
         config_path.write_text('')
 
     os.chdir(config_path.parent)
-    settings = Settings(_env_file=config_path, _env_file_encoding='utf-8')  # type: ignore
 
-    return settings
+    return config_path
+
+
+def get_settings(config_path: Annotated[Path, Depends(get_config_path)]):    
+    return Settings(_env_file=config_path, _env_file_encoding='utf-8')  # type: ignore
 
 
 def get_session_repository(config: Annotated[Settings, Depends(get_settings)]):

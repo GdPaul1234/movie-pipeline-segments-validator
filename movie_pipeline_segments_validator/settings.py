@@ -21,7 +21,7 @@ class MediaSelectorSettings(BaseModel):
 class ServerSettings(BaseModel):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
-    DEBUG_MODE: bool = True
+    DEBUG_MODE: bool = False
 
 
 class Settings(BaseSettings):
