@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ..domain.context import SegmentValidatorContext
-from ..domain.media_path import MediaPath
+from ..domain.media_path import MediaPath, cache_media_dir_entries
 from ..settings import Settings
 from .import_segments_from_file import prepend_last_segments_to_segment_file
 
@@ -25,10 +25,11 @@ def prefill_name(context: SegmentValidatorContext):
 
 
 def list_medias(filepath: Path, config: Settings) -> list[MediaPath]:
-    paths = [filepath] if filepath.is_file() \
-        else filepath.glob(f'*{config.MediaSelector.media_extension}')
+    paths = [filepath] if filepath.is_file() else filepath.glob(f'*{config.MediaSelector.media_extension}')
+    root_path = filepath.parent if filepath.is_file() else filepath
+    cached_media_dir_entries = cache_media_dir_entries(root_path, media_ext=config.MediaSelector.media_extension)
 
     return sorted(
-        (MediaPath(path) for path in paths),
+        (MediaPath(path, cached_media_dir_entries) for path in paths),
         key=lambda media_path: media_path.path.name
     )
