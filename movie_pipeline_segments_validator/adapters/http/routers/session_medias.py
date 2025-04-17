@@ -1,12 +1,12 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 import ffmpeg
 from fastapi import APIRouter, Depends, HTTPException, Path, Response, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 from pydantic.types import FilePath, NonNegativeFloat
 
 from ....adapters.http.dependencies import get_media, get_segment_validator_context
-from ....adapters.repository.resources import Media
+from ....adapters.repository.resources import Media, MediaMetadata
 from ....domain.context import SegmentValidatorContext
 from ....lib.video_player.simple_video_only_player import extract_frame
 from ....services import segment_service
@@ -17,12 +17,26 @@ router = APIRouter(
 )
 
 
+class MediaShowOut(BaseModel):
+    media: Annotated[Media, Field(description='media')]
+    
+    @computed_field(description='media duration in seconds')
+    @property
+    def duration(self) -> float:
+        return self.media.duration
+    
+    @computed_field(description='media recording metadata')
+    @property
+    def recording_metadata(self) -> Optional[MediaMetadata]:
+        return self.media.metadata
+
+
 @router.get('/{media_stem}')
 def show_media(
     media_stem: Annotated[str, Path(title='media stem (filename without extension)')],
     media: Annotated[Media, Depends(get_media)]
-) -> Media:
-    return media
+) -> MediaShowOut:
+    return MediaShowOut(media=media)
 
 
 class ValidateSegmentsOut(BaseModel):

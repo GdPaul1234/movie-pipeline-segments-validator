@@ -1,8 +1,8 @@
 import textwrap
 from dataclasses import asdict
-from typing import Annotated
+from typing import Annotated, Optional
 
-from pydantic import BaseModel, Field, PastDatetime, computed_field
+from pydantic import BaseModel, Field, PastDatetime, TypeAdapter, computed_field
 from pydantic.types import DirectoryPath, FilePath, NonNegativeFloat
 
 from ...domain import FILENAME_REGEX, STR_SEGMENT_REGEX
@@ -10,6 +10,8 @@ from ...domain.context import SegmentValidatorContext
 from ...domain.media_path import MediaPath, MediaPathState
 from ...domain.segment_container import Segment as SegmentContainerSegment
 from ...domain.segment_container import SegmentContainer
+from ...lib.title_extractor.title_extractor import load_metadata
+from ...lib.util import total_movie_duration
 from ...lib.video_player.simple_video_only_player import NoOpVideoPositionForwarder
 from ...settings import Settings
 
@@ -24,6 +26,19 @@ class Segment(BaseModel):
     @property
     def duration(self) -> float:
         return self.end - self.start
+
+
+class MediaMetadata(BaseModel):
+    basename: Annotated[str, Field(description='Basename of recording')]
+    channel: Annotated[str, Field(description='Nom de la chaine')]
+    title: Annotated[str, Field(description='Program title')]
+    sub_title: Annotated[str, Field(description='Program subtitle or summary')]
+    description: Annotated[str, Field(description='Program description')]
+    start_real: Annotated[int, Field(description='Start time stamp of recording, UNIX epoch')]
+    stop_real: Annotated[int, Field(description='Stop time stamp of recording, UNIX epoch')]
+    error_message: Annotated[str, Field(description='Error message')]
+    nb_data_errors: Annotated[int, Field(description='Number of data errors during recording')]
+    recording_id: Annotated[str, Field(description='Unique ID of recording')]
 
 
 class Media(BaseModel):
@@ -66,6 +81,15 @@ class Media(BaseModel):
         )
     ]
     segments: Annotated[list[Segment], Field(default_factory=list, description='segments for edit decision list output')]
+
+    @property
+    def duration(self) -> float:
+        return total_movie_duration(self.filepath)
+
+    @property
+    def metadata(self) -> Optional[MediaMetadata]:
+        metadata = load_metadata(self.filepath, cache_busting_key=int(self.filepath.stat().st_mtime))
+        return TypeAdapter(MediaMetadata).validate_python(metadata) if metadata else None
 
     def to_segment_validator_context(self, config: Settings):
         segment_container = SegmentContainer()
