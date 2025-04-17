@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from pydantic import TypeAdapter
 
 from movie_pipeline_segments_validator.adapters.http.main import app
+from movie_pipeline_segments_validator.adapters.http.routers.session_medias import MediaShowOut
 from movie_pipeline_segments_validator.adapters.repository.resources import Media, Segment, Session
 from movie_pipeline_segments_validator.adapters.repository.session_repository import SessionRepository
 from movie_pipeline_segments_validator.domain.detected_segments import humanize_segments
@@ -32,15 +33,32 @@ class TestHttpApi(unittest.TestCase):
         ])
 
         video_metadata_content = json.dumps({
+            "fullpath": "/volume1/video/PVR/Channel 1_Movie Name_2022-12-05-2203-20.mp4",
+            "basename": "Channel 1_Movie Name_2022-12-05-2203-20.mp4",
+            "channel": "Channel 1",
             "title": "Movie Name...",
-            "sub_title": "Movie Name... : Movie Name, le titre long. Bla Bla Bla"
+            "sub_title": "Movie Name... : Movie Name, le titre long. Bla Bla Bla",
+            "description": "",
+            "start_real": 1744050900,
+            "stop_real": 1744060800,
+            "error_message": "OK",
+            "nb_data_errors": 2524,
+            "recording_id": "b870949ff3506a81c8e37b893192464b"
         }, indent=2)
         self.video_path.with_suffix('.mp4.metadata.json').write_text(video_metadata_content)
 
         serie_metadata_content = json.dumps({
+            "fullpath": "/volume1/video/PVR/Channel 2_Serie Name_2022-12-05-2203-20.mp4",
+            "basename": "Channel 2_Serie Name_2022-12-05-2203-20.mp4",
+            "channel": "Channel 2",
             "title": "Serie Name",
             "sub_title": "Serie Name : Episode Name. Série policière. 2022. Saison 1. 16/26.",
-            "description": ""
+            "description": "",
+            "start_real": 1737471915,
+            "stop_real": 1737476713,
+            "error_message": "OK",
+            "nb_data_errors": 65,
+            "recording_id": "984203f1f42ff1163c90fb3a5a8b4333"
         }, indent=2)
         self.serie_path.with_suffix('.mp4.metadata.json').write_text(serie_metadata_content)
 
@@ -115,8 +133,9 @@ class TestHttpApi(unittest.TestCase):
         response = self.client.get(f'/sessions/{session.id}/medias/{self.video_path.stem}')
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-        actual_media = TypeAdapter(Media).validate_json(response.text)
-        self.assertEqual(session.medias[self.video_path.stem], actual_media)    
+        actual_media = TypeAdapter(MediaShowOut).validate_json(response.text)
+        self.assertEqual(session.medias[self.video_path.stem], actual_media.media)    
+        self.assertEqual(30, actual_media.duration)    
 
 
     def test_validate_media_segments(self):

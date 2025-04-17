@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 from typing import Any, Optional
 
@@ -38,6 +39,8 @@ class Settings(BaseSettings):
     PathsContent: PathContent = PathContent()
     MediaSelector: MediaSelectorSettings = MediaSelectorSettings()
     Server: ServerSettings = ServerSettings()
+
+    ffmpeg_path: FilePath = shutil.which('ffmpeg')  # type: ignore
 
     model_config = SettingsConfigDict(env_nested_delimiter='__')
 
