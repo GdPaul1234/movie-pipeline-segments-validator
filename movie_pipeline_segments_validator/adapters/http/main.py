@@ -5,6 +5,7 @@ from pathlib import Path
 import uvicorn
 from fastapi import Depends, FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from ...adapters.http.dependencies import get_config_path, get_settings
 from ...adapters.http.routers import session_media_segments
@@ -32,6 +33,7 @@ app = FastAPI(
     dependencies=[Depends(get_config_path)]
 )
 
+app.add_middleware(CORSMiddleware, allow_origins=('*',), allow_methods=('*',))
 app.add_middleware(GZipMiddleware)
 
 app.include_router(sessions.router)
