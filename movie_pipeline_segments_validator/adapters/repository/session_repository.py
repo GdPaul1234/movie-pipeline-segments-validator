@@ -3,7 +3,7 @@ import dbm
 import logging
 import uuid
 from itertools import islice
-from typing import Any
+from typing import Any, Optional
 
 import yaml
 from pydantic import TypeAdapter
@@ -21,26 +21,49 @@ from ...settings import Settings
 logger = logging.getLogger(__name__)
 
 
-def build_media(media: MediaPath, config: Settings):
-    edl_files = list(islice(media.path.parent.glob(f'{media.path.name}*.*yml*'), 1))
-    eld_file_content: dict[str, Any] = yaml.safe_load(edl_files[0].read_text()) if len(edl_files) == 1 else {}
+def build_media(source: MediaPath | Media, config: Optional[Settings] = None):
+    """Build media from MediaPath or Media
 
-    title = eld_file_content.get('filename', extract_title(media.path, config))
-    skip_backup = eld_file_content.get('skip_backup', False)
+    Args:
+        source (MediaPath | Media): 
+            When source is instance of MediaPath, fill title, state, and skip_backup from path,
+            When source is instance of Media, import missing informations like imported_segments
+        config (Optional[Settings]): config to extract title from source if instance of MediaPath
 
-    imported_segments = { 
-        k: f"{v.removesuffix(',')}," 
-        for k, v in import_segments(media.path).items()
-        if v != ''
-    }
+    Returns:
+        Media: Media filled with title, state, skip_backup and imported segments
+    """
+    if isinstance(source, Media):
+        imported_segments = source.imported_segments or { 
+            k: f"{v.removesuffix(',')}," 
+            for k, v in import_segments(source.filepath).items()
+            if v != ''
+        }
 
-    raw_segments = items[0][1] if len(items := list(imported_segments.items())) > 0 else ''
-    imported_detector_segments = [Segment(start=segment[0], end=segment[1]) for segment in MovieSegments(raw_segments).segments]
+        raw_segments = items[0][1] if len(items := list(imported_segments.items())) > 0 else ''
+        imported_detector_segments = source.segments or [
+            Segment(start=segment[0], end=segment[1]) 
+            for segment in MovieSegments(raw_segments).segments
+        ]
+
+        filepath, state, title, skip_backup = source.filepath, source.state, source.title, source.skip_backup
+
+    else:
+        if config is None:
+            raise ValueError('Missing config when source is instance of MediaPath')
+
+        imported_segments, imported_detector_segments = {}, []
+        filepath, state = source.path, source.state
+
+        edl_files = list(islice(source.path.parent.glob(f'{source.path.name}*.*yml*'), 1))
+        eld_file_content: dict[str, Any] = yaml.safe_load(edl_files[0].read_text()) if len(edl_files) == 1 else {}
+        title: str = eld_file_content.get('filename', extract_title(source.path, config))
+        skip_backup: bool = eld_file_content.get('skip_backup', False)
 
     return Media(
-        filepath=media.path,
-        state=media.state,
-        title=f'{title}.mp4',
+        filepath=filepath,
+        state=state,
+        title=f"{title.removesuffix('.mp4')}.mp4",
         skip_backup=skip_backup,
         imported_segments=imported_segments,
         segments=imported_detector_segments

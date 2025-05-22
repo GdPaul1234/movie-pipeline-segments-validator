@@ -7,7 +7,7 @@ import re
 from pydantic import ValidationError
 
 from movie_pipeline_segments_validator.adapters.repository.resources import Segment as MediaSegment
-from movie_pipeline_segments_validator.adapters.repository.session_repository import SessionRepository
+from movie_pipeline_segments_validator.adapters.repository.session_repository import SessionRepository, build_media
 from movie_pipeline_segments_validator.domain.segment_container import Segment, SegmentContainer
 from movie_pipeline_segments_validator.services import segment_service
 
@@ -61,14 +61,16 @@ class TestSessionRepository(unittest.TestCase):
         # init medias list
         self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in session.medias.values()])
         self.assertEqual(['no_segment', 'waiting_segment_review'], [media.state for media in session.medias.values()])
-        self.assertEqual([
-            {}, {k: f'{v},' for k, v in json.loads(self.serie_segments_content).items()}],
-            [media.imported_segments for media in session.medias.values()]
-        )
+
+        # imported segments is empty because it is load on medias and segments endpoints
+        self.assertEqual([{}, {}], [media.imported_segments for media in session.medias.values()])
 
         # import saved segments
-        video_context = session.medias[self.video_path.stem]
-        self.assertEqual({}, video_context.imported_segments)
+        serie_context = session.medias[self.serie_path.stem]
+        self.assertEqual({}, serie_context.imported_segments) # empty as expected
+
+        expected_imported_segments = {k: f'{v},' for k, v in json.loads(self.serie_segments_content).items()}
+        self.assertEqual(expected_imported_segments, build_media(serie_context).imported_segments) # present because loaded when build media
 
 
     def test_get_session_exist(self):
@@ -85,7 +87,7 @@ class TestSessionRepository(unittest.TestCase):
 
     def test_update_media_valid(self):
         session = self.session_repository.create(self.input_dir_path)
-        serie_context = session.medias[self.serie_path.stem].to_segment_validator_context(self.config)
+        serie_context = build_media(session.medias[self.serie_path.stem]).to_segment_validator_context(self.config)
 
         segment_container = SegmentContainer()
         segment_container.add(Segment(start=1526, end=3246))
@@ -102,7 +104,7 @@ class TestSessionRepository(unittest.TestCase):
 
     def test_update_media_invalid(self):
         session = self.session_repository.create(self.input_dir_path)
-        serie_context = session.medias[self.serie_path.stem].to_segment_validator_context(self.config)
+        serie_context = build_media(session.medias[self.serie_path.stem]).to_segment_validator_context(self.config)
 
         serie_context.title = serie_context.title.replace('.mp4', '.invalid_ext')
 

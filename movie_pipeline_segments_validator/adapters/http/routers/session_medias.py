@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-class MediaShowOut(BaseModel):
+class MediaOut(BaseModel):
     media: Annotated[Media, Field(description='media')]
     
     @computed_field(description='media duration in seconds')
@@ -35,8 +35,8 @@ class MediaShowOut(BaseModel):
 def show_media(
     media_stem: Annotated[str, Path(title='media stem (filename without extension)')],
     media: Annotated[Media, Depends(get_media)]
-) -> MediaShowOut:
-    return MediaShowOut(media=media)
+) -> MediaOut:
+    return MediaOut(media=media)
 
 
 class ValidateSegmentsOut(BaseModel):

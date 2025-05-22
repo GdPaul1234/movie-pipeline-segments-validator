@@ -123,4 +123,7 @@ class Session(BaseModel):
     created_at: PastDatetime
     updated_at: PastDatetime
     root_path: Annotated[DirectoryPath, Field(description='root path for medias', examples=[r'V:\PVR'])]
-    medias: Annotated[dict[str, Media], Field(description='medias to process in root_path indexed by stem (filename without extension)')]
+    medias: Annotated[dict[str, Media], Field(
+        description='medias to process in root_path indexed by stem (filename without extension).\n\n'
+            '`imported_segments` and `segments` is empty unless you query media from `medias` or `segments` endpoints'
+    )]

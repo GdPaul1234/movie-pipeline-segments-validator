@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 
 from ...adapters.repository.resources import Media, Session
-from ...adapters.repository.session_repository import SessionRepository
+from ...adapters.repository.session_repository import SessionRepository, build_media
 from ...settings import Settings
 
 
@@ -38,7 +38,7 @@ def get_session(session_repository: Annotated[SessionRepository, Depends(get_ses
 
 def get_media(session: Annotated[Session, Depends(get_session)], media_stem: str):
     try:
-        return session.medias[media_stem]
+        return build_media(session.medias[media_stem])
     except KeyError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Media '{e.args[0]}' not found")
 
