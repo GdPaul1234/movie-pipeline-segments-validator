@@ -10,10 +10,11 @@ from fastapi.testclient import TestClient
 from pydantic import TypeAdapter
 
 from movie_pipeline_segments_validator.adapters.http.main import app
-from movie_pipeline_segments_validator.adapters.http.routers.session_medias import MediaShowOut
+from movie_pipeline_segments_validator.adapters.http.routers.session_medias import MediaOut
 from movie_pipeline_segments_validator.adapters.repository.resources import Media, Segment, Session
 from movie_pipeline_segments_validator.adapters.repository.session_repository import SessionRepository
 from movie_pipeline_segments_validator.domain.detected_segments import humanize_segments
+from movie_pipeline_segments_validator.domain.movie_segments import MovieSegments
 
 from ...concerns import copy_files, create_output_movies_directories, get_output_movies_directories, lazy_load_config_file
 
@@ -88,10 +89,7 @@ class TestHttpApi(unittest.TestCase):
         # init medias list
         self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in actual_session.medias.values()])
         self.assertEqual(['no_segment', 'waiting_segment_review'], [media.state for media in actual_session.medias.values()])
-        self.assertEqual([
-            {}, {k: f'{v},' for k, v in json.loads(self.serie_segments_content).items()}],
-            [media.imported_segments for media in actual_session.medias.values()]
-        )
+        self.assertEqual([{}, {}], [media.imported_segments for media in actual_session.medias.values()]) # imported segments is empty because it is load on medias and segments endpoints
 
         # import saved segments
         video_context = actual_session.medias[self.video_path.stem]
@@ -127,15 +125,33 @@ class TestHttpApi(unittest.TestCase):
 
     # routers/session_medias.py
 
-    def test_show_media(self):
+    def test_show_video_media(self):
         session = self.session_repository.create(self.input_dir_path)
 
         response = self.client.get(f'/sessions/{session.id}/medias/{self.video_path.stem}')
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-        actual_media = TypeAdapter(MediaShowOut).validate_json(response.text)
+        actual_media = TypeAdapter(MediaOut).validate_json(response.text)
         self.assertEqual(session.medias[self.video_path.stem], actual_media.media)    
         self.assertEqual(30, actual_media.duration)    
+
+    
+    def test_show_serie_media(self):
+        session = self.session_repository.create(self.input_dir_path)
+
+        response = self.client.get(f'/sessions/{session.id}/medias/{self.serie_path.stem}')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        actual_media = TypeAdapter(MediaOut).validate_json(response.text)
+        self.assertEqual(30, actual_media.duration)
+
+        serie_segments_content_dict = json.loads(self.serie_segments_content)
+
+        expected_segments = [Segment(start=segment[0], end=segment[1]) for segment in MovieSegments(serie_segments_content_dict['result_2024-10-05T11:40:39.732479']).segments]
+        self.assertEqual(expected_segments, actual_media.media.segments)
+
+        expected_imported_segments = {k: f'{v},' for k, v in serie_segments_content_dict.items()}
+        self.assertEqual(expected_imported_segments, actual_media.media.imported_segments)
 
 
     def test_validate_media_segments(self):
