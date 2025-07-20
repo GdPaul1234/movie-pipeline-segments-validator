@@ -1,5 +1,7 @@
+import re
 import subprocess
 import time
+import unicodedata
 from datetime import timedelta
 from pathlib import Path
 
@@ -28,3 +30,11 @@ def total_movie_duration(movie_file_path: Path | str) -> float:
     ]
 
     return float(next((duration for cmd in cmds if (duration := subprocess.check_output(cmd).splitlines()[0]) != b'N/A'), -1))
+
+
+def remove_diacritics(text: str) -> str:
+    return re.sub(
+        r'[\u0300-\u036f]',
+        repl='',
+        string=unicodedata.normalize('NFD', text)
+    )

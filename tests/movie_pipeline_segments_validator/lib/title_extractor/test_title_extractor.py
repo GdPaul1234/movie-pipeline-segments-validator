@@ -1,17 +1,12 @@
-from contextlib import contextmanager
-from pathlib import Path
 import json
 import time
 import unittest
+from contextlib import contextmanager
+from pathlib import Path
 
 from movie_pipeline_segments_validator.lib.title_extractor.title_cleaner import TitleCleaner
-from movie_pipeline_segments_validator.lib.title_extractor.title_extractor import (
-    NaiveTitleExtractor,
-    SerieSubTitleAwareTitleExtractor,
-    SerieTitleAwareTitleExtractor,
-    SubtitleTitleExpanderExtractor
-)
-from movie_pipeline_segments_validator.services.edl_scaffolder import MovieProcessedFileGenerator
+from movie_pipeline_segments_validator.lib.title_extractor.title_extractor import NaiveTitleExtractor, SerieSubTitleAwareTitleExtractor, SerieTitleAwareTitleExtractor, SubtitleTitleExpanderExtractor
+from movie_pipeline_segments_validator.services.edl_scaffolder import MovieProcessedFileGenerator, TitleStrategyContext
 
 movie_metadata_path = Path(__file__).parent.joinpath('Channel 1_Movie Name_2022-12-05-2203-20.ts.metadata.json')
 serie_metadata_path = Path(__file__).parent.joinpath("Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts.metadata.json")
@@ -121,5 +116,7 @@ class TestTitleExtractor(unittest.TestCase):
             }
         }
 
-        edl_template = MovieProcessedFileGenerator(serie_file_path, default_title_extractor, series_extracted_metadata)
+        normalized_title_series_extracted_metadata = TitleStrategyContext.normalize_title_series_extracted_metadata(series_extracted_metadata)
+
+        edl_template = MovieProcessedFileGenerator(serie_file_path, default_title_extractor, normalized_title_series_extracted_metadata)
         self.assertEqual('Serie Name S03E42', edl_template.extract_title())
