@@ -33,6 +33,6 @@ def extract_title_serie_episode_from_metadata(normalized_title_series_extracted_
     if m is not None:
         show_title, episode_title = m.group('showtitle'), remove_diacritics(m.group('title').lower())
         formatted_episode = normalized_title_series_extracted_metadata.get(show_title, {}).get(episode_title, {}).get('formattedEpisode')
-        return ' '.join(value for value in [show_title, formatted_episode] if value is not None)
+        return ' '.join([show_title, formatted_episode]) if formatted_episode else extracted_title
 
     return extracted_title
