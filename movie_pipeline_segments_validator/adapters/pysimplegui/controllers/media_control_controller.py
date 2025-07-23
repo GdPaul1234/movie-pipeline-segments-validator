@@ -12,7 +12,7 @@ def set_relative_position(window: sg.Window, event: str, _values: dict[str, Any]
     player = metadata.media_player
 
     command, delta = event.split('::')
-    window.perform_long_operation(lambda: getattr(player, command)(float(delta), window), WidgetEvent.TASK_DONE_EVENT.value)
+    window.perform_long_operation(lambda: getattr(player, command)(float(delta), window=window), WidgetEvent.TASK_DONE_EVENT.value)
 
 
 def goto_selected_segment(window: sg.Window, event: str, _values: dict[str, Any]):
