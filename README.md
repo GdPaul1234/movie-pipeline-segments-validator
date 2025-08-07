@@ -59,6 +59,13 @@ Given a video named `Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts`:
 
 ## Release History
 
+- V0.2.2
+  - Normalize episode title for extract_title_serie_episode_from_metadata title
+  - Do not load segments content when creating API session. These segments can be retrieved when getting a media.
+
+- V0.2.1
+  - Improve API performance
+
 - V0.2.0
   - Introduce new API for headless segment validations. Documentation is available at localhost:8000/docs
 
