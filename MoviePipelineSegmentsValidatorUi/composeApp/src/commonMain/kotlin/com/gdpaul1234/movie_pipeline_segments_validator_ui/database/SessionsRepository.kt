@@ -6,10 +6,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 import kotlinx.serialization.json.Json
 import org.openapitools.client.models.Media
 import org.openapitools.client.models.Session
 import java.io.File
+import kotlin.jvm.Throws
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -34,7 +36,10 @@ class SessionsRepository(
     }
 
     @OptIn(ExperimentalTime::class)
-    suspend fun updateMedia(endpoint: String, session: Session, media: Media) {
+    @Throws(NoSuchElementException::class)
+    suspend fun updateMedia(endpoint: String, sessionId: String, media: Media) {
+        val session: Session = get(endpoint, sessionId).single()!!
+
         dataStore.edit { sessions ->
             val updatedSession = session.copy(
                 updatedAt = Clock.System.now(), medias = session.medias.toMutableMap().apply {
