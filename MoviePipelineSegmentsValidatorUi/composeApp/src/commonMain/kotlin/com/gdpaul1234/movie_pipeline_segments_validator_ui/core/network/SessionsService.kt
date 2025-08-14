@@ -1,6 +1,6 @@
-package com.gdpaul1234.movie_pipeline_segments_validator_ui.network
+package com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network
 
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.database.SessionsRepository
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
 import kotlinx.coroutines.flow.firstOrNull
 import org.openapitools.client.apis.SessionsApi
 import org.openapitools.client.infrastructure.HttpResponse
