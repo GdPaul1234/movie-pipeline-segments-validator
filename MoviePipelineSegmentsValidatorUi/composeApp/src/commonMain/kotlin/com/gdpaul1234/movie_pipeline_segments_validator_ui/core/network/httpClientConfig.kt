@@ -1,4 +1,4 @@
-package com.gdpaul1234.movie_pipeline_segments_validator_ui.network
+package com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network
 
 import io.ktor.client.HttpClientConfig
 

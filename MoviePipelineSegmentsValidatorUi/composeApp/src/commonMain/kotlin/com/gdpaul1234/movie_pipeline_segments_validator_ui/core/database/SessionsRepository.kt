@@ -1,4 +1,4 @@
-package com.gdpaul1234.movie_pipeline_segments_validator_ui.database
+package com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -20,6 +20,15 @@ class SessionsRepository(
 ) {
     private fun getKey(endpoint: String, sessionId: String) = "$sessionId@$endpoint"
 
+    fun getRecents(): Flow<Set<Map.Entry<String, Session>>> {
+        return dataStore.data.map { sessions ->
+            sessions.asMap()
+                .mapKeys { it.key.toString() }
+                .mapValues { Json.decodeFromString<Session>(it.value as String) }
+                .entries
+        }
+    }
+
     fun get(endpoint: String, sessionId: String): Flow<Session?> {
         val sessionKey = stringPreferencesKey(getKey(endpoint, sessionId))
         return dataStore.data.map { sessions ->
@@ -38,7 +47,7 @@ class SessionsRepository(
     @OptIn(ExperimentalTime::class)
     @Throws(NoSuchElementException::class)
     suspend fun updateMedia(endpoint: String, sessionId: String, media: Media) {
-        val session: Session = get(endpoint, sessionId).single()!!
+        val session = checkNotNull(get(endpoint, sessionId).single())
 
         dataStore.edit { sessions ->
             val updatedSession = session.copy(
