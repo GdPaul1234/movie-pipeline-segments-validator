@@ -1,0 +1,161 @@
+@file:OptIn(ExperimentalTime::class)
+
+package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
+import org.openapitools.client.models.Media
+import org.openapitools.client.models.SegmentOutput
+import org.openapitools.client.models.Session
+import java.io.File
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.ExperimentalTime
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@Preview
+fun SessionDetails(
+    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
+    isPreview: Boolean = LocalInspectionMode.current
+) {
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    
+    val (key, session) = sessionEntry
+    val (id, endpoint) = key.split("@")
+
+    Scaffold(
+        topBar = {
+            LargeTopAppBar(
+                scrollBehavior = topAppBarScrollBehavior,
+                title = {
+                    Text(
+                        text = session.rootPath,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /* TODO */ },
+                shape = MaterialTheme.shapes.extraLarge,
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        painterResource(Res.drawable.open_in_browser_24px), null,
+                        contentDescription = null,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(text = stringResource(Res.string.load_session))
+                }
+            }
+        }
+    ) { paddingValues ->
+        LazyVerticalStaggeredGrid (
+            columns = StaggeredGridCells.Adaptive((WIDTH_DP_MEDIUM_LOWER_BOUND / 2).dp),
+            verticalItemSpacing = 16.dp,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+                .padding(paddingValues)
+                .consumeWindowInsets(paddingValues)
+        ) {
+            item {
+                val dateMetadata = mapOf(
+                    stringResource(Res.string.endpoint) to endpoint,
+                    stringResource(Res.string.session_id) to id,
+                    stringResource(Res.string.created_at) to session.createdAt.toString(),
+                    stringResource(Res.string.updated_at) to session.updatedAt.toString(),
+                    stringResource(Res.string.medias_number) to session.medias.count().toString()
+                )
+                Column {
+                    ListItem(
+                        headlineContent = { Text(stringResource(Res.string.infos), style = MaterialTheme.typography.titleLarge) }
+                    )
+
+                    dateMetadata.entries.forEach { (key, value) ->
+
+                        ListItem(
+                            headlineContent = { Text(key) },
+                            supportingContent = { Text(value) }
+                        )
+                    }
+                }
+            }
+
+            item {
+                Column {
+                    ListItem(
+                        headlineContent = { Text(stringResource(Res.string.stats), style = MaterialTheme.typography.titleLarge) }
+                    )
+
+                    Media.State.entries.forEach { mediaState ->
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    if (isPreview) {
+                                        mediaState.value
+                                    } else {
+                                        stringResource(Res.allStringResources["stats_${mediaState.value}"]!!)
+                                    }
+                                )
+                            },
+                            supportingContent = {
+                                Text("${session.medias.filter { it.value.state == mediaState }.count()}")
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+class SessionEntryPreviewParameterProvider : PreviewParameterProvider<Map.Entry<String, Session>> {
+    override val values: Sequence<Map.Entry<String, Session>> = sequenceOf(
+        setOf(
+            Session(
+                id = "02a34f8ac5b24cb09c5bb23ccca034c4",
+                createdAt = Clock.System.now() - 5.days,
+                updatedAt = Clock.System.now() - 2.days,
+                rootPath = "V:\\PVR",
+                medias = setOf(
+                    Media(
+                        filepath = "V:\\PVR\\Channel 1_Movie Name_2022-12-05-2203-20.ts",
+                        state = Media.State.waiting_segment_review,
+                        title = "Movie Name, le titre long.mp4",
+                        skipBackup = false,
+                        importedSegments = mapOf(
+                            "auto" to "00:00:00.000-01:05:54.840,00:42:38.980-01:49:59.300,01:05:54.840-01:49:59.300",
+                            "result_2024-10-05T11:40:39.732479" to "00:25:26.000-00:34:06.000,00:40:10.000-01:01:23.000,01:07:34.000-01:17:59.000"
+                        ),
+                        segments = listOf(
+                            SegmentOutput(start = 1526.0, end = 3246.0, duration = 1720.0)
+                        )
+                    )
+                ).associateBy { File(it.filepath).nameWithoutExtension }
+            )
+        ).associateBy { "${it.id}@http://localhost:8000" }.entries.first()
+    )
+}

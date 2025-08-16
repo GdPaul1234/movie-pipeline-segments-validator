@@ -39,6 +39,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
+            implementation(libs.androidx.adaptative)
+            implementation(libs.androidx.adaptative.layout)
+            implementation(libs.androidx.adaptative.navigation)
+            implementation(libs.androidx.window.core)
+
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
