@@ -51,9 +51,11 @@ class SessionsRepository(
 
         dataStore.edit { sessions ->
             val updatedSession = session.copy(
-                updatedAt = Clock.System.now(), medias = session.medias.toMutableMap().apply {
+                updatedAt = Clock.System.now(),
+                medias = session.medias.toMutableMap().apply {
                     this[File(media.filepath).nameWithoutExtension] = media
-                })
+                }
+            )
 
             val sessionKey = stringPreferencesKey(getKey(endpoint, session.id))
             sessions[sessionKey] = Json.encodeToString(updatedSession)

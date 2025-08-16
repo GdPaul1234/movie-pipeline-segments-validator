@@ -1,0 +1,16 @@
+<resources>
+    <string name="endpoint">Endpoint</string>
+    <string name="session_id">Session ID</string>
+    <string name="created_at">Created at</string>
+    <string name="updated_at">Updated at</string>
+    <string name="medias_number">Number of medias</string>
+    <string name="stats_waiting_metadata">Waiting Metadata</string>
+    <string name="stats_no_segment">No Segment</string>
+    <string name="stats_waiting_segment_review">Waiting Segments Review</string>
+    <string name="stats_segment_reviewed">Segments Reviewed</string>
+    <string name="stats_media_processing">Currently processing medias</string>
+    <string name="stats_media_processed">Medias processed</string>
+    <string name="load_session">Load session</string>
+    <string name="infos">Infos</string>
+    <string name="stats">Stats</string>
+</resources>
