@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionCreateForm
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionDetails
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionList
 import kotlinx.coroutines.launch
@@ -42,9 +43,7 @@ fun RecentSessionsScreen(
                     onItemClick = { item ->
                         // Navigate to the detail pane with the passed item
                         scope.launch {
-                            scaffoldNavigator.navigateTo(
-                                ListDetailPaneScaffoldRole.Detail, item
-                            )
+                            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail, item)
                         }
                     }
                 )
@@ -54,7 +53,10 @@ fun RecentSessionsScreen(
             AnimatedPane {
                 // Show the detail pane content if selected item is available
                 scaffoldNavigator.currentDestination?.contentKey?.let {
-                    SessionDetails(it)
+                    when (it.key) {
+                        "new_session" -> SessionCreateForm(onCreate = { endpoint, rootPath -> println("$rootPath@$endpoint") /* TODO */ })
+                        else -> SessionDetails(sessionEntry = it)
+                    }
                 }
             }
         },
