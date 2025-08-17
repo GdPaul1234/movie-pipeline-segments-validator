@@ -32,13 +32,9 @@ import kotlin.time.ExperimentalTime
 @Composable
 @Preview
 fun SessionDetails(
-    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
-    isPreview: Boolean = LocalInspectionMode.current
+    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    
-    val (key, session) = sessionEntry
-    val (id, endpoint) = key.split("@")
 
     Scaffold(
         topBar = {
@@ -46,7 +42,7 @@ fun SessionDetails(
                 scrollBehavior = topAppBarScrollBehavior,
                 title = {
                     Text(
-                        text = session.rootPath,
+                        text = sessionEntry.value.rootPath,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -63,7 +59,8 @@ fun SessionDetails(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        painterResource(Res.drawable.open_in_browser_24px), null,
+                        painterResource(Res.drawable.open_in_browser_24px),
+                        null,
                         contentDescription = null,
                     )
                     Spacer(Modifier.width(8.dp))
@@ -82,58 +79,92 @@ fun SessionDetails(
                 .consumeWindowInsets(paddingValues)
         ) {
             item {
-                val dateMetadata = mapOf(
-                    stringResource(Res.string.endpoint) to endpoint,
-                    stringResource(Res.string.session_id) to id,
-                    stringResource(Res.string.created_at) to session.createdAt.toString(),
-                    stringResource(Res.string.updated_at) to session.updatedAt.toString(),
-                    stringResource(Res.string.medias_number) to session.medias.count().toString()
+                Column {
+                    InfoSection(sessionEntry)
+                    TextButton(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        onClick = { /* TODO */ }
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.delete_session),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+            item { StatsSection(sessionEntry) }
+        }
+    }
+}
+
+@Composable
+@Preview
+private fun InfoSection(
+    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>
+) {
+    val (key, session) = sessionEntry
+    val (id, endpoint) = key.split("@")
+    val infos =listOf(
+        stringResource(Res.string.endpoint) to endpoint,
+        stringResource(Res.string.session_id) to id,
+        stringResource(Res.string.created_at) to session.createdAt.toString(),
+        stringResource(Res.string.updated_at) to session.updatedAt.toString(),
+        stringResource(Res.string.medias_number) to session.medias.size.toString()
+    )
+
+    Column {
+        ListItem(
+            headlineContent = {
+                Text(
+                    text = stringResource(Res.string.infos),
+                    style = MaterialTheme.typography.titleLarge
                 )
-                Column {
-                    ListItem(
-                        headlineContent = { Text(stringResource(Res.string.infos), style = MaterialTheme.typography.titleLarge) }
-                    )
+            }
+        )
+        infos.forEach { (label, value) ->
+            ListItem(
+                headlineContent = { Text(label) },
+                supportingContent = { Text(value) }
+            )
+        }
+    }
+}
 
-                    dateMetadata.entries.forEach { (key, value) ->
 
-                        ListItem(
-                            headlineContent = { Text(key) },
-                            supportingContent = { Text(value) }
-                        )
-                    }
-                }
+@Composable
+@Preview
+private fun StatsSection (
+    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
+    isPreview: Boolean = LocalInspectionMode.current
+) {
+    Column {
+        ListItem(
+            headlineContent = {
+                Text(
+                    text = stringResource(Res.string.stats),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        )
+
+        Media.State.entries.forEach { mediaState ->
+            val stateLabel = when (isPreview) {
+                true -> mediaState.value
+                else -> stringResource(Res.allStringResources["stats_${mediaState.value}"]!!)
             }
 
-            item {
-                Column {
-                    ListItem(
-                        headlineContent = { Text(stringResource(Res.string.stats), style = MaterialTheme.typography.titleLarge) }
-                    )
+            val count = sessionEntry.value.medias.count { it.value.state == mediaState }
 
-                    Media.State.entries.forEach { mediaState ->
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    if (isPreview) {
-                                        mediaState.value
-                                    } else {
-                                        stringResource(Res.allStringResources["stats_${mediaState.value}"]!!)
-                                    }
-                                )
-                            },
-                            supportingContent = {
-                                Text("${session.medias.filter { it.value.state == mediaState }.count()}")
-                            }
-                        )
-                    }
-                }
-            }
+            ListItem(
+                headlineContent = { Text(stateLabel) },
+                supportingContent = { Text(count.toString()) }
+            )
         }
     }
 }
 
 class SessionEntryPreviewParameterProvider : PreviewParameterProvider<Map.Entry<String, Session>> {
-    override val values: Sequence<Map.Entry<String, Session>> = sequenceOf(
+    override val values = sequenceOf(
         setOf(
             Session(
                 id = "02a34f8ac5b24cb09c5bb23ccca034c4",
