@@ -36,9 +36,9 @@ androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecyc
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore" }
-androidx-adaptative = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "androidx-adaptative" }
-androidx-adaptative-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "androidx-adaptative" }
-androidx-adaptative-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation", version.ref = "androidx-adaptative" }
+androidx-adaptative = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "androidx-adaptative" }
+androidx-adaptative-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "androidx-adaptative" }
+androidx-adaptative-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation", version.ref = "androidx-adaptative" }
 androidx-window = { module = "androidx.window:window", version.ref = "androidx-window" }
 androidx-window-core = { module = "androidx.window:window-core", version.ref = "androidx-window-core" }
 androidx-window-java = { module = "androidx.window:window-java", version.ref = "androidx-window-java" }
@@ -53,6 +53,7 @@ ktor-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json", versi
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktor-android = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-jvm = { module = "io.ktor:ktor-client-apache", version.ref = "ktor" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
