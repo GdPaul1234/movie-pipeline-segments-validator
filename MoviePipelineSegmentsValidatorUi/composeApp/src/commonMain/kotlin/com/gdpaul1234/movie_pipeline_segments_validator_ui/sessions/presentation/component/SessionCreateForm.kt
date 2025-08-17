@@ -55,46 +55,40 @@ fun SessionCreateForm (
         // Button is enabled only when both fields have a non‑blank value
         val canCreate = endpoint.isNotBlank() && rootPath.isNotBlank() && !endpointHasErrors && !rootPathHasErrors
 
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
                 .widthIn(max = WIDTH_DP_MEDIUM_LOWER_BOUND.dp)
                 .consumeWindowInsets(paddingValues),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.End
         ) {
-            item {
-                TextField(
-                    value = endpoint,
-                    onValueChange = { endpoint = it },
-                    label = { Text(stringResource(Res.string.endpoint)) },
-                    singleLine = true,
-                    isError = endpointHasErrors,
-                    supportingText = { if (endpointHasErrors) Text(stringResource(Res.string.endpoint_format_error)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            TextField(
+                value = endpoint,
+                onValueChange = { endpoint = it },
+                label = { Text(stringResource(Res.string.endpoint)) },
+                singleLine = true,
+                isError = endpointHasErrors,
+                supportingText = { if (endpointHasErrors) Text(stringResource(Res.string.endpoint_format_error)) },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-            item {
-                TextField(
-                    value = rootPath,
-                    onValueChange = { rootPath = it },
-                    label = { Text(stringResource((Res.string.root_path))) },
-                    singleLine = true,
-                    isError = rootPathHasErrors,
-                    supportingText = { if (rootPathHasErrors) Text(stringResource(Res.string.root_path_format_error)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            TextField(
+                value = rootPath,
+                onValueChange = { rootPath = it },
+                label = { Text(stringResource((Res.string.root_path))) },
+                singleLine = true,
+                isError = rootPathHasErrors,
+                supportingText = { if (rootPathHasErrors) Text(stringResource(Res.string.root_path_format_error)) },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-           item {
-                Button(
-                    onClick = { onCreate?.let { it(endpoint, rootPath) } },
-                    enabled = canCreate
-                ) { Text(stringResource(Res.string.create_session_button)) }
-        }
+            Button(
+                onClick = { onCreate?.let { it(endpoint, rootPath) } },
+                enabled = canCreate
+            ) { Text(stringResource(Res.string.create_session_button)) }
         }
     }
 }

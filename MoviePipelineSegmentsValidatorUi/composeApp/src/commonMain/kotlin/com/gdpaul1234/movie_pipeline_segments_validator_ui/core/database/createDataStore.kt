@@ -1,5 +1,6 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database
 
+import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
@@ -14,3 +15,6 @@ fun createDataStore(producePath: () -> String): DataStore<Preferences> =
     )
 
 internal const val dataStoreFileName = "movie_pipeline_segments_validator_sessions.preferences_pb"
+
+@Composable
+expect fun rememberDataStore():  DataStore<Preferences>

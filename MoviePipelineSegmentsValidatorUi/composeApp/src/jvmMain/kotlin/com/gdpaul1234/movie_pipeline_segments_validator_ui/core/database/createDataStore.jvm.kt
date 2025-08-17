@@ -1,9 +1,9 @@
-package com.gdpaul1234.movie_pipeline_segments_validator_ui.database
+package com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.createDataStore
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.dataStoreFileName
 import java.io.File
 
 fun createDataStore(): DataStore<Preferences> = createDataStore(
@@ -12,3 +12,10 @@ fun createDataStore(): DataStore<Preferences> = createDataStore(
         file.absolutePath
     }
 )
+
+@Composable
+actual fun rememberDataStore(): DataStore<Preferences> {
+    return remember {
+        createDataStore()
+    }
+}
