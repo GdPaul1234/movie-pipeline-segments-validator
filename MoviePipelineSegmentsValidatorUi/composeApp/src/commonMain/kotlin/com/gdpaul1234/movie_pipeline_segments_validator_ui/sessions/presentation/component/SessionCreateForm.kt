@@ -1,39 +1,35 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
-import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.Res
-import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.create_session_button
-import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.create_session_label
-import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.endpoint
-import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.endpoint_format_error
-import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.root_path
-import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.root_path_format_error
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.openapitools.client.models.Session
 import java.net.MalformedURLException
 import java.net.URI
 import java.net.URISyntaxException
 import java.nio.file.InvalidPathException
 import java.nio.file.Paths
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 @Preview
 fun SessionCreateForm (
+    navigator: ThreePaneScaffoldNavigator<Map.Entry<String, Session>>?,
+    scope:  CoroutineScope?,
     onCreate: ((endpoint: String, rootPath: String) -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -42,7 +38,17 @@ fun SessionCreateForm (
         topBar = {
             LargeTopAppBar(
                 scrollBehavior = topAppBarScrollBehavior,
-                title = { Text(stringResource(Res.string.create_session_label)) }
+                title = { Text(stringResource(Res.string.create_session_label)) },
+                navigationIcon = {
+                    if (navigator?.canNavigateBack() == true) {
+                        IconButton(onClick = { scope?.launch { navigator.navigateBack() } }) {
+                            Icon(
+                                painterResource(Res.drawable.arrow_back_24px),
+                                contentDescription = "Back"
+                            )
+                        }
+                    }
+                }
             )
         }
     ) { paddingValues ->

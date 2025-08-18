@@ -3,9 +3,11 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,6 +16,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -28,10 +32,12 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 @Preview
 fun SessionDetails(
+    navigator: ThreePaneScaffoldNavigator<Map.Entry<String, Session>>?,
+    scope:  CoroutineScope?,
     @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -46,6 +52,16 @@ fun SessionDetails(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                },
+                navigationIcon = {
+                    if (navigator?.canNavigateBack() == true) {
+                        IconButton(onClick = { scope?.launch { navigator.navigateBack() } }) {
+                            Icon(
+                                painterResource(Res.drawable.arrow_back_24px),
+                                contentDescription = "Back"
+                            )
+                        }
+                    }
                 }
             )
         },
@@ -69,30 +85,19 @@ fun SessionDetails(
             }
         }
     ) { paddingValues ->
-        LazyVerticalStaggeredGrid (
-            columns = StaggeredGridCells.Adaptive((WIDTH_DP_MEDIUM_LOWER_BOUND / 2).dp),
-            verticalItemSpacing = 16.dp,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        LazyVerticalGrid (
+            columns = GridCells.Adaptive((WIDTH_DP_MEDIUM_LOWER_BOUND / 2).dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
             modifier = Modifier
                 .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
                 .padding(paddingValues)
+                .padding(horizontal = 16.dp)
                 .consumeWindowInsets(paddingValues)
         ) {
-            item {
-                Column {
-                    InfoSection(sessionEntry)
-                    TextButton(
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        onClick = { /* TODO */ }
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.delete_session),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
+            item { InfoSection(sessionEntry) }
             item { StatsSection(sessionEntry) }
+            item { Spacer(Modifier.padding(bottom = 64.dp)) }
         }
     }
 }
@@ -112,8 +117,11 @@ private fun InfoSection(
         stringResource(Res.string.medias_number) to session.medias.size.toString()
     )
 
-    Column {
+    val listItemColors = ListItemDefaults.colors(MaterialTheme.colorScheme.surfaceContainerHighest)
+
+    Card(modifier = Modifier.padding(bottom = 16.dp)) {
         ListItem(
+            colors = listItemColors,
             headlineContent = {
                 Text(
                     text = stringResource(Res.string.infos),
@@ -121,10 +129,24 @@ private fun InfoSection(
                 )
             }
         )
+
         infos.forEach { (label, value) ->
             ListItem(
+                colors = listItemColors,
                 headlineContent = { Text(label) },
                 supportingContent = { Text(value) }
+            )
+        }
+
+        TextButton(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 24.dp),
+            onClick = { /* TODO */ }
+        ) {
+            Text(
+                text = stringResource(Res.string.delete_session),
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }
@@ -137,8 +159,11 @@ private fun StatsSection (
     @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
     isPreview: Boolean = LocalInspectionMode.current
 ) {
-    Column {
+    val listItemColors = ListItemDefaults.colors(MaterialTheme.colorScheme.surfaceContainerHighest)
+
+    Card {
         ListItem(
+            colors = listItemColors,
             headlineContent = {
                 Text(
                     text = stringResource(Res.string.stats),
@@ -156,6 +181,7 @@ private fun StatsSection (
             val count = sessionEntry.value.medias.count { it.value.state == mediaState }
 
             ListItem(
+                colors = listItemColors,
                 headlineContent = { Text(stateLabel) },
                 supportingContent = { Text(count.toString()) }
             )
