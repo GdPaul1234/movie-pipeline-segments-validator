@@ -29,7 +29,7 @@ import java.nio.file.Paths
 @Preview
 fun SessionCreateForm (
     navigator: ThreePaneScaffoldNavigator<Map.Entry<String, Session>>?,
-    scope:  CoroutineScope?,
+    scope: CoroutineScope?,
     onCreate: ((endpoint: String, rootPath: String) -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
