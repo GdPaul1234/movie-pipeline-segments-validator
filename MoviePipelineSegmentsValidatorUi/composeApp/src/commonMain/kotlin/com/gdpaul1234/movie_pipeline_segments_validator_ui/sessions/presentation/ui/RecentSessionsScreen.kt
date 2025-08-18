@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network.SessionsService
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionCreateForm
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionDetails
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionList
@@ -58,12 +59,17 @@ fun RecentSessionsScreen(
                         "new_session" -> SessionCreateForm(
                             navigator = navigator,
                             scope = scope,
-                            onCreate = { endpoint, rootPath -> println("$rootPath@$endpoint") /* TODO */ }
+                            onCreate = { endpoint, rootPath ->
+                                scope.launch { SessionsService(endpoint, sessionsRepository).createSession(rootPath) }
+                            }
                         )
                         else -> SessionDetails(
                             navigator = navigator,
                             scope = scope,
-                            sessionEntry = it
+                            sessionEntry = it,
+                            onDelete = { endpoint, session ->
+                                scope.launch { SessionsService(endpoint, sessionsRepository).deleteSession(session.id) }
+                            }
                         )
                     }
                 }

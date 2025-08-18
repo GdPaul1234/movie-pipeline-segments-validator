@@ -37,8 +37,9 @@ import kotlin.time.ExperimentalTime
 @Preview
 fun SessionDetails(
     navigator: ThreePaneScaffoldNavigator<Map.Entry<String, Session>>?,
-    scope:  CoroutineScope?,
-    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>
+    scope: CoroutineScope?,
+    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
+    onDelete: ((endpoint: String, session: Session) -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -95,7 +96,7 @@ fun SessionDetails(
                 .padding(horizontal = 16.dp)
                 .consumeWindowInsets(paddingValues)
         ) {
-            item { InfoSection(sessionEntry) }
+            item { InfoSection(sessionEntry, onDelete) } // TODO Confirm before delete
             item { StatsSection(sessionEntry) }
             item { Spacer(Modifier.padding(bottom = 64.dp)) }
         }
@@ -105,7 +106,8 @@ fun SessionDetails(
 @Composable
 @Preview
 private fun InfoSection(
-    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>
+    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
+    onDelete: ((endpoint: String, session: Session) -> Unit)?
 ) {
     val (key, session) = sessionEntry
     val (id, endpoint) = key.split("@")
@@ -139,10 +141,8 @@ private fun InfoSection(
         }
 
         TextButton(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 24.dp),
-            onClick = { /* TODO */ }
+            modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 24.dp),
+            onClick = { onDelete?.let { it(endpoint, session) } }
         ) {
             Text(
                 text = stringResource(Res.string.delete_session),
