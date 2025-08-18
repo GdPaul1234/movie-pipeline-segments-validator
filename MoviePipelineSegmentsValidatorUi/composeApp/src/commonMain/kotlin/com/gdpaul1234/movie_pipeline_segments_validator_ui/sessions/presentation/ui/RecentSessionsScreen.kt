@@ -55,8 +55,16 @@ fun RecentSessionsScreen(
                 // Show the detail pane content if selected item is available
                 navigator.currentDestination?.contentKey?.let {
                     when (it.key) {
-                        "new_session" -> SessionCreateForm(onCreate = { endpoint, rootPath -> println("$rootPath@$endpoint") /* TODO */ })
-                        else -> SessionDetails(sessionEntry = it)
+                        "new_session" -> SessionCreateForm(
+                            navigator = navigator,
+                            scope = scope,
+                            onCreate = { endpoint, rootPath -> println("$rootPath@$endpoint") /* TODO */ }
+                        )
+                        else -> SessionDetails(
+                            navigator = navigator,
+                            scope = scope,
+                            sessionEntry = it
+                        )
                     }
                 }
             }
