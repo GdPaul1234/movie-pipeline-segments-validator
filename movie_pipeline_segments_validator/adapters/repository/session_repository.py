@@ -1,7 +1,7 @@
-import datetime
 import dbm
 import logging
 import uuid
+from datetime import datetime, timezone
 from itertools import islice
 from typing import Any, Optional
 
@@ -78,8 +78,8 @@ class SessionRepository:
     def create(self, root_path: DirectoryPath) -> Session:
         new_session = Session(
             id=uuid.uuid4().hex,
-            created_at=datetime.datetime.now(),
-            updated_at=datetime.datetime.now(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
             root_path=root_path,
             medias={
                 media.path.stem: build_media(media, self._config)
@@ -100,7 +100,7 @@ class SessionRepository:
 
     def set(self, session: Session) -> Session:
         with dbm.open(self._config.Paths.db_path, 'c') as db:
-            session.updated_at = datetime.datetime.now()
+            session.updated_at = datetime.now(timezone.utc)
             db[session.id] = self._session_type_adapter.dump_json(session)
 
         return session
@@ -109,7 +109,7 @@ class SessionRepository:
         new_media = Media.from_segment_validator_context(session_validator_context)
 
         session = self.get(session_id)
-        session.updated_at = datetime.datetime.now()
+        session.updated_at = datetime.now(timezone.utc)
         session.medias[new_media.filepath.stem] = new_media
 
         return self.set(session)
