@@ -2,7 +2,7 @@ import textwrap
 from dataclasses import asdict
 from typing import Annotated, Optional
 
-from pydantic import BaseModel, Field, PastDatetime, TypeAdapter, computed_field
+from pydantic import AwareDatetime, BaseModel, Field, TypeAdapter, computed_field
 from pydantic.types import DirectoryPath, FilePath, NonNegativeFloat
 
 from ...domain import FILENAME_REGEX, STR_SEGMENT_REGEX
@@ -120,8 +120,8 @@ class Media(BaseModel):
 
 class Session(BaseModel):
     id: Annotated[str, Field(description='session id')]
-    created_at: PastDatetime
-    updated_at: PastDatetime
+    created_at: AwareDatetime
+    updated_at: AwareDatetime
     root_path: Annotated[DirectoryPath, Field(description='root path for medias', examples=[r'V:\PVR'])]
     medias: Annotated[dict[str, Media], Field(
         description='medias to process in root_path indexed by stem (filename without extension).\n\n'
