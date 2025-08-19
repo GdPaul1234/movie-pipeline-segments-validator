@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.dummyNewSessionEntry
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -36,16 +37,6 @@ fun SessionList(
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val containerBackgroundColor = MaterialTheme.colorScheme.primaryContainer
-
-    val dummyNewSessionEntry = mapOf(
-        "new_session" to Session(
-            id = "new_session",
-            createdAt = Clock.System.now(),
-            updatedAt = Clock.System.now() ,
-            rootPath = "null",
-            medias = emptyMap()
-        )
-    ).entries.first()
 
     @Composable
     fun listItemColors(sessionEntry: Map.Entry<String, Session>) =

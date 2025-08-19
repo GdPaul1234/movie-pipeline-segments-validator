@@ -1,0 +1,80 @@
+package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network.SessionsService
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.SessionsUiState
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.dummyNewSessionEntry
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.openapitools.client.models.Session
+import kotlin.reflect.KClass
+
+class SessionsViewModel(
+    private val sessionsRepository: SessionsRepository
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(SessionsUiState())
+    val uiState: StateFlow<SessionsUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            sessionsRepository.getRecents().collect {
+                _uiState.update { currentState -> currentState.copy(sessions = it) }
+            }
+        }
+    }
+
+    fun setSelectedSessionEntryKey(selectedSessionEntryKey: String) {
+        _uiState.update { currentState ->
+            currentState.copy(selectedSessionEntryKey = selectedSessionEntryKey)
+        }
+    }
+
+    fun createSession(endpoint: String, rootPath: String) {
+        viewModelScope.launch {
+            _uiState.update { currentState -> currentState.copy(loading = true) }
+
+            val newSession = SessionsService(endpoint, sessionsRepository).createSession(rootPath)
+            val newSessionKey = "${newSession.id}@$endpoint"
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    selectedSessionEntryKey = newSessionKey,
+                    loading = false
+                )
+            }
+        }
+    }
+
+    fun deleteSession(endpoint: String, session: Session) {
+        viewModelScope.launch {
+            _uiState.update { currentState -> currentState.copy(loading = true) }
+
+            SessionsService(endpoint, sessionsRepository).deleteSession(session.id)
+            _uiState.update { currentState ->
+                currentState.copy(
+                    selectedSessionEntryKey = dummyNewSessionEntry.key,
+                    loading = false
+                )
+            }
+        }
+    }
+
+    companion object {
+        val SESSION_REPOSITORY_KEY = object : CreationExtras.Key<SessionsRepository> {}
+
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
+                val sessionsRepository = checkNotNull(extras[SESSION_REPOSITORY_KEY])
+                return SessionsViewModel(sessionsRepository) as T
+            }
+        }
+    }
+}
