@@ -1,10 +1,7 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
@@ -27,66 +24,81 @@ fun RecentSessionsScreen(viewModel: SessionsViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     val navigator = rememberListDetailPaneScaffoldNavigator<Map.Entry<String, Session>>()
-    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.selectedSessionEntryKey) {
         // Navigate to the detail pane with the passed item
-        uiState.sessions
-            .find { it.key == uiState.selectedSessionEntryKey }
-            .let {
-                val item = when(uiState.selectedSessionEntryKey) {
-                    dummyNewSessionEntry.key -> dummyNewSessionEntry
-                    else -> it
-                }
 
-                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, item)
-            }
+        if (uiState.selectedSessionEntryKey.isEmpty()) {
+            navigator.navigateTo(ListDetailPaneScaffoldRole.List)
+        } else {
+            uiState.sessions
+                .find { it.key == uiState.selectedSessionEntryKey }
+                .let {
+                    val item = when(uiState.selectedSessionEntryKey) {
+                        dummyNewSessionEntry.key -> dummyNewSessionEntry
+                        else -> it
+                    }
+
+                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, item)
+                }
+        }
     }
 
-    ListDetailPaneScaffold(
-        directive = navigator.scaffoldDirective,
-        scaffoldState = navigator.scaffoldState,
-        listPane = {
-            val isDetailVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded
+    LaunchedEffect(uiState.errors) {
+        uiState.errors.forEach { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
-            AnimatedPane {
-                SessionList(
-                    sessionEntries = uiState.sessions,
-                    currentSelectedSessionKey = if (isDetailVisible) uiState.selectedSessionEntryKey else "",
-                    onItemClick = { item -> viewModel.setSelectedSessionEntryKey(item.key) }
-                )
-            }
-        },
-        detailPane = {
-            AnimatedPane {
-                if (uiState.loading) {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.width(64.dp),
-                            color = MaterialTheme.colorScheme.secondary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
-                    }
-                } else {
-                    // Show the detail pane content if selected item is available
-                    navigator.currentDestination?.contentKey?.let {
-                        when (it.key) {
-                            "new_session" -> SessionCreateForm(
-                                navigator = navigator,
-                                scope = scope,
-                                onCreate = viewModel::createSession
-                            )
+    Scaffold(
+        modifier = Modifier.safeContentPadding().fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { paddingValues ->
+        ListDetailPaneScaffold(
+            modifier = Modifier.padding(paddingValues).consumeWindowInsets(paddingValues),
+            directive = navigator.scaffoldDirective,
+            scaffoldState = navigator.scaffoldState,
+            listPane = {
+                val isDetailVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded
 
-                            else -> SessionDetails(
-                                navigator = navigator,
-                                scope = scope,
-                                sessionEntry = it,
-                                onDelete = viewModel::deleteSession
+                AnimatedPane {
+                    SessionList(
+                        sessionEntries = uiState.sessions,
+                        currentSelectedSessionKey = if (isDetailVisible) uiState.selectedSessionEntryKey else "",
+                        onItemClick = { item -> viewModel.navigateTo(item.key) }
+                    )
+                }
+            },
+            detailPane = {
+                AnimatedPane {
+                    if (uiState.loading) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(64.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
                             )
+                        }
+                    } else {
+                        // Show the detail pane content if selected item is available
+                        navigator.currentDestination?.contentKey?.let {
+                            when (it.key) {
+                                "new_session" -> SessionCreateForm(
+                                    onCreate = viewModel::createSession,
+                                    navigateBack = { viewModel.navigateTo("") }
+                                )
+
+                                else -> SessionDetails(
+                                    sessionEntry = it,
+                                    onDelete = viewModel::deleteSession,
+                                    navigateBack = { viewModel.navigateTo("") }
+                                )
+                            }
                         }
                     }
                 }
-            }
-        },
-    )
+            },
+        )
+    }
 }

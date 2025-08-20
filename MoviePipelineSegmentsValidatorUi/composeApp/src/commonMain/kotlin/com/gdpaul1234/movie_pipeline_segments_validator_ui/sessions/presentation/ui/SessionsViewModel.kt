@@ -30,39 +30,38 @@ class SessionsViewModel(
         }
     }
 
-    fun setSelectedSessionEntryKey(selectedSessionEntryKey: String) {
+    fun navigateTo(selectedSessionEntryKey: String) {
         _uiState.update { currentState ->
             currentState.copy(selectedSessionEntryKey = selectedSessionEntryKey)
         }
     }
 
-    fun createSession(endpoint: String, rootPath: String) {
+    fun createSession(endpoint: String, rootPath: String) =
         viewModelScope.launch {
-            _uiState.update { currentState -> currentState.copy(loading = true) }
-
-            val newSession = SessionsService(endpoint, sessionsRepository).createSession(rootPath)
-            val newSessionKey = "${newSession.id}@$endpoint"
-
-            _uiState.update { currentState ->
-                currentState.copy(
-                    selectedSessionEntryKey = newSessionKey,
-                    loading = false
-                )
+            loadableErrorWrapHandler {
+                val newSession = SessionsService(endpoint, sessionsRepository).createSession(rootPath)
+                val newSessionKey = "${newSession.id}@$endpoint"
+                _uiState.update { currentState ->  currentState.copy(selectedSessionEntryKey = newSessionKey) }
             }
         }
-    }
 
-    fun deleteSession(endpoint: String, session: Session) {
+    fun deleteSession(endpoint: String, session: Session) =
         viewModelScope.launch {
-            _uiState.update { currentState -> currentState.copy(loading = true) }
-
-            SessionsService(endpoint, sessionsRepository).deleteSession(session.id)
-            _uiState.update { currentState ->
-                currentState.copy(
-                    selectedSessionEntryKey = dummyNewSessionEntry.key,
-                    loading = false
-                )
+            loadableErrorWrapHandler {
+                SessionsService(endpoint, sessionsRepository).deleteSession(session.id)
+                _uiState.update { currentState -> currentState.copy(selectedSessionEntryKey = dummyNewSessionEntry.key) }
             }
+        }
+
+    private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {
+        _uiState.update { currentState -> currentState.copy(loading = true, errors = listOf()) }
+        try {
+            block()
+        } catch (e: Exception) {
+            e.message?.let { _uiState.update { currentState -> currentState.copy(errors = currentState.errors + listOf(it)) } }
+            e.printStackTrace()
+        } finally {
+            _uiState.update { currentState -> currentState.copy(loading = false) }
         }
     }
 

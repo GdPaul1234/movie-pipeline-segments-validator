@@ -4,6 +4,7 @@ import org.openapitools.client.models.Session
 
 data class SessionsUiState(
     val loading: Boolean = false,
-    val selectedSessionEntryKey: String = dummyNewSessionEntry.key,
+    val errors: List<String> = listOf(),
+    val selectedSessionEntryKey: String = "",
     val sessions: Set<Map.Entry<String, Session>> = setOf(),
 )
