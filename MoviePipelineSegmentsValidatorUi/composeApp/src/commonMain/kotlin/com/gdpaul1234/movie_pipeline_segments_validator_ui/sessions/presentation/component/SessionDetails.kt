@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,8 +15,6 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -36,10 +33,9 @@ import kotlin.time.ExperimentalTime
 @Composable
 @Preview
 fun SessionDetails(
-    navigator: ThreePaneScaffoldNavigator<Map.Entry<String, Session>>?,
-    scope: CoroutineScope?,
     @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
-    onDelete: ((endpoint: String, session: Session) -> Unit)?
+    onDelete: ((endpoint: String, session: Session) -> Unit)?,
+    navigateBack: (() -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -55,8 +51,8 @@ fun SessionDetails(
                     )
                 },
                 navigationIcon = {
-                    if (navigator?.canNavigateBack() == true) {
-                        IconButton(onClick = { scope?.launch { navigator.navigateBack() } }) {
+                    if (navigateBack != null) {
+                        IconButton(onClick = { navigateBack() }) {
                             Icon(
                                 painterResource(Res.drawable.arrow_back_24px),
                                 contentDescription = "Back"

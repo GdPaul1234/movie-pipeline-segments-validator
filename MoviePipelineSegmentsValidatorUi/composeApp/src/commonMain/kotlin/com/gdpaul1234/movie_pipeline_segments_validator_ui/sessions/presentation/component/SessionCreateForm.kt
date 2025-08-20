@@ -3,7 +3,6 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentatio
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -11,13 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.openapitools.client.models.Session
 import java.net.MalformedURLException
 import java.net.URI
 import java.net.URISyntaxException
@@ -28,9 +24,8 @@ import java.nio.file.Paths
 @Composable
 @Preview
 fun SessionCreateForm (
-    navigator: ThreePaneScaffoldNavigator<Map.Entry<String, Session>>?,
-    scope: CoroutineScope?,
-    onCreate: ((endpoint: String, rootPath: String) -> Unit)?
+    onCreate: ((endpoint: String, rootPath: String) -> Unit)?,
+    navigateBack: (() -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -40,8 +35,8 @@ fun SessionCreateForm (
                 scrollBehavior = topAppBarScrollBehavior,
                 title = { Text(stringResource(Res.string.create_session_label)) },
                 navigationIcon = {
-                    if (navigator?.canNavigateBack() == true) {
-                        IconButton(onClick = { scope?.launch { navigator.navigateBack() } }) {
+                    if (navigateBack != null) {
+                        IconButton(onClick = { navigateBack() }) {
                             Icon(
                                 painterResource(Res.drawable.arrow_back_24px),
                                 contentDescription = "Back"
