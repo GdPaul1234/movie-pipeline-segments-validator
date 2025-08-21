@@ -89,7 +89,7 @@ fun SessionDetails(
             modifier = Modifier
                 .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 24.dp)
                 .consumeWindowInsets(paddingValues)
         ) {
             item { InfoSection(sessionEntry, onDelete) } // TODO Confirm before delete
