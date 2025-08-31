@@ -1,26 +1,25 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.ui
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.AnimatedPane
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
+import androidx.compose.material3.adaptive.layout.*
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.navigation.MediasNavigationWrapper
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaDetails
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui.MediaScreen
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui.NoMediaScreen
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.MediaList
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -32,6 +31,15 @@ fun SessionScreen(
 
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    var animationIsDisabled by rememberSaveable { mutableStateOf(false) }
+
+    suspend fun withAnimationDisabled(block: suspend () -> Unit) {
+        animationIsDisabled = true
+        block()
+        animationIsDisabled = false
+    }
 
     LaunchedEffect(uiState.selectedMediaStem) {
         if (uiState.selectedMediaStem.isEmpty()) {
@@ -63,7 +71,10 @@ fun SessionScreen(
                 listPane = {
                     val isDetailVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded
 
-                    AnimatedPane {
+                    AnimatedPane(
+                        enterTransition = if (animationIsDisabled) EnterTransition.None else motionDataProvider.calculateDefaultEnterTransition(paneRole),
+                        exitTransition = if (animationIsDisabled) ExitTransition.None else motionDataProvider.calculateDefaultExitTransition(paneRole)
+                    ) {
                         if (uiState.loading) {
                             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                                 CircularProgressIndicator(
@@ -84,13 +95,46 @@ fun SessionScreen(
                     }
                 },
                 detailPane = {
-                    AnimatedPane {
+                    val isListVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
+                    val isExtraVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Extra] == PaneAdaptedValue.Expanded
+
+                    AnimatedPane(
+                        enterTransition = motionDataProvider.calculateDefaultEnterTransition(paneRole),
+                        exitTransition = if (animationIsDisabled) ExitTransition.None else motionDataProvider.calculateDefaultExitTransition(paneRole)
+                    ) {
                         navigator.currentDestination?.contentKey?.let {
                             MediaScreen(
                                 viewModel = viewModel.buildMediaViewModel(it),
-                                navigateBack = { viewModel.navigateTo("") }
+                                navigateBack = when (isListVisible) {
+                                    true -> null
+                                    else -> { -> viewModel.navigateTo("") }
+                                },
+                                navigateToDetails = when (isExtraVisible) {
+                                    true -> null
+                                    else -> { ->
+                                        scope.launch {
+                                            withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it) }
+                                            navigator.navigateTo(ListDetailPaneScaffoldRole.Extra, it)
+                                        }
+                                    }
+                                }
                             )
                         } ?: NoMediaScreen()
+                    }
+                },
+                extraPane = {
+                    AnimatedPane {
+                        navigator.currentDestination?.contentKey?.let {
+                            MediaDetails(
+                                viewModel = viewModel.buildMediaViewModel(it),
+                                close = {
+                                    scope.launch {
+                                        withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.List, it) }
+                                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             )

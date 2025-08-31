@@ -35,5 +35,15 @@
     <string name="media_validate_segments">Validate segments</string>
     <string name="navigation_drawer">Navigation Drawer</string>
     <string name="close_drawer">Close drawer</string>
-    <string name="refresh_session_content">Refresh session content</string>
+    <string name="media_more_details_label">More details...</string>
+    <string name="media_more_details_supporting_text">Click here to see more details</string>
+    <string name="media_details">Details</string>
+    <string name="media_filepath">Path</string>
+    <string name="media_state">State</string>
+    <string name="media_imported_segments">Imported segments</string>
+    <string name="media_no_recording_metadata">No recording metadata to display</string>
+    <string name="media_recording_title">Program title</string>
+    <string name="media_recording_subTitle">Program subtitle or summary</string>
+    <string name="media_recording_description">Program description</string>
+    <string name="media_recording_recordingId">Recording ID</string>
 </resources>

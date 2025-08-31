@@ -86,19 +86,25 @@ fun RecentSessionsScreen(
                             )
                         }
                     } else {
+                        val isListVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
+                        val navigateBack = when (isListVisible) {
+                            true -> null
+                            else -> { -> viewModel.navigateTo("") }
+                        }
+
                         // Show the detail pane content if selected item is available
                         navigator.currentDestination?.contentKey?.let {
                             when (it.key) {
                                 "new_session" -> SessionCreateForm(
                                     onCreate = viewModel::createSession,
-                                    navigateBack = { viewModel.navigateTo("") }
+                                    navigateBack = navigateBack
                                 )
 
                                 else -> SessionDetails(
                                     sessionEntry = it,
                                     onClick = { endpoint, session -> viewModel.openSession(navController, endpoint, session) },
                                     onDelete = viewModel::deleteSession,
-                                    navigateBack = { viewModel.navigateTo("") }
+                                    navigateBack = navigateBack
                                 )
                             }
                         }
