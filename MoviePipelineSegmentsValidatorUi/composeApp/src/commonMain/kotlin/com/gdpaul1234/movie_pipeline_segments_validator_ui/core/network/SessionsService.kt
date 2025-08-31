@@ -23,7 +23,7 @@ class SessionsService(
     suspend fun createSession(rootPath: String) =
         persistSession(client.createSessionSessionsPost(SessionCreateBody(rootPath)))
 
-    suspend fun getSession(endpoint: String, sessionId: String, reload: Boolean = false): Session = when (reload) {
+    suspend fun getSession(sessionId: String, reload: Boolean = false): Session = when (reload) {
         false -> sessionsRepository.get(endpoint, sessionId).firstOrNull()
         true -> null
     } ?: persistSession(client.showSessionSessionsSessionIdGet(sessionId))

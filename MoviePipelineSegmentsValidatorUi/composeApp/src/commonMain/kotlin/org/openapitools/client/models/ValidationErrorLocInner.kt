@@ -28,8 +28,5 @@ import kotlinx.serialization.encoding.*
 
 class ValidationErrorLocInner (
 
-) {
-
-
-}
+)
 

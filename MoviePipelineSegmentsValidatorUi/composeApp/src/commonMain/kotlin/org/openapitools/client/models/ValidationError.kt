@@ -38,8 +38,5 @@ data class ValidationError (
 
     @SerialName(value = "type") @Required val type: kotlin.String
 
-) {
-
-
-}
+)
 

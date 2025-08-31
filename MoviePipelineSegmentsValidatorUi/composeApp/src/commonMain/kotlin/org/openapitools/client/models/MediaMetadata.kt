@@ -54,10 +54,10 @@ data class MediaMetadata (
     @SerialName(value = "description") @Required val description: kotlin.String,
 
     /* Start time stamp of recording, UNIX epoch */
-    @SerialName(value = "start_real") @Required val startReal: kotlin.Int,
+    @SerialName(value = "start_real") @Required val startReal: kotlin.Long,
 
     /* Stop time stamp of recording, UNIX epoch */
-    @SerialName(value = "stop_real") @Required val stopReal: kotlin.Int,
+    @SerialName(value = "stop_real") @Required val stopReal: kotlin.Long,
 
     /* Error message */
     @SerialName(value = "error_message") @Required val errorMessage: kotlin.String,
@@ -68,8 +68,5 @@ data class MediaMetadata (
     /* Unique ID of recording */
     @SerialName(value = "recording_id") @Required val recordingId: kotlin.String
 
-) {
-
-
-}
+)
 

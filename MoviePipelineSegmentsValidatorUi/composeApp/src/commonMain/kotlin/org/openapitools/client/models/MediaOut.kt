@@ -41,8 +41,5 @@ data class MediaOut (
 
     @SerialName(value = "recording_metadata") @Required val recordingMetadata: MediaMetadata?
 
-) {
-
-
-}
+)
 

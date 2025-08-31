@@ -36,8 +36,5 @@ data class SegmentInput (
     /* segment end position in seconds */
     @SerialName(value = "end") @Required val end: kotlin.Double
 
-) {
-
-
-}
+)
 

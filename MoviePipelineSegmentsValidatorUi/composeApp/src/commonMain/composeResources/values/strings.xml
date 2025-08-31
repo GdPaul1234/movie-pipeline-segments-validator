@@ -23,4 +23,17 @@
     <string name="delete_session">Delete session</string>
     <string name="infos">Infos</string>
     <string name="stats">Stats</string>
+    <string name="select_media_title">Select a media to review its segments</string>
+    <string name="select_media_subtitle">No media selected</string>
+    <string name="skip_backup_label">Skip backup</string>
+    <string name="skip_backup_supporting_text">When checked, the backup step (archiving or deleting source media files) is skipped</string>
+    <string name="media_channel">Channel</string>
+    <string name="media_start_real">Recording start time</string>
+    <string name="media_stop_real">Recording stop time</string>
+    <string name="media_duration">Media duration</string>
+    <string name="media_nb_data_errors">Nb data errors</string>
+    <string name="media_validate_segments">Validate segments</string>
+    <string name="navigation_drawer">Navigation Drawer</string>
+    <string name="close_drawer">Close drawer</string>
+    <string name="refresh_session_content">Refresh session content</string>
 </resources>

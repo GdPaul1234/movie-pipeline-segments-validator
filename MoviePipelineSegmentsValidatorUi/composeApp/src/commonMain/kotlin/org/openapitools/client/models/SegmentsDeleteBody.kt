@@ -33,8 +33,5 @@ data class SegmentsDeleteBody (
     /* segments to delete */
     @SerialName(value = "segments") @Required val segments: kotlin.collections.List<SegmentInput>
 
-) {
-
-
-}
+)
 

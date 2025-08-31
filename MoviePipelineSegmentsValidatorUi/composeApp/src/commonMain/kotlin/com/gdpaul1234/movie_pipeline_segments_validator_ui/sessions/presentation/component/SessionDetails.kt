@@ -34,10 +34,14 @@ import kotlin.time.ExperimentalTime
 @Preview
 fun SessionDetails(
     @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
+    onClick: ((endpoint: String, session: Session) -> Unit)?,
     onDelete: ((endpoint: String, session: Session) -> Unit)?,
     navigateBack: (() -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    val (key, session) = sessionEntry
+    val (_, endpoint) = key.split("@")
 
     Scaffold(
         topBar = {
@@ -64,7 +68,7 @@ fun SessionDetails(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO */ },
+                onClick = { onClick?.let { it(endpoint, session) } },
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Row(
@@ -107,7 +111,7 @@ private fun InfoSection(
 ) {
     val (key, session) = sessionEntry
     val (id, endpoint) = key.split("@")
-    val infos =listOf(
+    val infos = listOf(
         stringResource(Res.string.endpoint) to endpoint,
         stringResource(Res.string.session_id) to id,
         stringResource(Res.string.created_at) to session.createdAt.toString(),
