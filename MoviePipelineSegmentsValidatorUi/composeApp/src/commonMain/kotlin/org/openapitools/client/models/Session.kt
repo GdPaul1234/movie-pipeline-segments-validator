@@ -49,8 +49,5 @@ data class Session (
     /* medias to process in root_path indexed by stem (filename without extension).  `imported_segments` and `segments` is empty unless you query media from `medias` or `segments` endpoints */
     @SerialName(value = "medias") @Required val medias: kotlin.collections.Map<kotlin.String, Media>
 
-) {
-
-
-}
+)
 

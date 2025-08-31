@@ -63,7 +63,6 @@ class Media(BaseModel):
     title: Annotated[
         str,
         Field(
-            default='',
             pattern=FILENAME_REGEX,
             description='output title, must ends with .mp4',
             examples=['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4']

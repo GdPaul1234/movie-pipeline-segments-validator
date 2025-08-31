@@ -45,10 +45,10 @@ data class Media (
     @SerialName(value = "imported_segments") @Required val importedSegments: kotlin.collections.Map<kotlin.String, kotlin.String>,
 
     /* output title, must ends with .mp4 */
-    @SerialName(value = "title") val title: kotlin.String? = "",
+    @SerialName(value = "title") val title: kotlin.String,
 
     /* skip backup step */
-    @SerialName(value = "skip_backup") val skipBackup: kotlin.Boolean? = false,
+    @SerialName(value = "skip_backup") val skipBackup: kotlin.Boolean = false,
 
     /* segments for edit decision list output */
     @SerialName(value = "segments") val segments: kotlin.collections.List<SegmentOutput>? = null

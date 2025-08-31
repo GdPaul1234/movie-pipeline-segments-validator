@@ -32,8 +32,5 @@ data class ValidateSegmentsOut (
     /* Movie Pipeline EDL (Edit Decision List) file location */
     @SerialName(value = "edl_path") @Required val edlPath: kotlin.String
 
-) {
-
-
-}
+)
 

@@ -12,6 +12,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.dummyNewSessionEntry
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionCreateForm
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionDetails
@@ -20,8 +22,11 @@ import org.openapitools.client.models.Session
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun RecentSessionsScreen(viewModel: SessionsViewModel) {
-    val uiState by viewModel.uiState.collectAsState()
+fun RecentSessionsScreen(
+    viewModel: SessionsViewModel,
+    navController: NavHostController
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val navigator = rememberListDetailPaneScaffoldNavigator<Map.Entry<String, Session>>()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -91,6 +96,7 @@ fun RecentSessionsScreen(viewModel: SessionsViewModel) {
 
                                 else -> SessionDetails(
                                     sessionEntry = it,
+                                    onClick = { endpoint, session -> viewModel.openSession(navController, endpoint, session) },
                                     onDelete = viewModel::deleteSession,
                                     navigateBack = { viewModel.navigateTo("") }
                                 )

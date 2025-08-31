@@ -4,15 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.navigation.NavHostController
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.SessionRoute
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network.SessionsService
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.SessionsUiState
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.dummyNewSessionEntry
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.openapitools.client.models.Media
 import org.openapitools.client.models.Session
 import kotlin.reflect.KClass
 
@@ -20,7 +22,7 @@ class SessionsViewModel(
     private val sessionsRepository: SessionsRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SessionsUiState())
-    val uiState: StateFlow<SessionsUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -52,6 +54,11 @@ class SessionsViewModel(
                 _uiState.update { currentState -> currentState.copy(selectedSessionEntryKey = dummyNewSessionEntry.key) }
             }
         }
+
+    fun openSession(navController: NavHostController, endpoint: String, session: Session) {
+        val route = SessionRoute(endpoint, session.id, Media.State.waiting_segment_review.value)
+        navController.navigate(route)
+    }
 
     private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {
         _uiState.update { currentState -> currentState.copy(loading = true, errors = listOf()) }

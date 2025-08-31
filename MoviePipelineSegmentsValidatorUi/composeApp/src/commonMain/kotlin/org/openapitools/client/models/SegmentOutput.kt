@@ -40,8 +40,5 @@ data class SegmentOutput (
     /* segment duration in seconds */
     @SerialName(value = "duration") @Required val duration: kotlin.Double
 
-) {
-
-
-}
+)
 

@@ -1,28 +1,39 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui
 
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.lifecycle.viewmodel.MutableCreationExtras
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.ui.RecentSessionsScreen
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.ui.SessionsViewModel
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.HomeRoute
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.homeDestination
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.sessionDestination
 
 @Composable
-fun App(dataStore: DataStore<Preferences>) {
-    val extras = MutableCreationExtras().apply {
-        val sessionsRepository = SessionsRepository(dataStore)
-        set(SessionsViewModel.SESSION_REPOSITORY_KEY, sessionsRepository)
-    }
-
-    val viewModel: SessionsViewModel = viewModel(
-        factory = SessionsViewModel.Factory,
-        extras = extras
-    )
-
+fun App(
+    dataStore: DataStore<Preferences>,
+    navController: NavHostController = rememberNavController()
+) {
     MaterialTheme {
-        RecentSessionsScreen(viewModel)
+        Scaffold { paddingValues ->
+            val sessionsRepository = SessionsRepository(dataStore)
+
+            NavHost(
+                navController = navController,
+                startDestination = HomeRoute,
+                modifier = Modifier.fillMaxSize().padding(paddingValues).consumeWindowInsets(paddingValues)
+            ) {
+                homeDestination(sessionsRepository, navController)
+                sessionDestination(sessionsRepository, navController)
+            }
+        }
     }
 }

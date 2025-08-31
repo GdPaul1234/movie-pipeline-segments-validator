@@ -32,8 +32,5 @@ data class SegmentCreateBody (
     /* segment position in seconds */
     @SerialName(value = "position") @Required val position: kotlin.Double
 
-) {
-
-
-}
+)
 

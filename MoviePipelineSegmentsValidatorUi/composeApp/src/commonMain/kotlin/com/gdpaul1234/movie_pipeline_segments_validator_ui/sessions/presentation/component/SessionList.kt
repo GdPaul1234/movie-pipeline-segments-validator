@@ -119,6 +119,7 @@ fun SessionList(
 
                     ListItem(
                         modifier = Modifier
+                            .animateItem()
                             .clip(listItemShape)
                             .clickable { onItemClick?.let { it(sessionEntry) } },
                         colors = listItemColors(sessionEntry),

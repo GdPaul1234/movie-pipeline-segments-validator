@@ -32,8 +32,5 @@ data class SessionCreateBody (
     /* root path for medias */
     @SerialName(value = "root_path") @Required val rootPath: kotlin.String
 
-) {
-
-
-}
+)
 

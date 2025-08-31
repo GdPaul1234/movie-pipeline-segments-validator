@@ -32,8 +32,5 @@ data class HTTPValidationError (
 
     @SerialName(value = "detail") val detail: kotlin.collections.List<ValidationError>? = null
 
-) {
-
-
-}
+)
 

@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.androidx.adaptative.layout)
             implementation(libs.androidx.adaptative.navigation)
             implementation(libs.androidx.window.core)
+            implementation(libs.androidx.navigation.compose)
 
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
