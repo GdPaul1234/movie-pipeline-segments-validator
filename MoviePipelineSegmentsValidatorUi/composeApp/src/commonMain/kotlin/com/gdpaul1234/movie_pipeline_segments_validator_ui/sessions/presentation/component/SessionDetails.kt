@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaPreviewParameter
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -22,7 +23,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.openapitools.client.models.Media
-import org.openapitools.client.models.SegmentOutput
 import org.openapitools.client.models.Session
 import java.io.File
 import kotlin.time.Clock
@@ -67,23 +67,11 @@ fun SessionDetails(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
+                text = { Text(stringResource(Res.string.load_session)) },
+                icon = { Icon(painterResource(Res.drawable.open_in_browser_24px), null) },
                 onClick = { onClick?.let { it(endpoint, session) } },
-                shape = MaterialTheme.shapes.extraLarge,
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        painterResource(Res.drawable.open_in_browser_24px),
-                        null,
-                        contentDescription = null,
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(text = stringResource(Res.string.load_session))
-                }
-            }
+            )
         }
     ) { paddingValues ->
         LazyVerticalGrid (
@@ -119,7 +107,7 @@ private fun InfoSection(
         stringResource(Res.string.medias_number) to session.medias.size.toString()
     )
 
-    val listItemColors = ListItemDefaults.colors(MaterialTheme.colorScheme.surfaceContainerHighest)
+    val listItemColors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor)
 
     Card(modifier = Modifier.padding(bottom = 16.dp)) {
         ListItem(
@@ -159,7 +147,7 @@ private fun StatsSection (
     @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
     isPreview: Boolean = LocalInspectionMode.current
 ) {
-    val listItemColors = ListItemDefaults.colors(MaterialTheme.colorScheme.surfaceContainerHighest)
+    val listItemColors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor)
 
     Card {
         ListItem(
@@ -197,21 +185,7 @@ class SessionEntryPreviewParameterProvider : PreviewParameterProvider<Map.Entry<
                 createdAt = Clock.System.now() - 5.days,
                 updatedAt = Clock.System.now() - 2.days,
                 rootPath = "V:\\PVR",
-                medias = setOf(
-                    Media(
-                        filepath = "V:\\PVR\\Channel 1_Movie Name_2022-12-05-2203-20.ts",
-                        state = Media.State.waiting_segment_review,
-                        title = "Movie Name, le titre long.mp4",
-                        skipBackup = false,
-                        importedSegments = mapOf(
-                            "auto" to "00:00:00.000-01:05:54.840,00:42:38.980-01:49:59.300,01:05:54.840-01:49:59.300",
-                            "result_2024-10-05T11:40:39.732479" to "00:25:26.000-00:34:06.000,00:40:10.000-01:01:23.000,01:07:34.000-01:17:59.000"
-                        ),
-                        segments = listOf(
-                            SegmentOutput(start = 1526.0, end = 3246.0, duration = 1720.0)
-                        )
-                    )
-                ).associateBy { File(it.filepath).nameWithoutExtension }
+                medias = MediaPreviewParameter().values.associateBy { File(it.filepath).nameWithoutExtension }
             )
         ).associateBy { "${it.id}@http://localhost:8000" }.entries.first()
     )

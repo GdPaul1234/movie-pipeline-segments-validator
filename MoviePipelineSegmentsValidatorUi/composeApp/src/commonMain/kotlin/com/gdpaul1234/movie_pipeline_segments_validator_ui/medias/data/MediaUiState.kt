@@ -8,6 +8,7 @@ data class MediaUiState(
     val errors: List<String> = listOf(),
 
     val media: Media? = null,
+    val position: Double = 0.0,
     val duration: Double? = null,
     val recordingMetadata: MediaMetadata? = null
 )

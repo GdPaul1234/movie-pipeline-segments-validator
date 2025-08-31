@@ -15,7 +15,7 @@ data class MediasTopLevelDestination(
 val TOP_LEVEL_DESTINATIONS = listOf(
     MediasTopLevelDestination(
         mediaStateEq = Media.State.waiting_metadata,
-        icon = Res.drawable.upload_24px,
+        icon = Res.drawable.live_tv_24px,
         iconTextResource = Res.string.stats_waiting_metadata,
     ),
     MediasTopLevelDestination(
