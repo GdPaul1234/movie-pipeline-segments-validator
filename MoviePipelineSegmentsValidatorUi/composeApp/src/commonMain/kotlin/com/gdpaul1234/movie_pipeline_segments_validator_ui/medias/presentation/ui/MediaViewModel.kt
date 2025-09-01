@@ -7,6 +7,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network.MediasService
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.MediaUiState
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsSelectionMode
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,6 +63,32 @@ class MediaViewModel(
     fun setSkipBackup(skipBackup: Boolean) {
         _uiState.update { currentState ->
             currentState.copy(media = currentState.media?.copy(skipBackup = skipBackup))
+        }
+    }
+
+    fun setPosition(position: Float) {
+        _uiState.update { currentState -> currentState.copy(position = position.toDouble()) }
+    }
+
+    fun toggleSegmentsView() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                segmentsView = when (currentState.segmentsView) {
+                    SegmentsView.LIST -> SegmentsView.TIMELINE
+                    SegmentsView.TIMELINE -> SegmentsView.LIST
+                }
+            )
+        }
+    }
+
+    fun setSelectionMode(multiSelectionEnabled: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                segmentsSelectionMode = when (multiSelectionEnabled) {
+                    true -> SegmentsSelectionMode.MULTI
+                    else -> SegmentsSelectionMode.SINGLE
+                }
+            )
         }
     }
 

@@ -36,7 +36,6 @@
     <string name="navigation_drawer">Navigation Drawer</string>
     <string name="close_drawer">Close drawer</string>
     <string name="media_more_details_label">More details...</string>
-    <string name="media_more_details_supporting_text">Click here to see more details</string>
     <string name="media_details">Details</string>
     <string name="media_filepath">Path</string>
     <string name="media_state">State</string>
@@ -46,4 +45,8 @@
     <string name="media_recording_subTitle">Program subtitle or summary</string>
     <string name="media_recording_description">Program description</string>
     <string name="media_recording_recordingId">Recording ID</string>
+    <string name="list_segments_view">Segments list view</string>
+    <string name="timeline_segments_view">Segments timeline view</string>
+    <string name="segments_multi_selection_mode">Multi selection enabled</string>
+    <string name="segments_import">Import segments</string>
 </resources>

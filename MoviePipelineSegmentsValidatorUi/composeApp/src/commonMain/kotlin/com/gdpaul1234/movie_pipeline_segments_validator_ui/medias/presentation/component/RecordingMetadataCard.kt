@@ -2,14 +2,12 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -22,6 +20,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
+private data class MetadataField (val fieldName: String, val value: String, val weight: Float, val minWidth: Dp? = null)
+
 @OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Composable
@@ -33,21 +33,24 @@ fun MediaRecordingMetadataCard(
     recordingMetadata.apply {
         Card(modifier = Modifier.padding(bottom = 16.dp)) {
             val listItemColors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor)
+
             val metadata = listOf(
-                stringResource(Res.string.media_channel) to channel,
-                stringResource(Res.string.media_start_real) to Instant.fromEpochSeconds(startReal).toString(),
-                stringResource(Res.string.media_stop_real) to Instant.fromEpochSeconds(stopReal).toString(),
-                stringResource(Res.string.media_duration) to (duration?.seconds?.inWholeSeconds?.seconds?.toString() ?: "N/A")
+                MetadataField(stringResource(Res.string.media_channel), channel, 1f),
+                MetadataField(stringResource(Res.string.media_start_real), Instant.fromEpochSeconds(startReal).toString(), 1.5f, 256.dp),
+                MetadataField(stringResource(Res.string.media_stop_real), Instant.fromEpochSeconds(stopReal).toString(), 1.5f, 256.dp),
+                MetadataField(stringResource(Res.string.media_duration), duration?.seconds?.inWholeSeconds?.seconds?.toString() ?: "N/A", 1f, 170.dp)
             )
 
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(256.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(8.dp)
+            FlowRow(
+                modifier = Modifier.padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                items(items = metadata, key = { it.first }) { (text, value) ->
+                metadata.forEach { (text, value, weight, minWidth) ->
                     ListItem(
+                        modifier = Modifier
+                            .weight(weight)
+                            .then(minWidth?.let { Modifier.widthIn(it) } ?: Modifier),
                         colors = listItemColors,
                         headlineContent = {
                             Text(
@@ -59,46 +62,43 @@ fun MediaRecordingMetadataCard(
                     )
                 }
 
-                item {
-                    ListItem(
-                        colors = listItemColors,
-                        headlineContent = {
-                            TooltipBox(
-                                positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
-                                tooltip = { PlainTooltip { Text(errorMessage) } },
-                                state = rememberTooltipState()
-                            ) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Text(
-                                        text = "$nbDataErrors",
-                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
-                                    )
-                                    Icon(
-                                        painterResource(Res.drawable.info_24px),
-                                        contentDescription = "Info",
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                            }
-                        },
-                        supportingContent = { Text(stringResource(Res.string.media_nb_data_errors)) }
-                    )
-                }
-
-                if (navigateToDetails != null) {
-                    item {
-                        ListItem(
-                            modifier = Modifier.clickable { navigateToDetails() },
-                            colors = listItemColors,
-                            headlineContent = {
+                ListItem(
+                    modifier = Modifier.weight(1f),
+                    colors = listItemColors,
+                    headlineContent = {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(errorMessage) } },
+                            state = rememberTooltipState()
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(
-                                    text = stringResource(Res.string.media_more_details_label),
+                                    text = "$nbDataErrors",
                                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                                 )
-                            },
-                            supportingContent = { Text(stringResource(Res.string.media_more_details_supporting_text)) }
-                        )
-                    }
+                                Icon(
+                                    painterResource(Res.drawable.info_24px),
+                                    contentDescription = "Info",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    },
+                    supportingContent = { Text(stringResource(Res.string.media_nb_data_errors)) }
+                )
+
+
+                if (navigateToDetails != null) {
+                    ListItem(
+                        modifier = Modifier.weight(1f).clickable { navigateToDetails() },
+                        colors = listItemColors,
+                        headlineContent = {
+                            Text(
+                                text = stringResource(Res.string.media_more_details_label),
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                            )
+                        }
+                    )
                 }
             }
         }
