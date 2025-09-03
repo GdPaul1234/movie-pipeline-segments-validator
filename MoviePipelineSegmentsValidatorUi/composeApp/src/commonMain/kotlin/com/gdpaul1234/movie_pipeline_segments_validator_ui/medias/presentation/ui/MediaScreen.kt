@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,6 +48,9 @@ fun MediaScreen(
         listOf(Media.State.media_processing, Media.State.media_processed).contains(it.state)
     } ?: true
 
+    val title by remember { derivedStateOf { uiState.media?.title ?: "" } }
+    val skipBackup by remember { derivedStateOf { uiState.media?.skipBackup ?: false } }
+
     LaunchedEffect(uiState.errors) {
         uiState.errors.forEach { message ->
             snackbarHostState.showSnackbar(message)
@@ -60,11 +64,11 @@ fun MediaScreen(
                     scrollBehavior = topAppBarScrollBehavior,
                     title = {
                         if (isReadOnly) {
-                            Text(viewModel.getTitle())
+                            Text(title)
                         } else {
                             TextField(
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-                                value = viewModel.getTitle(),
+                                value = title,
                                 onValueChange = viewModel::setTitle,
                                 singleLine = true
                             )
@@ -138,13 +142,13 @@ fun MediaScreen(
                                 .padding(bottom = 16.dp)
                                 .then(
                                     if (isReadOnly) Modifier
-                                    else Modifier.clickable { viewModel.setSkipBackup(!viewModel.getSkipBackup()) }
+                                    else Modifier.clickable { viewModel.setSkipBackup(!skipBackup) }
                                 ),
                             headlineContent = { Text(stringResource(Res.string.skip_backup_label)) },
                             supportingContent = { Text(stringResource(Res.string.skip_backup_supporting_text)) },
                             trailingContent = {
                                 Switch(
-                                    checked = viewModel.getSkipBackup(),
+                                    checked = skipBackup,
                                     onCheckedChange = if (isReadOnly) null else viewModel::setSkipBackup
                                 )
                             },

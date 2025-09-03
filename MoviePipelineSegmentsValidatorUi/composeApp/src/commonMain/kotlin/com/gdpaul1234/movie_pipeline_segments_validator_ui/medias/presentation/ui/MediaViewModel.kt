@@ -12,6 +12,7 @@ import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsV
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
@@ -50,15 +51,11 @@ class MediaViewModel(
         }
     }
 
-    fun getTitle() = uiState.value.media?.title ?: ""
-
     fun setTitle(title: String) {
         _uiState.update { currentState ->
             currentState.copy(media = currentState.media?.copy(title = title))
         }
     }
-
-    fun getSkipBackup() = uiState.value.media?.skipBackup ?: false
 
     fun setSkipBackup(skipBackup: Boolean) {
         _uiState.update { currentState ->
