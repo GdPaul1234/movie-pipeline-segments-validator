@@ -17,7 +17,7 @@ class MediasService(
     }
 
     private suspend fun persistMedia(response: HttpResponse<MediaOut>) =
-        response.body().also { sessionsRepository.updateMedia(endpoint, sessionId, it.media) }
+        response.body().also { sessionsRepository.updateMedia(endpoint, sessionId, it.media, keepLocalData = true)  }
 
     suspend fun getMediaInDetails(mediaStem: String) =
         persistMedia(client.showMediaSessionsSessionIdMediasMediaStemGet(mediaStem, sessionId))
