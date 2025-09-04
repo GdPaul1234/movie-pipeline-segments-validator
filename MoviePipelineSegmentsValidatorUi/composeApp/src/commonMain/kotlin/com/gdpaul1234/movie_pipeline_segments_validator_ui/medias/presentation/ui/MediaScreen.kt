@@ -21,6 +21,7 @@ import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.c
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaActionsTopAppBar
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaRecordingMetadataCard
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.SegmentsAsList
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.SegmentsAsTimeline
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.ValidateSegmentsButton
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.util.formatSecondsToPeriod
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
@@ -43,7 +44,7 @@ fun MediaScreen(
     val adaptiveInfo = currentWindowAdaptiveInfo()
 
     val isReadOnly = uiState.media?.let {
-        listOf(Media.State.media_processing, Media.State.media_processed).contains(it.state)
+        it.state in listOf(Media.State.media_processing, Media.State.media_processed)
     } ?: true
 
     val title by remember { derivedStateOf { uiState.media?.title ?: "" } }
@@ -205,9 +206,15 @@ fun MediaScreen(
                             )
 
                             when (uiState.segmentsView) {
-                                SegmentsView.TIMELINE -> Text("TODO")
+                                SegmentsView.TIMELINE -> SegmentsAsTimeline(
+                                    segments = uiState.media?.segments ?: emptyList(),
+                                    selectedSegments = uiState.selectedSegments,
+                                    toggleSegment = viewModel::toggleSegment,
+                                    position = uiState.position,
+                                    duration = duration,
+                                )
+
                                 SegmentsView.LIST -> SegmentsAsList(
-                                    modifier = Modifier,
                                     segments = uiState.media?.segments ?: emptyList(),
                                     selectedSegments = uiState.selectedSegments,
                                     toggleSegment = viewModel::toggleSegment
