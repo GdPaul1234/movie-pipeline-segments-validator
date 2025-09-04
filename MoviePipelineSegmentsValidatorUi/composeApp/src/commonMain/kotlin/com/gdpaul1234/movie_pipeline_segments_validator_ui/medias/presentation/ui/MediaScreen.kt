@@ -6,11 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,15 +16,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaActionsBottomBar
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaActionsTopAppBar
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaRecordingMetadataCard
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.SegmentsAsList
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.ValidateSegmentsButton
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.util.formatSecondsToPeriod
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.openapitools.client.models.Media
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
@@ -188,10 +186,7 @@ fun MediaScreen(
                                     .fillMaxHeight()
                             ) {
                                 Text(
-                                    text = listOf(
-                                        uiState.position.seconds.inWholeSeconds.seconds,
-                                        duration.seconds.inWholeSeconds.seconds
-                                    ).joinToString(" / "),
+                                    text = formatSecondsToPeriod(uiState.position),
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier
                                         .align(Alignment.BottomStart)
@@ -208,6 +203,16 @@ fun MediaScreen(
                                 value = uiState.position.toFloat(),
                                 onValueChange = viewModel::setPosition
                             )
+
+                            when (uiState.segmentsView) {
+                                SegmentsView.TIMELINE -> Text("TODO")
+                                SegmentsView.LIST -> SegmentsAsList(
+                                    modifier = Modifier,
+                                    segments = uiState.media?.segments ?: emptyList(),
+                                    selectedSegments = uiState.selectedSegments,
+                                    toggleSegment = viewModel::toggleSegment
+                                )
+                            }
                         }
                     }
                 }

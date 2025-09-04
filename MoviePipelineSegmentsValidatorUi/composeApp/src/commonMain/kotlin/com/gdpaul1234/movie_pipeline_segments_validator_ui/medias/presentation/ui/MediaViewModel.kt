@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.openapitools.client.models.SegmentOutput
 import kotlin.reflect.KClass
 
 class MediaViewModel(
@@ -87,6 +88,23 @@ class MediaViewModel(
                 }
             )
         }
+    }
+
+    fun toggleSegment(segment: SegmentOutput) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                selectedSegments = when (currentState.segmentsSelectionMode) {
+                    SegmentsSelectionMode.SINGLE -> setOf(segment)
+
+                    SegmentsSelectionMode.MULTI -> when {
+                        currentState.selectedSegments.contains(segment) -> currentState.selectedSegments.filter { it != segment }.toSet()
+                        else -> currentState.selectedSegments + setOf(segment)
+                    }
+                }
+            )
+
+        }
+
     }
 
     private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {
