@@ -12,7 +12,6 @@ import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsV
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.openapitools.client.models.SegmentOutput
@@ -94,10 +93,13 @@ class MediaViewModel(
         _uiState.update { currentState ->
             currentState.copy(
                 selectedSegments = when (currentState.segmentsSelectionMode) {
-                    SegmentsSelectionMode.SINGLE -> setOf(segment)
+                    SegmentsSelectionMode.SINGLE -> when {
+                        segment in currentState.selectedSegments -> emptySet()
+                        else -> setOf(segment)
+                    }
 
                     SegmentsSelectionMode.MULTI -> when {
-                        currentState.selectedSegments.contains(segment) -> currentState.selectedSegments.filter { it != segment }.toSet()
+                        segment in currentState.selectedSegments -> currentState.selectedSegments.filter { it != segment }.toSet()
                         else -> currentState.selectedSegments + setOf(segment)
                     }
                 }

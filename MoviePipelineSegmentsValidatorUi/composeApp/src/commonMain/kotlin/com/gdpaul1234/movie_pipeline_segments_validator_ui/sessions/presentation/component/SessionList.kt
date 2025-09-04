@@ -98,7 +98,6 @@ fun SessionList(
             if (sessionEntries.isNotEmpty()) {
                 item {
                     ListItem(
-                        modifier = Modifier.offset(y = 16.dp),
                         colors = ListItemDefaults.colors(containerBackgroundColor),
                         headlineContent = {
                             Text(
