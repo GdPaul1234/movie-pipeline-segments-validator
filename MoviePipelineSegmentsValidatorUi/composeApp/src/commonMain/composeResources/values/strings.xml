@@ -49,4 +49,6 @@
     <string name="timeline_segments_view">Segments timeline view</string>
     <string name="segments_multi_selection_mode">Multi selection enabled</string>
     <string name="segments_import">Import segments</string>
+    <string name="forward_x_seconds">Forward %1$ds</string>
+    <string name="replay_x_seconds">Replay %1$ds</string>
 </resources>
