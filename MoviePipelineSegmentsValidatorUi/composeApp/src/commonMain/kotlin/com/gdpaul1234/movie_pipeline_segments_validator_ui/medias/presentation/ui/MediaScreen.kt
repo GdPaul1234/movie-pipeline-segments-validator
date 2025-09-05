@@ -19,6 +19,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOW
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaActionsBottomBar
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaActionsTopAppBar
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaPositionToolbar
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaRecordingMetadataCard
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.SegmentsAsList
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.SegmentsAsTimeline
@@ -183,18 +184,26 @@ fun MediaScreen(
                                 Modifier
                                     .clip(ShapeDefaults.Large)
                                     .background(MaterialTheme.colorScheme.secondaryContainer)
-                                    .aspectRatio(21f / 9f)
+                                    .aspectRatio(16f / 9f)
                                     .fillMaxHeight()
                             ) {
-                                Text(
-                                    text = formatSecondsToPeriod(uiState.position),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier
-                                        .align(Alignment.BottomStart)
-                                        .offset(16.dp, (-16).dp)
-                                        .clip(ShapeDefaults.Small)
-                                        .background(MaterialTheme.colorScheme.surfaceDim)
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                if (adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                                    MediaPositionToolbar(
+                                        modifier = Modifier.align(Alignment.BottomStart),
+                                        position = uiState.position,
+                                        duration = duration,
+                                        setPosition = viewModel::setPosition
+                                    )
+                                }
+                            }
+
+                            if (!adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                                MediaPositionToolbar(
+                                    modifier = Modifier.align(Alignment.BottomStart),
+                                    position = uiState.position,
+                                    duration = duration,
+                                    setPosition = viewModel::setPosition,
+                                    isSmallScreen = true
                                 )
                             }
 
@@ -220,6 +229,12 @@ fun MediaScreen(
                                     toggleSegment = viewModel::toggleSegment
                                 )
                             }
+                        }
+                    }
+
+                    item {
+                        if (!adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                            Spacer(Modifier.height(72.dp))
                         }
                     }
                 }

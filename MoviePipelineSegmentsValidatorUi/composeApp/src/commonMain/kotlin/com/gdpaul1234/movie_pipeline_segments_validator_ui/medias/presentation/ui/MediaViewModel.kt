@@ -63,7 +63,7 @@ class MediaViewModel(
         }
     }
 
-    fun setPosition(position: Float) {
+    fun setPosition(position: Number) {
         _uiState.update { currentState -> currentState.copy(position = position.toDouble()) }
     }
 
