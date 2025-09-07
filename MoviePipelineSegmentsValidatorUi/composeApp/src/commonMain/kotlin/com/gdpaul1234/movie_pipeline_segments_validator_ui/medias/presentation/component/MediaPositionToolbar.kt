@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaPositionToolbar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     position: Double,
     duration: Double,
     setPosition: (Double) -> Unit,
@@ -31,7 +31,8 @@ fun MediaPositionToolbar(
     Row(
         modifier = modifier
             .then(if (isSmallScreen) Modifier else Modifier.padding(8.dp))
-            .height(IntrinsicSize.Min).fillMaxSize(),
+            .height(IntrinsicSize.Min)
+            .fillMaxSize(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Surface(

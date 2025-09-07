@@ -5,32 +5,30 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaActionsBottomBar
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaActionsTopAppBar
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaPositionToolbar
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaRecordingMetadataCard
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.SegmentsAsList
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.SegmentsAsTimeline
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.ValidateSegmentsButton
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.util.formatSecondsToPeriod
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.*
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.openapitools.client.models.Media
+import org.openapitools.client.models.MediaMetadata
+import org.openapitools.client.models.SegmentOutput
 import kotlin.time.ExperimentalTime
 
+@Suppress("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun MediaScreen(
@@ -42,7 +40,6 @@ fun MediaScreen(
 
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
-    val adaptiveInfo = currentWindowAdaptiveInfo()
 
     val isReadOnly = uiState.media?.let {
         it.state in listOf(Media.State.media_processing, Media.State.media_processed)
@@ -57,23 +54,16 @@ fun MediaScreen(
         }
     }
 
-    Box(contentAlignment = Alignment.TopCenter) {
+    BoxWithConstraints {
+        val isSmallScreen = minWidth < WIDTH_DP_MEDIUM_LOWER_BOUND.dp
+        val canShowEditSegmentsSideToolbar = minWidth >= (WIDTH_DP_LARGE_LOWER_BOUND + 130).dp &&
+                minHeight >= (HEIGHT_DP_MEDIUM_LOWER_BOUND + 48).dp
+
         Scaffold(
             topBar = {
                 LargeTopAppBar(
                     scrollBehavior = topAppBarScrollBehavior,
-                    title = {
-                        if (isReadOnly) {
-                            Text(title)
-                        } else {
-                            TextField(
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-                                value = title,
-                                onValueChange = viewModel::setTitle,
-                                singleLine = true
-                            )
-                        }
-                    },
+                    title = { TitleSection(isReadOnly, title, viewModel::setTitle) },
                     navigationIcon = {
                         if (navigateBack != null) {
                             IconButton(onClick = { navigateBack() }) {
@@ -85,7 +75,7 @@ fun MediaScreen(
                         }
                     },
                     actions = {
-                        if (!adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                        if (isSmallScreen) {
                             MediaActionsTopAppBar(
                                 segmentsView = uiState.segmentsView,
                                 segmentsSelectionMode = uiState.segmentsSelectionMode,
@@ -98,12 +88,12 @@ fun MediaScreen(
                 )
             },
             floatingActionButton = {
-                if (!adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                if (isSmallScreen) {
                     ValidateSegmentsButton(onClick = { /* TODO validate segments */ })
                 }
             },
             bottomBar = {
-                if (adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+                if (!isSmallScreen) {
                     MediaActionsBottomBar(
                         segmentsView = uiState.segmentsView,
                         segmentsSelectionMode = uiState.segmentsSelectionMode,
@@ -116,6 +106,7 @@ fun MediaScreen(
             modifier = Modifier
                 .safeContentPadding()
                 .widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)
+                .align(Alignment.TopCenter)
                 .fillMaxSize()
             ,
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
@@ -136,110 +127,175 @@ fun MediaScreen(
                 }
             } else {
                 LazyColumn(modifier = rootModifier) {
-                    item {
-                        ListItem(
-                            modifier = Modifier
-                                .padding(bottom = 16.dp)
-                                .then(
-                                    if (isReadOnly) Modifier
-                                    else Modifier.clickable { viewModel.setSkipBackup(!skipBackup) }
-                                ),
-                            headlineContent = { Text(stringResource(Res.string.skip_backup_label)) },
-                            supportingContent = { Text(stringResource(Res.string.skip_backup_supporting_text)) },
-                            trailingContent = {
-                                Switch(
-                                    checked = skipBackup,
-                                    onCheckedChange = if (isReadOnly) null else viewModel::setSkipBackup
-                                )
-                            },
-                        )
-                    }
-
-                    item {
-                        uiState.recordingMetadata?.let { recordingMetadata ->
-                            MediaRecordingMetadataCard(
-                                recordingMetadata = recordingMetadata,
-                                duration = uiState.duration,
-                                navigateToDetails = navigateToDetails
-                            )
-                        } ?: Card(modifier = Modifier.padding(bottom = 16.dp)) {
-                            if (navigateToDetails != null) {
-                                ListItem(
-                                    modifier = Modifier.clickable { navigateToDetails() },
-                                    colors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor),
-                                    headlineContent = {
-                                        Text(
-                                            text = stringResource(Res.string.media_more_details_label),
-                                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    item { SetSkipBackupSection(isReadOnly, skipBackup, viewModel::setSkipBackup) }
+                    item { MediaMetadataSection(uiState.recordingMetadata, uiState.duration, navigateToDetails) }
 
                     item {
                         uiState.duration?.let { duration ->
-                            Box(
-                                Modifier
-                                    .clip(ShapeDefaults.Large)
-                                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                                    .aspectRatio(16f / 9f)
-                                    .fillMaxHeight()
-                            ) {
-                                if (adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
-                                    MediaPositionToolbar(
-                                        modifier = Modifier.align(Alignment.BottomStart),
-                                        position = uiState.position,
-                                        duration = duration,
-                                        setPosition = viewModel::setPosition
-                                    )
-                                }
-                            }
+                            MediaPreviewSection(uiState.position, duration, viewModel::setPosition, isSmallScreen)
 
-                            if (!adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
-                                MediaPositionToolbar(
-                                    modifier = Modifier.align(Alignment.BottomStart),
+                            uiState.media?.segments?.let { segments ->
+                                SegmentsEditSection(
+                                    segmentsView = uiState.segmentsView,
+                                    segments = segments,
+                                    selectedSegments = uiState.selectedSegments,
                                     position = uiState.position,
                                     duration = duration,
-                                    setPosition = viewModel::setPosition,
-                                    isSmallScreen = true
-                                )
-                            }
-
-                            Slider(
-                                modifier = Modifier.fillMaxWidth(),
-                                valueRange = 0f..duration.toFloat(),
-                                value = uiState.position.toFloat(),
-                                onValueChange = viewModel::setPosition
-                            )
-
-                            when (uiState.segmentsView) {
-                                SegmentsView.TIMELINE -> SegmentsAsTimeline(
-                                    segments = uiState.media?.segments ?: emptyList(),
-                                    selectedSegments = uiState.selectedSegments,
                                     toggleSegment = viewModel::toggleSegment,
-                                    position = uiState.position,
-                                    duration = duration,
-                                )
-
-                                SegmentsView.LIST -> SegmentsAsList(
-                                    segments = uiState.media?.segments ?: emptyList(),
-                                    selectedSegments = uiState.selectedSegments,
-                                    toggleSegment = viewModel::toggleSegment
+                                    canShowEditSegmentsSideToolbar = canShowEditSegmentsSideToolbar,
+                                    isSmallScreen = isSmallScreen
                                 )
                             }
-                        }
-                    }
-
-                    item {
-                        if (!adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
-                            Spacer(Modifier.height(72.dp))
                         }
                     }
                 }
             }
         }
+
+        if (canShowEditSegmentsSideToolbar) {
+            SegmentsEditVerticalToolbar(
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 24.dp),
+                selectedSegments = uiState.selectedSegments
+            )
+        }
     }
 }
 
+@Composable
+private fun TitleSection(
+    isReadOnly: Boolean,
+    title: String,
+    setTitle: (String) -> Unit
+) {
+    if (isReadOnly) {
+        Text(title)
+    } else {
+        TextField(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
+            value = title,
+            onValueChange = setTitle,
+            singleLine = true
+        )
+    }
+}
+
+@Composable
+private fun SetSkipBackupSection(
+    isReadOnly: Boolean,
+    skipBackup: Boolean,
+    setSkipBackup: (Boolean) -> Unit
+) {
+    ListItem(
+        modifier = Modifier
+            .padding(bottom = 16.dp)
+            .then(
+                if (isReadOnly) Modifier
+                else Modifier.clickable { setSkipBackup(!skipBackup) }
+            ),
+        headlineContent = { Text(stringResource(Res.string.skip_backup_label)) },
+        supportingContent = { Text(stringResource(Res.string.skip_backup_supporting_text)) },
+        trailingContent = {
+            Switch(
+                checked = skipBackup,
+                onCheckedChange = if (isReadOnly) null else setSkipBackup
+            )
+        },
+    )
+}
+
+@Composable
+private fun MediaMetadataSection(
+    recordingMetadata: MediaMetadata?,
+    duration: Double?,
+    navigateToDetails: (() -> Unit)?
+) {
+    recordingMetadata?.let {
+        MediaRecordingMetadataCard(
+            recordingMetadata = it,
+            duration = duration,
+            navigateToDetails = navigateToDetails
+        )
+    } ?: Card(modifier = Modifier.padding(bottom = 16.dp)) {
+        if (navigateToDetails != null) {
+            ListItem(
+                modifier = Modifier.clickable { navigateToDetails() },
+                colors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor),
+                headlineContent = {
+                    Text(
+                        text = stringResource(Res.string.media_more_details_label),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun MediaPreviewSection(
+    position: Double,
+    duration: Double,
+    setPosition: (Number) -> Unit,
+    isSmallScreen: Boolean
+) {
+    Box(
+        Modifier
+            .clip(ShapeDefaults.Large)
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .aspectRatio(16f / 9f)
+            .fillMaxHeight()
+    ) {
+        if (!isSmallScreen) {
+            MediaPositionToolbar(Modifier.align(Alignment.BottomStart), position, duration, setPosition)
+        }
+    }
+
+    if (isSmallScreen) {
+        MediaPositionToolbar(Modifier, position, duration, setPosition, isSmallScreen = true)
+    }
+
+    Slider(
+        modifier = Modifier.fillMaxWidth(),
+        valueRange = 0f..duration.toFloat(),
+        value = position.toFloat(),
+        onValueChange = setPosition
+    )
+}
+
+@Composable
+private fun SegmentsEditSection(
+    segmentsView: SegmentsView,
+    segments: List<SegmentOutput>,
+    selectedSegments: Set<SegmentOutput>,
+    position: Double,
+    duration: Double,
+    toggleSegment:  (SegmentOutput) -> Unit,
+    canShowEditSegmentsSideToolbar: Boolean,
+    isSmallScreen: Boolean
+) {
+    Card(
+        modifier = if (canShowEditSegmentsSideToolbar) Modifier else Modifier.padding(top = 16.dp, bottom = 72.dp).fillMaxSize(),
+        colors = if (canShowEditSegmentsSideToolbar) CardDefaults.cardColors(Color.Transparent) else CardDefaults.cardColors()
+    ) {
+        if (!canShowEditSegmentsSideToolbar) {
+            SegmentsEditHorizontalToolbar(selectedSegments, isSmallScreen)
+        }
+
+        when (segmentsView) {
+            SegmentsView.TIMELINE -> SegmentsAsTimeline(
+                segments = segments,
+                selectedSegments = selectedSegments,
+                toggleSegment = toggleSegment,
+                position = position,
+                duration = duration
+            )
+
+            SegmentsView.LIST -> SegmentsAsList(
+                modifier = if (canShowEditSegmentsSideToolbar) Modifier else Modifier.padding(8.dp),
+                segments = segments,
+                selectedSegments = selectedSegments,
+                toggleSegment = toggleSegment
+            )
+        }
+    }
+}
