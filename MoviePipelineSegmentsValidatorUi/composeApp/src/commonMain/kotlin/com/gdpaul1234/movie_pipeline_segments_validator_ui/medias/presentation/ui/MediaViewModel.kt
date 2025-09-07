@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network.MediasService
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network.SegmentsService
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.MediaUiState
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsSelectionMode
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
@@ -14,7 +15,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.openapitools.client.models.SegmentEditBody
+import org.openapitools.client.models.SegmentInput
 import org.openapitools.client.models.SegmentOutput
+import org.openapitools.client.models.SegmentsDeleteBody
 import kotlin.reflect.KClass
 
 class MediaViewModel(
@@ -27,6 +31,7 @@ class MediaViewModel(
     val uiState = _uiState.asStateFlow()
 
     private val mediasService = MediasService(endpoint, sessionId, sessionsRepository)
+    private val segmentsService by lazy { SegmentsService(endpoint, sessionId, mediaStem,sessionsRepository) }
 
     init {
         viewModelScope.launch {
@@ -67,6 +72,14 @@ class MediaViewModel(
         _uiState.update { currentState -> currentState.copy(position = position.toDouble()) }
     }
 
+    fun setPositionAtStartOfSelectedSegment() {
+        uiState.value.selectedSegments.single().run { setPosition(start) }
+    }
+
+    fun setPositionAtEndOfSelectedSegment() {
+        uiState.value.selectedSegments.single().run { setPosition(end) }
+    }
+
     fun toggleSegmentsView() {
         _uiState.update { currentState ->
             currentState.copy(
@@ -81,8 +94,8 @@ class MediaViewModel(
     fun setSelectionMode(multiSelectionEnabled: Boolean) {
         _uiState.update { currentState ->
             currentState.copy(
-                segmentsSelectionMode = when (multiSelectionEnabled) {
-                    true -> SegmentsSelectionMode.MULTI
+                segmentsSelectionMode = when {
+                    multiSelectionEnabled -> SegmentsSelectionMode.MULTI
                     else -> SegmentsSelectionMode.SINGLE
                 }
             )
@@ -106,7 +119,40 @@ class MediaViewModel(
             )
 
         }
+    }
 
+    fun addSegmentAtCurrentPosition() {
+        viewModelScope.launch {
+            segmentsService.addSegment(uiState.value.position)
+        }
+    }
+
+    fun removeSelectedSegments() {
+        viewModelScope.launch {
+            segmentsService.removeSegments(SegmentsDeleteBody(uiState.value.selectedSegments.map { (start, end) -> SegmentInput(start, end) }))
+        }
+    }
+
+    fun mergeSelectedSegments() {
+        viewModelScope.launch {
+            segmentsService.mergeSegments(SegmentsDeleteBody(uiState.value.selectedSegments.map { (start, end) -> SegmentInput(start, end) }))
+        }
+    }
+
+    fun setSelectedSegmentStart() {
+        viewModelScope.launch {
+            val (start, end) = uiState.value.selectedSegments.single()
+            val body = SegmentEditBody(uiState.value.position, SegmentEditBody.Edge.start)
+            segmentsService.editSegment(start, end, body)
+        }
+    }
+
+    fun setSelectedSegmentEnd() {
+        viewModelScope.launch {
+            val (start, end) = uiState.value.selectedSegments.single()
+            val body = SegmentEditBody(uiState.value.position, SegmentEditBody.Edge.end)
+            segmentsService.editSegment(start, end, body)
+        }
     }
 
     private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {

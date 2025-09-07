@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from movie_pipeline_segments_validator.services.edit_decision_file_dumper import extract_title
 
@@ -22,7 +22,11 @@ class SegmentValidatorContext:
     selected_segments: list[Segment] = field(default_factory=list)
 
     def __post_init__(self):
-        self.imported_segments = import_segments(self.filepath)
+        self.imported_segments = {
+            k: f"{v.removesuffix(',')},"
+            for k, v in import_segments(self.filepath).items()
+            if v != ''
+        }
 
         if self.title == '':
             self.title = extract_title(self.filepath, self.config)
