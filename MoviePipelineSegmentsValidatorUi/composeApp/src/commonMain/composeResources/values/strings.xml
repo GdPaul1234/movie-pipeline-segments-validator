@@ -51,4 +51,15 @@
     <string name="segments_import">Import segments</string>
     <string name="forward_x_seconds">Forward %1$ds</string>
     <string name="replay_x_seconds">Replay %1$ds</string>
+    <string name="segment_add">Add segment</string>
+    <plurals name="segments_remove">
+        <item quantity="one">Remove segment</item>
+        <item quantity="other">Remove segments</item>
+    </plurals>
+    <string name="segments_merge">Merge segments</string>
+    <string name="go_to_selected_segment_start">Go to start of selected segment</string>
+    <string name="go_to_selected_segment_end">Go to end of selected segment</string>
+    <string name="split_selected_segment">Split selected segment at current position</string>
+    <string name="set_selected_segment_start">Set start of selected segment</string>
+    <string name="set_selected_segment_end">Set end of selected segment</string>
 </resources>
