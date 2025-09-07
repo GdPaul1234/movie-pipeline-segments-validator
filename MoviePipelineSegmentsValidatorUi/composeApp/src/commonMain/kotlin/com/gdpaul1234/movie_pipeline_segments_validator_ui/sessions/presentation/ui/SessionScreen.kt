@@ -2,18 +2,22 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentatio
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.*
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.LoadingSuspense
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.navigation.MediasNavigationWrapper
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaDetails
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui.MediaScreen
@@ -75,15 +79,7 @@ fun SessionScreen(
                         enterTransition = if (animationIsDisabled) EnterTransition.None else motionDataProvider.calculateDefaultEnterTransition(paneRole),
                         exitTransition = if (animationIsDisabled) ExitTransition.None else motionDataProvider.calculateDefaultExitTransition(paneRole)
                     ) {
-                        if (uiState.loading) {
-                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(64.dp),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
-                            }
-                        } else {
+                        LoadingSuspense(uiState.loading) {
                             MediaList(
                                 mediaEntries = uiState.filteredMedias.entries,
                                 currentSelectedMediaStem = if (isDetailVisible) uiState.selectedMediaStem else "",
@@ -105,12 +101,12 @@ fun SessionScreen(
                         navigator.currentDestination?.contentKey?.let {
                             MediaScreen(
                                 viewModel = viewModel.buildMediaViewModel(it),
-                                navigateBack = when (isListVisible) {
-                                    true -> null
+                                navigateBack = when {
+                                    isListVisible -> null
                                     else -> { -> viewModel.navigateTo("") }
                                 },
-                                navigateToDetails = when (isExtraVisible) {
-                                    true -> null
+                                navigateToDetails = when {
+                                    isExtraVisible -> null
                                     else -> { ->
                                         scope.launch {
                                             withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it) }

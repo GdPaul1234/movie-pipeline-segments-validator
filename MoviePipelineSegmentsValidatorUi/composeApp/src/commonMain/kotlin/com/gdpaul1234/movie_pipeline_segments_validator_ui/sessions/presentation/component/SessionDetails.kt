@@ -161,8 +161,8 @@ private fun StatsSection (
         )
 
         Media.State.entries.forEach { mediaState ->
-            val stateLabel = when (isPreview) {
-                true -> mediaState.value
+            val stateLabel = when {
+                isPreview -> mediaState.value
                 else -> stringResource(Res.allStringResources["stats_${mediaState.value}"]!!)
             }
 
