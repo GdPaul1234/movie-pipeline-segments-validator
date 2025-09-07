@@ -12,7 +12,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
@@ -58,6 +57,16 @@ fun MediaScreen(
         val isSmallScreen = minWidth < WIDTH_DP_MEDIUM_LOWER_BOUND.dp
         val canShowEditSegmentsSideToolbar = minWidth >= (WIDTH_DP_LARGE_LOWER_BOUND + 130).dp &&
                 minHeight >= (HEIGHT_DP_MEDIUM_LOWER_BOUND + 48).dp
+
+        val segmentsEditOnClick = SegmentsEditOnClick(
+            onAddSegmentClick = viewModel::addSegmentAtCurrentPosition,
+            onRemoveSegmentsClick = viewModel::removeSelectedSegments,
+            onMergeSegmentsClick = viewModel::mergeSelectedSegments,
+            onGoToStartOfSegmentClick = viewModel::setPositionAtStartOfSelectedSegment,
+            onGoToEndOfSegmentClick = viewModel::setPositionAtEndOfSelectedSegment,
+            onSetSegmentStart = viewModel::setSelectedSegmentStart,
+            onSetSegmentEnd = viewModel::setSelectedSegmentEnd
+        )
 
         Scaffold(
             topBar = {
@@ -142,6 +151,7 @@ fun MediaScreen(
                                     position = uiState.position,
                                     duration = duration,
                                     toggleSegment = viewModel::toggleSegment,
+                                    segmentsEditOnClick = segmentsEditOnClick,
                                     canShowEditSegmentsSideToolbar = canShowEditSegmentsSideToolbar,
                                     isSmallScreen = isSmallScreen
                                 )
@@ -155,7 +165,8 @@ fun MediaScreen(
         if (canShowEditSegmentsSideToolbar) {
             SegmentsEditVerticalToolbar(
                 modifier = Modifier.align(Alignment.CenterEnd).padding(end = 24.dp),
-                selectedSegments = uiState.selectedSegments
+                selectedSegments = uiState.selectedSegments,
+                segmentsEditOnClick = segmentsEditOnClick
             )
         }
     }
@@ -269,7 +280,8 @@ private fun SegmentsEditSection(
     selectedSegments: Set<SegmentOutput>,
     position: Double,
     duration: Double,
-    toggleSegment:  (SegmentOutput) -> Unit,
+    toggleSegment: (SegmentOutput) -> Unit,
+    segmentsEditOnClick: SegmentsEditOnClick,
     canShowEditSegmentsSideToolbar: Boolean,
     isSmallScreen: Boolean
 ) {
@@ -278,7 +290,7 @@ private fun SegmentsEditSection(
         colors = if (canShowEditSegmentsSideToolbar) CardDefaults.cardColors(Color.Transparent) else CardDefaults.cardColors()
     ) {
         if (!canShowEditSegmentsSideToolbar) {
-            SegmentsEditHorizontalToolbar(selectedSegments, isSmallScreen)
+            SegmentsEditHorizontalToolbar(selectedSegments, segmentsEditOnClick, isSmallScreen)
         }
 
         when (segmentsView) {

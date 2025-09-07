@@ -16,60 +16,72 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.openapitools.client.models.SegmentOutput
 
-private data class IconButtonData(val label: String, val icon: DrawableResource, val disabled: Boolean, val onClick: () -> Unit)
+data class SegmentsEditOnClick(
+    val onAddSegmentClick: () -> Unit,
+    val onRemoveSegmentsClick: () -> Unit,
+    val onMergeSegmentsClick: () -> Unit,
+    val onGoToStartOfSegmentClick: () -> Unit,
+    val onGoToEndOfSegmentClick: () -> Unit,
+    val onSetSegmentStart: () -> Unit,
+    val onSetSegmentEnd: () -> Unit
+)
+
+private data class IconButtonData(
+    val label: String,
+    val icon: DrawableResource,
+    val disabled: Boolean,
+    val onClick: () -> Unit
+)
 
 @Composable
-private fun getIconButtons(selectedSegments: Set<SegmentOutput>) : List<IconButtonData> {
+private fun getIconButtons(
+    selectedSegments: Set<SegmentOutput>,
+    segmentsEditOnClick: SegmentsEditOnClick
+): List<IconButtonData> {
     return listOf(
         IconButtonData(
             label = stringResource(Res.string.segment_add),
             icon = Res.drawable.playlist_add_24px,
             disabled = selectedSegments.isNotEmpty(),
-            onClick = {/* TODO add segment */}
+            onClick = segmentsEditOnClick.onAddSegmentClick
         ),
         IconButtonData(
             label = pluralStringResource(Res.plurals.segments_remove, selectedSegments.size),
             icon = Res.drawable.playlist_remove_24px,
             disabled = selectedSegments.isEmpty(),
-            onClick = {/* TODO Remove segments */}
+            onClick = segmentsEditOnClick.onRemoveSegmentsClick
         ),
         IconButtonData(
             label = stringResource(Res.string.segments_merge),
             icon = Res.drawable.mediation_24px,
             disabled = selectedSegments.size < 2,
-            onClick = {/* TODO Merge segments */}
+            onClick = segmentsEditOnClick.onMergeSegmentsClick
         ),
         /* --- Divider(after index 2) --- */
         IconButtonData(
             label = stringResource(Res.string.go_to_selected_segment_start),
             icon = Res.drawable.skip_next_24px,
             disabled = selectedSegments.size != 1,
-            onClick = {/* TODO Go to start of selected segment */}
+            onClick = segmentsEditOnClick.onGoToStartOfSegmentClick
         ),
         IconButtonData(
             label = stringResource(Res.string.go_to_selected_segment_end),
             icon = Res.drawable.skip_previous_24px,
             disabled = selectedSegments.size != 1,
-            onClick = {/* TODO Go to end of selected segment */}
+            onClick = segmentsEditOnClick.onGoToEndOfSegmentClick
         ),
         /* --- Divider(after index 4) --- */
-        IconButtonData(
-            label = stringResource(Res.string.split_selected_segment),
-            icon = Res.drawable.split_scene_24px,
-            disabled = selectedSegments.size != 1,
-            onClick = {/* TODO Split segment at position */}
-        ),
         IconButtonData(
             label = stringResource(Res.string.set_selected_segment_start),
             icon = Res.drawable.split_scene_right_24px,
             disabled = selectedSegments.size != 1,
-            onClick = {/* TODO Set start of selected segment */}
+            onClick = segmentsEditOnClick.onSetSegmentStart
         ),
         IconButtonData(
             label = stringResource(Res.string.set_selected_segment_end),
             icon = Res.drawable.split_scene_left_24px,
             disabled = selectedSegments.size != 1,
-            onClick = {/* TODO Set end of selected segment */}
+            onClick = segmentsEditOnClick.onSetSegmentEnd
         ),
     )
 }
@@ -78,9 +90,10 @@ private fun getIconButtons(selectedSegments: Set<SegmentOutput>) : List<IconButt
 @Composable
 fun SegmentsEditVerticalToolbar(
     modifier: Modifier,
-    selectedSegments: Set<SegmentOutput>
+    selectedSegments: Set<SegmentOutput>,
+    segmentsEditOnClick: SegmentsEditOnClick
 ) {
-    val iconButtons = getIconButtons(selectedSegments)
+    val iconButtons = getIconButtons(selectedSegments, segmentsEditOnClick)
 
     Surface(
         modifier = modifier.width(IntrinsicSize.Min).clip(CircleShape),
@@ -113,9 +126,10 @@ fun SegmentsEditVerticalToolbar(
 @Composable
 fun SegmentsEditHorizontalToolbar(
     selectedSegments: Set<SegmentOutput>,
+    segmentsEditOnClick: SegmentsEditOnClick,
     isSmallScreen: Boolean
 ) {
-    val iconButtons = getIconButtons(selectedSegments)
+    val iconButtons = getIconButtons(selectedSegments, segmentsEditOnClick)
     val filteredIconButtons = remember(isSmallScreen, iconButtons) {
         iconButtons.filter { !isSmallScreen || !it.disabled }
     }
