@@ -17,6 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.LoadingSuspense
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.*
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
@@ -126,15 +127,7 @@ fun MediaScreen(
                 .padding(24.dp, 8.dp)
                 .consumeWindowInsets(paddingValues)
 
-            if (uiState.loading) {
-                Box(contentAlignment = Alignment.Center, modifier = rootModifier.fillMaxSize()) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.width(64.dp),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    )
-                }
-            } else {
+            LoadingSuspense(uiState.loading) {
                 LazyColumn(modifier = rootModifier) {
                     item { SetSkipBackupSection(isReadOnly, skipBackup, viewModel::setSkipBackup) }
                     item { MediaMetadataSection(uiState.recordingMetadata, uiState.duration, navigateToDetails) }

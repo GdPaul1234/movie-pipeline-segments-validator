@@ -1,6 +1,7 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network
 
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
+import io.ktor.client.plugins.*
 import kotlinx.coroutines.flow.firstOrNull
 import org.openapitools.client.apis.SessionsApi
 import org.openapitools.client.infrastructure.HttpResponse
@@ -13,7 +14,17 @@ class SessionsService(
 ) {
     private val client by lazy {
         SessionsApi(
-            endpoint, httpClientConfig = ::setHttpClientConfig
+            endpoint,
+            httpClientConfig = { config ->
+                config.apply {
+                    expectSuccess = true
+                    install(HttpTimeout) {
+                        requestTimeoutMillis = 15000 // 15 seconds
+                        connectTimeoutMillis = 10000 // 10 seconds
+                        socketTimeoutMillis = 20000 // 20 seconds
+                    }
+                }
+            }
         )
     }
 
@@ -23,9 +34,9 @@ class SessionsService(
     suspend fun createSession(rootPath: String) =
         persistSession(client.createSessionSessionsPost(SessionCreateBody(rootPath)))
 
-    suspend fun getSession(sessionId: String, reload: Boolean = false): Session = when (reload) {
-        false -> sessionsRepository.get(endpoint, sessionId).firstOrNull()
-        true -> null
+    suspend fun getSession(sessionId: String, reload: Boolean = false): Session = when {
+        reload -> null
+        else -> sessionsRepository.get(endpoint, sessionId).firstOrNull()
     } ?: persistSession(client.showSessionSessionsSessionIdGet(sessionId))
 
     suspend fun deleteSession(sessionId: String) {

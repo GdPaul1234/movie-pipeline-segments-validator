@@ -89,8 +89,8 @@ private fun InfoSection(
             supportingContent = { Text(media.filepath) }
         )
 
-        val stateLabel = when (isPreview) {
-            true -> media.state.value
+        val stateLabel = when {
+            isPreview -> media.state.value
             else -> stringResource(Res.allStringResources["stats_${media.state.value}"]!!)
         }
 
