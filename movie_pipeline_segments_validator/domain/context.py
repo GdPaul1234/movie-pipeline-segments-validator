@@ -10,6 +10,14 @@ from ..services.import_segments_from_file import import_segments
 from ..settings import Settings
 
 
+def import_media_segments(filepath: Path):
+    return { 
+        k: f"{v.removesuffix(',')}," 
+        for k, v in import_segments(filepath).items()
+        if v != ''
+    }
+
+
 @dataclass
 class SegmentValidatorContext:
     filepath: Path
@@ -22,11 +30,7 @@ class SegmentValidatorContext:
     selected_segments: list[Segment] = field(default_factory=list)
 
     def __post_init__(self):
-        self.imported_segments = {
-            k: f"{v.removesuffix(',')},"
-            for k, v in import_segments(self.filepath).items()
-            if v != ''
-        }
+        self.imported_segments = import_media_segments(self.filepath)
 
         if self.title == '':
             self.title = extract_title(self.filepath, self.config)

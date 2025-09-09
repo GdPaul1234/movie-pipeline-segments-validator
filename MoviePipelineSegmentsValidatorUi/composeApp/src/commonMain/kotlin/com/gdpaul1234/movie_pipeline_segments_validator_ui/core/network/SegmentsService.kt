@@ -7,6 +7,7 @@ import org.openapitools.client.models.Media
 import org.openapitools.client.models.SegmentCreateBody
 import org.openapitools.client.models.SegmentEditBody
 import org.openapitools.client.models.SegmentsDeleteBody
+import org.openapitools.client.models.SegmentsMergeBody
 
 class SegmentsService(
     private val endpoint: String,
@@ -33,7 +34,7 @@ class SegmentsService(
     suspend fun editSegment(start: Double, end: Double, body: SegmentEditBody) =
         persistMedia(client.editSegmentSessionsSessionIdMediasMediaStemSegmentsStartSEndSPatch(start, end, mediaStem, sessionId, body))
 
-    suspend fun mergeSegments(body: SegmentsDeleteBody) =
+    suspend fun mergeSegments(body: SegmentsMergeBody) =
         persistMedia(client.mergeSegmentsSessionsSessionIdMediasMediaStemSegmentsMergePost(mediaStem, sessionId, body))
 
     suspend fun loadImportedSegments(detectorKey: String) =

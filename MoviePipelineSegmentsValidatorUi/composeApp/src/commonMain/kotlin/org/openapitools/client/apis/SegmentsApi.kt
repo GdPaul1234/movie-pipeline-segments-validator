@@ -15,11 +15,11 @@
 
 package org.openapitools.client.apis
 
-import org.openapitools.client.models.HTTPValidationError
 import org.openapitools.client.models.Media
 import org.openapitools.client.models.SegmentCreateBody
 import org.openapitools.client.models.SegmentEditBody
 import org.openapitools.client.models.SegmentsDeleteBody
+import org.openapitools.client.models.SegmentsMergeBody
 
 import org.openapitools.client.infrastructure.*
 import io.ktor.client.HttpClient
@@ -193,15 +193,15 @@ open class SegmentsApi : ApiClient {
      * 
      * @param mediaStem 
      * @param sessionId 
-     * @param segmentsDeleteBody 
+     * @param segmentsMergeBody
      * @return Media
      */
     @Suppress("UNCHECKED_CAST")
-    open suspend fun mergeSegmentsSessionsSessionIdMediasMediaStemSegmentsMergePost(mediaStem: kotlin.String, sessionId: kotlin.String, segmentsDeleteBody: SegmentsDeleteBody): HttpResponse<Media> {
+    open suspend fun mergeSegmentsSessionsSessionIdMediasMediaStemSegmentsMergePost(mediaStem: kotlin.String, sessionId: kotlin.String, segmentsMergeBody: SegmentsMergeBody): HttpResponse<Media> {
 
         val localVariableAuthNames = listOf<String>()
 
-        val localVariableBody = segmentsDeleteBody
+        val localVariableBody = segmentsMergeBody
 
         val localVariableQuery = mutableMapOf<String, List<String>>()
         val localVariableHeaders = mutableMapOf<String, String>()

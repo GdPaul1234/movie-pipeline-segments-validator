@@ -10,18 +10,25 @@ from pydantic import TypeAdapter
 from pydantic.types import DirectoryPath
 
 from ...adapters.repository.resources import Media, Segment, Session
-from ...domain.context import SegmentValidatorContext
+from ...domain.context import SegmentValidatorContext, import_media_segments
 from ...domain.media_path import MediaPath
 from ...domain.movie_segments import MovieSegments
 from ...services.edit_decision_file_dumper import extract_title
-from ...services.import_segments_from_file import import_segments
 from ...services.media_selector_service import list_medias
 from ...settings import Settings
 
 logger = logging.getLogger(__name__)
 
 
-def build_media(source: MediaPath | Media, config: Optional[Settings] = None):
+def import_detector_segments(imported_segments):
+    raw_segments = items[0][1] if len(items := list(imported_segments.items())) > 0 else ''
+    return  [
+        Segment(start=segment[0], end=segment[1]) 
+        for segment in MovieSegments(raw_segments).segments
+    ]
+
+
+def build_media(source: MediaPath | Media, config: Optional[Settings] = None, force_load_segments = False):
     """Build media from MediaPath or Media
 
     Args:
@@ -34,25 +41,17 @@ def build_media(source: MediaPath | Media, config: Optional[Settings] = None):
         Media: Media filled with title, state, skip_backup and imported segments
     """
     if isinstance(source, Media):
-        imported_segments = source.imported_segments or { 
-            k: f"{v.removesuffix(',')}," 
-            for k, v in import_segments(source.filepath).items()
-            if v != ''
-        }
-
-        raw_segments = items[0][1] if len(items := list(imported_segments.items())) > 0 else ''
-        imported_detector_segments = source.segments or [
-            Segment(start=segment[0], end=segment[1]) 
-            for segment in MovieSegments(raw_segments).segments
-        ]
-
+        imported_segments = source.imported_segments or import_media_segments(source.filepath)
+        imported_detector_segments = source.segments or import_detector_segments(imported_segments)
         filepath, state, title, skip_backup = source.filepath, source.state, source.title, source.skip_backup
 
     else:
         if config is None:
             raise ValueError('Missing config when source is instance of MediaPath')
 
-        imported_segments, imported_detector_segments = {}, []
+        imported_segments = import_media_segments(source.path) if force_load_segments else {}
+        imported_detector_segments = import_detector_segments(imported_segments)
+
         filepath, state = source.path, source.state
 
         edl_files = list(islice(source.path.parent.glob(f'{source.path.name}*.*yml*'), 1))

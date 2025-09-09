@@ -5,11 +5,15 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Response, status
 from pydantic import BaseModel, Field, computed_field
 from pydantic.types import FilePath, NonNegativeFloat
 
-from ....adapters.http.dependencies import get_media, get_segment_validator_context
+from ....adapters.http.dependencies import get_media, get_segment_validator_context, get_session_repository, get_settings
 from ....adapters.repository.resources import Media, MediaMetadata
+from ....adapters.repository.session_repository import SessionRepository, build_media
+from ....domain import FILENAME_REGEX
 from ....domain.context import SegmentValidatorContext
+from ....domain.media_path import MediaPath
 from ....lib.video_player.simple_video_only_player import extract_frame
 from ....services import segment_service
+from ....settings import Settings
 
 router = APIRouter(
     prefix='/sessions/{session_id}/medias',
@@ -33,10 +37,27 @@ class MediaOut(BaseModel):
 
 @router.get('/{media_stem}')
 def show_media(
+    session_id: Annotated[str, Path(title='session id')],
     media_stem: Annotated[str, Path(title='media stem (filename without extension)')],
-    media: Annotated[Media, Depends(get_media)]
+    segment_validator_context: Annotated[SegmentValidatorContext, Depends(get_segment_validator_context)],
+    session_repository: Annotated[SessionRepository, Depends(get_session_repository)]
 ) -> MediaOut:
-    return MediaOut(media=media)
+    # refresh media state by updating it from segment_validator_context
+    updated_media = session_repository.update_media(session_id, segment_validator_context).medias[media_stem]
+
+    return MediaOut(media=updated_media)
+
+
+class ValidateSegmentsBody(BaseModel):
+    title: Annotated[
+        str,
+        Field(
+            pattern=FILENAME_REGEX,
+            description='output title, must ends with .mp4',
+            examples=['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4']
+        )
+    ]
+    skip_backup: Annotated[bool, Field(description='skip backup step')]
 
 
 class ValidateSegmentsOut(BaseModel):
@@ -51,10 +72,17 @@ class ValidateSegmentsOut(BaseModel):
 
 @router.post('/{media_stem}/validate_segments')
 def validate_media_segments(
+    session_id: Annotated[str, Path(title='session id')],
     media_stem: Annotated[str, Path(title='media stem (filename without extension)')],
-    segment_validator_context: Annotated[SegmentValidatorContext, Depends(get_segment_validator_context)]
+    body: ValidateSegmentsBody,
+    segment_validator_context: Annotated[SegmentValidatorContext, Depends(get_segment_validator_context)],
+    session_repository: Annotated[SessionRepository, Depends(get_session_repository)]
 ) -> ValidateSegmentsOut:
+    segment_validator_context.title = body.title
+    segment_validator_context.skip_backup = body.skip_backup
+
     if (eld_path := segment_service.validate_segments(segment_validator_context)) is not None:
+        session_repository.update_media(session_id, segment_validator_context) # refresh media state
         return ValidateSegmentsOut(edl_path=eld_path)
 
     raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='EDL content is invalid')

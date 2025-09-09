@@ -1,5 +1,6 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui
 
+import androidx.compose.ui.util.fastZipWithNext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,14 +12,10 @@ import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.MediaUiSt
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsSelectionMode
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.openapitools.client.models.SegmentEditBody
-import org.openapitools.client.models.SegmentInput
-import org.openapitools.client.models.SegmentOutput
-import org.openapitools.client.models.SegmentsDeleteBody
+import org.openapitools.client.models.*
+import kotlin.math.min
 import kotlin.reflect.KClass
 
 class MediaViewModel(
@@ -121,38 +118,72 @@ class MediaViewModel(
         }
     }
 
-    fun addSegmentAtCurrentPosition() {
+    fun addSegmentAtCurrentPosition() =
         viewModelScope.launch {
-            segmentsService.addSegment(uiState.value.position)
+            errorWrapHandler {
+                segmentsService.addSegment(uiState.value.position)
+            }
         }
-    }
 
-    fun removeSelectedSegments() {
+    fun removeSelectedSegments() =
         viewModelScope.launch {
-            segmentsService.removeSegments(SegmentsDeleteBody(uiState.value.selectedSegments.map { (start, end) -> SegmentInput(start, end) }))
+            errorWrapHandler {
+                segmentsService.removeSegments(SegmentsDeleteBody(uiState.value.selectedSegments.map { (start, end) -> SegmentInput(start, end) }))
+                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet()) }
+            }
         }
-    }
 
-    fun mergeSelectedSegments() {
+    fun mergeSelectedSegments() =
         viewModelScope.launch {
-            segmentsService.mergeSegments(SegmentsDeleteBody(uiState.value.selectedSegments.map { (start, end) -> SegmentInput(start, end) }))
+            errorWrapHandler {
+                segmentsService.mergeSegments(SegmentsMergeBody(uiState.value.selectedSegments.map { (start, end) -> SegmentInput(start, end) }))
+                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet()) }
+            }
         }
-    }
 
-    fun setSelectedSegmentStart() {
+    fun setSelectedSegmentStart() =
         viewModelScope.launch {
             val (start, end) = uiState.value.selectedSegments.single()
             val body = SegmentEditBody(uiState.value.position, SegmentEditBody.Edge.start)
-            segmentsService.editSegment(start, end, body)
+            errorWrapHandler { segmentsService.editSegment(start, end, body) }
+            _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet()) }
         }
-    }
 
-    fun setSelectedSegmentEnd() {
+    fun setSelectedSegmentEnd() =
         viewModelScope.launch {
             val (start, end) = uiState.value.selectedSegments.single()
             val body = SegmentEditBody(uiState.value.position, SegmentEditBody.Edge.end)
-            segmentsService.editSegment(start, end, body)
+            errorWrapHandler { segmentsService.editSegment(start, end, body) }
+            _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet()) }
         }
+
+    fun validateSegments(navigateTo: ((String) -> Unit)) =
+        viewModelScope.launch {
+            thenNavigateToNextMedia(navigateTo) { media ->
+                loadableErrorWrapHandler {
+                    mediasService.validateMediaSegments(
+                        mediaStem = mediaStem,
+                        body = ValidateSegmentsBody(media.title, media.skipBackup)
+                    )
+                }
+            }
+        }
+
+    private suspend fun thenNavigateToNextMedia(navigateTo: ((String) -> Unit), block: suspend (Media) -> Unit) {
+        val media = checkNotNull(uiState.value.media)
+        val session = checkNotNull(sessionsRepository.get(endpoint, sessionId).first())
+
+        val nextMediaKey = session.medias.entries
+            .filter { it.value.state == media.state }
+            .dropWhile { it.value == media }
+            .zipWithNext()
+            .firstOrNull()
+            ?.second
+            ?.key
+
+        block(media)
+
+        if (nextMediaKey != null) navigateTo(nextMediaKey)
     }
 
     private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {
@@ -164,6 +195,16 @@ class MediaViewModel(
             e.printStackTrace()
         } finally {
             _uiState.update { currentState -> currentState.copy(loading = false) }
+        }
+    }
+
+    private suspend fun <R> errorWrapHandler (block: suspend () -> R) {
+        _uiState.update { currentState -> currentState.copy(errors = listOf()) }
+        try {
+            block()
+        } catch (e: Exception) {
+            e.message?.let { _uiState.update { currentState -> currentState.copy(errors = currentState.errors + listOf(it)) } }
+            e.printStackTrace()
         }
     }
 

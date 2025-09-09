@@ -35,7 +35,7 @@ fun RecentSessionsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val navigator = rememberListDetailPaneScaffoldNavigator<Map.Entry<String, Session>>()
+    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.selectedSessionEntryKey) {
@@ -52,7 +52,7 @@ fun RecentSessionsScreen(
                         else -> it
                     }
 
-                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, item)
+                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, item?.key)
                 }
         }
     }
@@ -93,14 +93,15 @@ fun RecentSessionsScreen(
 
                         // Show the detail pane content if selected item is available
                         navigator.currentDestination?.contentKey?.let {
-                            when (it.key) {
+                            when (it) {
                                 "new_session" -> SessionCreateForm(
                                     onCreate = viewModel::createSession,
                                     navigateBack = navigateBack
                                 )
 
                                 else -> SessionDetails(
-                                    sessionEntry = it,
+                                    sessionKey = it,
+                                    loadSession = viewModel::loadSession,
                                     onClick = { endpoint, session -> viewModel.openSession(navController, endpoint, session) },
                                     onDelete = viewModel::deleteSession,
                                     navigateBack = navigateBack

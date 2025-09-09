@@ -21,6 +21,8 @@ fun MediaActionsBottomBar(
     toggleSegmentsView: () -> Unit,
     setSelectionMode: (Boolean) -> Unit,
     importSegments: () -> Unit,
+    validateSegments: () -> Unit,
+    isReadOnly: Boolean
 ) {
     BottomAppBar(contentPadding = PaddingValues(horizontal = 24.dp)) {
         // Actions in the left part
@@ -69,9 +71,10 @@ fun MediaActionsBottomBar(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Actions in the right part
-
-        Spacer(modifier = Modifier.width(16.dp))
-        ValidateSegmentsButton(onClick = { /* TODO validate segments */ })
+        if (!isReadOnly) {
+            // Actions in the right part
+            Spacer(modifier = Modifier.width(16.dp))
+            ValidateSegmentsButton(onClick = validateSegments)
+        }
     }
 }

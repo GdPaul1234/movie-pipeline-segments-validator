@@ -60,6 +60,9 @@ class SessionsViewModel(
         navController.navigate(route)
     }
 
+    suspend fun loadSession(endpoint: String, sessionId: String) =
+        SessionsService(endpoint, sessionsRepository).getSession(sessionId, useLocalData = false, refresh = true)
+
     private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {
         _uiState.update { currentState -> currentState.copy(loading = true, errors = listOf()) }
         try {

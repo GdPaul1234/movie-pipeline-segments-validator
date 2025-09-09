@@ -33,7 +33,7 @@ class SessionViewModel(
 
     init {
         viewModelScope.launch {
-            loadableErrorWrapHandler { sessionService.getSession(sessionId, reload = true) }
+            loadableErrorWrapHandler { sessionService.getSession(sessionId, useLocalData = false, refresh = false) }
 
             if (uiState.value.errors.isNotEmpty()) return@launch
 
