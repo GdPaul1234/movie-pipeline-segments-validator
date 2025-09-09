@@ -34,10 +34,11 @@ class SessionsService(
     suspend fun createSession(rootPath: String) =
         persistSession(client.createSessionSessionsPost(SessionCreateBody(rootPath)))
 
-    suspend fun getSession(sessionId: String, reload: Boolean = false): Session = when {
-        reload -> null
-        else -> sessionsRepository.get(endpoint, sessionId).firstOrNull()
-    } ?: persistSession(client.showSessionSessionsSessionIdGet(sessionId))
+    suspend fun getSession(sessionId: String, useLocalData: Boolean, refresh: Boolean) =
+        when {
+            useLocalData -> sessionsRepository.get(endpoint, sessionId).firstOrNull()
+            else -> null
+        } ?: persistSession(client.showSessionSessionsSessionIdGet(sessionId, refresh))
 
     suspend fun deleteSession(sessionId: String) {
         client.destroySessionSessionsSessionIdDelete(sessionId)

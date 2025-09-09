@@ -108,7 +108,7 @@ class SegmentsMergeBody(BaseModel):
 
 @router.post('/merge')
 def merge_segments(
-    body: SegmentsDeleteBody,
+    body: SegmentsMergeBody,
     media_stem: Annotated[str, Path(title='media stem (filename without extension)')],
     session_repository: Annotated[SessionRepository, Depends(get_session_repository)],
     session: Annotated[Session, Depends(get_session)],

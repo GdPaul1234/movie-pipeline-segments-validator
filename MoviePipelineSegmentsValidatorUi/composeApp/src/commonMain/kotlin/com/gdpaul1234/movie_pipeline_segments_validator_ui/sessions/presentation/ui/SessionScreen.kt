@@ -101,6 +101,7 @@ fun SessionScreen(
                         navigator.currentDestination?.contentKey?.let {
                             MediaScreen(
                                 viewModel = viewModel.buildMediaViewModel(it),
+                                navigateToMediaStem = viewModel::navigateTo,
                                 navigateBack = when {
                                     isListVisible -> null
                                     else -> { -> viewModel.navigateTo("") }

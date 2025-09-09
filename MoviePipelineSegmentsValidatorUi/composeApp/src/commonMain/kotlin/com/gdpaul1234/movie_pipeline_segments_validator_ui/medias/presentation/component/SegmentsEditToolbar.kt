@@ -36,25 +36,26 @@ private data class IconButtonData(
 @Composable
 private fun getIconButtons(
     selectedSegments: Set<SegmentOutput>,
-    segmentsEditOnClick: SegmentsEditOnClick
+    segmentsEditOnClick: SegmentsEditOnClick,
+    isReadOnly: Boolean
 ): List<IconButtonData> {
     return listOf(
         IconButtonData(
             label = stringResource(Res.string.segment_add),
             icon = Res.drawable.playlist_add_24px,
-            disabled = selectedSegments.isNotEmpty(),
+            disabled = isReadOnly || selectedSegments.isNotEmpty(),
             onClick = segmentsEditOnClick.onAddSegmentClick
         ),
         IconButtonData(
             label = pluralStringResource(Res.plurals.segments_remove, selectedSegments.size),
             icon = Res.drawable.playlist_remove_24px,
-            disabled = selectedSegments.isEmpty(),
+            disabled = isReadOnly || selectedSegments.isEmpty(),
             onClick = segmentsEditOnClick.onRemoveSegmentsClick
         ),
         IconButtonData(
             label = stringResource(Res.string.segments_merge),
             icon = Res.drawable.mediation_24px,
-            disabled = selectedSegments.size < 2,
+            disabled = isReadOnly || selectedSegments.size < 2,
             onClick = segmentsEditOnClick.onMergeSegmentsClick
         ),
         /* --- Divider(after index 2) --- */
@@ -74,13 +75,13 @@ private fun getIconButtons(
         IconButtonData(
             label = stringResource(Res.string.set_selected_segment_start),
             icon = Res.drawable.split_scene_right_24px,
-            disabled = selectedSegments.size != 1,
+            disabled = isReadOnly || selectedSegments.size != 1,
             onClick = segmentsEditOnClick.onSetSegmentStart
         ),
         IconButtonData(
             label = stringResource(Res.string.set_selected_segment_end),
             icon = Res.drawable.split_scene_left_24px,
-            disabled = selectedSegments.size != 1,
+            disabled = isReadOnly || selectedSegments.size != 1,
             onClick = segmentsEditOnClick.onSetSegmentEnd
         ),
     )
@@ -91,9 +92,10 @@ private fun getIconButtons(
 fun SegmentsEditVerticalToolbar(
     modifier: Modifier,
     selectedSegments: Set<SegmentOutput>,
-    segmentsEditOnClick: SegmentsEditOnClick
+    segmentsEditOnClick: SegmentsEditOnClick,
+    isReadOnly: Boolean
 ) {
-    val iconButtons = getIconButtons(selectedSegments, segmentsEditOnClick)
+    val iconButtons = getIconButtons(selectedSegments, segmentsEditOnClick, isReadOnly)
 
     Surface(
         modifier = modifier.width(IntrinsicSize.Min).clip(CircleShape),
@@ -127,9 +129,10 @@ fun SegmentsEditVerticalToolbar(
 fun SegmentsEditHorizontalToolbar(
     selectedSegments: Set<SegmentOutput>,
     segmentsEditOnClick: SegmentsEditOnClick,
-    isSmallScreen: Boolean
+    isSmallScreen: Boolean,
+    isReadOnly: Boolean
 ) {
-    val iconButtons = getIconButtons(selectedSegments, segmentsEditOnClick)
+    val iconButtons = getIconButtons(selectedSegments, segmentsEditOnClick, isReadOnly)
     val filteredIconButtons = remember(isSmallScreen, iconButtons) {
         iconButtons.filter { !isSmallScreen || !it.disabled }
     }

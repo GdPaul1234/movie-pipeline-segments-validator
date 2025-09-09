@@ -41,14 +41,14 @@ class MediaPath:
     def state(self) -> MediaPathState:
         media_processing_suffix_regex = re.compile(fr'{re.escape(self.path.name)}\..*yml.*')
 
-        if self.path.with_suffix(f'{self.path.suffix}.metadata.json') not in self.cached_media_dir_entries:
+        if self.path.with_suffix(f'{self.path.suffix}.yml.done') in self.cached_media_dir_entries:
+            return 'media_processed'
+        elif self.path.with_suffix(f'{self.path.suffix}.yml') in self.cached_media_dir_entries:
+            return 'segment_reviewed'
+        elif self.path.with_suffix(f'{self.path.suffix}.metadata.json') not in self.cached_media_dir_entries:
             return 'waiting_metadata'
         elif self.path.with_suffix(f'{self.path.suffix}.segments.json') not in self.cached_media_dir_entries:
             return 'no_segment'
-        elif self.path.with_suffix(f'{self.path.suffix}.yml') in self.cached_media_dir_entries:
-            return 'segment_reviewed'
-        elif self.path.with_suffix(f'{self.path.suffix}.yml.done') in self.cached_media_dir_entries:
-            return 'media_processed'
         elif any(segment_file_edl.suffix != '.txt' for segment_file_edl in self.cached_media_dir_entries if media_processing_suffix_regex.match(segment_file_edl.name)):
             return 'media_processing'
         else:

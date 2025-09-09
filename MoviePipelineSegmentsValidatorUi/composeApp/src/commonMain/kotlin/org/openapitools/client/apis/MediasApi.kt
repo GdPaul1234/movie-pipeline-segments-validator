@@ -18,6 +18,7 @@ package org.openapitools.client.apis
 import org.openapitools.client.models.HTTPValidationError
 import org.openapitools.client.models.MediaOut
 import org.openapitools.client.models.ValidateSegmentsOut
+import org.openapitools.client.models.ValidateSegmentsBody
 
 import org.openapitools.client.infrastructure.*
 import io.ktor.client.HttpClient
@@ -121,12 +122,11 @@ open class MediasApi : ApiClient {
      * @return ValidateSegmentsOut
      */
     @Suppress("UNCHECKED_CAST")
-    open suspend fun validateMediaSegmentsSessionsSessionIdMediasMediaStemValidateSegmentsPost(mediaStem: kotlin.String, sessionId: kotlin.String): HttpResponse<ValidateSegmentsOut> {
+    open suspend fun validateMediaSegmentsSessionsSessionIdMediasMediaStemValidateSegmentsPost(mediaStem: kotlin.String, sessionId: kotlin.String, validateSegmentsBody: ValidateSegmentsBody): HttpResponse<ValidateSegmentsOut> {
 
         val localVariableAuthNames = listOf<String>()
 
-        val localVariableBody = 
-            io.ktor.client.utils.EmptyContent
+        val localVariableBody = validateSegmentsBody
 
         val localVariableQuery = mutableMapOf<String, List<String>>()
         val localVariableHeaders = mutableMapOf<String, String>()

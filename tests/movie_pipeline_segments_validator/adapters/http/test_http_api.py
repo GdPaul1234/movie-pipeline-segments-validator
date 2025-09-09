@@ -8,6 +8,7 @@ from unittest import mock
 from fastapi import status
 from fastapi.testclient import TestClient
 from pydantic import TypeAdapter
+import yaml
 
 from movie_pipeline_segments_validator.adapters.http.main import app
 from movie_pipeline_segments_validator.adapters.http.routers.session_medias import MediaOut
@@ -96,14 +97,24 @@ class TestHttpApi(unittest.TestCase):
         self.assertEqual({}, video_context.imported_segments)
 
 
-    def test_show_session_exist(self):
+    def test_show_session_exist_no_refresh(self):
         session = self.session_repository.create(self.input_dir_path)
 
-        response = self.client.get(f'/sessions/{session.id}')
+        response = self.client.get(f'/sessions/{session.id}', params={'refresh': False})
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_session = TypeAdapter(Session).validate_json(response.text)
         self.assertEqual(session, actual_session)
+
+
+    def test_show_session_exist_refresh(self):
+        session = self.session_repository.create(self.input_dir_path)
+
+        response = self.client.get(f'/sessions/{session.id}', params={'refresh': True})
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        actual_session = TypeAdapter(Session).validate_json(response.text)
+        self.assertEqual(session.model_dump(exclude={'updated_at',}), actual_session.model_dump(exclude={'updated_at',}))
 
     
     def test_show_session_not_found(self):
@@ -160,12 +171,17 @@ class TestHttpApi(unittest.TestCase):
         serie_context = session.medias[self.serie_path.stem].to_segment_validator_context(self.config)
         self.session_repository.update_media(session.id, serie_context)
 
-        response = self.client.post(f'/sessions/{session.id}/medias/{self.serie_path.stem}/validate_segments')
+        body = {'title': 'Movie Title.mp4', 'skip_backup': True}
+        response = self.client.post(f'/sessions/{session.id}/medias/{self.serie_path.stem}/validate_segments', json=body)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         expected_edl_path = self.serie_path.with_suffix('.mp4.yml')
         self.assertTrue(expected_edl_path.is_file())
         self.assertEqual(str(expected_edl_path), response.json()['edl_path'])
+
+        edl_content = yaml.safe_load(expected_edl_path.read_text())
+        self.assertEqual('Movie Title.mp4', edl_content['filename'])
+        self.assertTrue(edl_content['skip_backup'])
 
 
     # routers/session_media_segments.py

@@ -113,18 +113,22 @@ open class SessionsApi : ApiClient {
     /**
      * Show Session
      * 
-     * @param sessionId 
+     * @param sessionId
+     * @param refresh
      * @return Session
      */
     @Suppress("UNCHECKED_CAST")
-    open suspend fun showSessionSessionsSessionIdGet(sessionId: kotlin.String): HttpResponse<Session> {
+    open suspend fun showSessionSessionsSessionIdGet(sessionId: kotlin.String, refresh: kotlin.Boolean): HttpResponse<Session> {
 
         val localVariableAuthNames = listOf<String>()
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
 
-        val localVariableQuery = mutableMapOf<String, List<String>>()
+        val localVariableQuery = mutableMapOf(
+            kotlin.Pair("refresh", listOf("$refresh"))
+        )
+
         val localVariableHeaders = mutableMapOf<String, String>()
 
         val localVariableConfig = RequestConfig<kotlin.Any?>(

@@ -33,6 +33,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun MediaScreen(
     viewModel: MediaViewModel,
+    navigateToMediaStem: (String) -> Unit,
     navigateBack: (() -> Unit)?,
     navigateToDetails: (() -> Unit)?
 ) {
@@ -42,7 +43,7 @@ fun MediaScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val isReadOnly = uiState.media?.let {
-        it.state in listOf(Media.State.media_processing, Media.State.media_processed)
+        it.state in listOf(Media.State.waiting_metadata, Media.State.segment_reviewed, Media.State.media_processing, Media.State.media_processed)
     } ?: true
 
     val title by remember { derivedStateOf { uiState.media?.title ?: "" } }
@@ -98,8 +99,8 @@ fun MediaScreen(
                 )
             },
             floatingActionButton = {
-                if (isSmallScreen) {
-                    ValidateSegmentsButton(onClick = { /* TODO validate segments */ })
+                if (!isReadOnly && isSmallScreen) {
+                    ValidateSegmentsButton(onClick = { viewModel.validateSegments(navigateToMediaStem) })
                 }
             },
             bottomBar = {
@@ -109,7 +110,9 @@ fun MediaScreen(
                         segmentsSelectionMode = uiState.segmentsSelectionMode,
                         toggleSegmentsView = viewModel::toggleSegmentsView,
                         setSelectionMode = viewModel::setSelectionMode,
-                        importSegments = {/* TODO import segments */}
+                        importSegments = {/* TODO import segments */ },
+                        validateSegments = { viewModel.validateSegments(navigateToMediaStem) },
+                        isReadOnly = isReadOnly
                     )
                 }
             },
@@ -146,6 +149,7 @@ fun MediaScreen(
                                     toggleSegment = viewModel::toggleSegment,
                                     segmentsEditOnClick = segmentsEditOnClick,
                                     canShowEditSegmentsSideToolbar = canShowEditSegmentsSideToolbar,
+                                    isReadOnly = isReadOnly,
                                     isSmallScreen = isSmallScreen
                                 )
                             }
@@ -159,7 +163,8 @@ fun MediaScreen(
             SegmentsEditVerticalToolbar(
                 modifier = Modifier.align(Alignment.CenterEnd).padding(end = 24.dp),
                 selectedSegments = uiState.selectedSegments,
-                segmentsEditOnClick = segmentsEditOnClick
+                segmentsEditOnClick = segmentsEditOnClick,
+                isReadOnly = isReadOnly
             )
         }
     }
@@ -276,6 +281,7 @@ private fun SegmentsEditSection(
     toggleSegment: (SegmentOutput) -> Unit,
     segmentsEditOnClick: SegmentsEditOnClick,
     canShowEditSegmentsSideToolbar: Boolean,
+    isReadOnly: Boolean,
     isSmallScreen: Boolean
 ) {
     Card(
@@ -283,7 +289,7 @@ private fun SegmentsEditSection(
         colors = if (canShowEditSegmentsSideToolbar) CardDefaults.cardColors(Color.Transparent) else CardDefaults.cardColors()
     ) {
         if (!canShowEditSegmentsSideToolbar) {
-            SegmentsEditHorizontalToolbar(selectedSegments, segmentsEditOnClick, isSmallScreen)
+            SegmentsEditHorizontalToolbar(selectedSegments, segmentsEditOnClick, isSmallScreen, isReadOnly)
         }
 
         when (segmentsView) {

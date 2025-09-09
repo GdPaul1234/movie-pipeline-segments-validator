@@ -1,12 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, Field, ValidationError
 from pydantic.types import DirectoryPath
 
-from ....adapters.http.dependencies import get_session, get_session_repository
+from ....adapters.http.dependencies import get_session, get_session_repository, get_settings
 from ....adapters.repository.resources import Session
-from ....adapters.repository.session_repository import SessionRepository
+from ....adapters.repository.session_repository import SessionRepository, build_media
+from ....services.media_selector_service import list_medias
+from ....settings import Settings
 
 router = APIRouter(
     prefix='/sessions',
@@ -32,9 +34,19 @@ def create_session(
 @router.get('/{session_id}')
 def show_session(
     session_id: Annotated[str, Path(title='session id')],
-    session: Annotated[Session, Depends(get_session)]
+    session: Annotated[Session, Depends(get_session)],
+    session_repository: Annotated[SessionRepository, Depends(get_session_repository)],
+    config: Annotated[Settings, Depends(get_settings)],
+    refresh: Annotated[bool, Query(description='Refresh session medias state')]
 ) -> Session:
-    return session
+    if not refresh:
+        return session
+
+    medias = {
+        media.path.stem: build_media(media, config)
+        for media in list_medias(session.root_path, config)
+    }
+    return session_repository.set(session.model_copy(update={"medias": medias}))
 
 
 @router.delete('/{session_id}')

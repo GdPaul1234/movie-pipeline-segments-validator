@@ -8,6 +8,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -15,7 +21,9 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.LoadingSuspense
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaPreviewParameter
+import kotlinx.coroutines.launch
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -31,62 +39,77 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-@Preview
 fun SessionDetails(
-    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
-    onClick: ((endpoint: String, session: Session) -> Unit)?,
-    onDelete: ((endpoint: String, session: Session) -> Unit)?,
+    sessionKey: String,
+    loadSession: suspend (String, String) -> Session,
+    onClick: (endpoint: String, session: Session) -> Unit,
+    onDelete: (endpoint: String, session: Session) -> Unit,
     navigateBack: (() -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val (key, session) = sessionEntry
-    val (_, endpoint) = key.split("@")
+    var session by remember { mutableStateOf<Session?>(null) }
+    val endpoint = remember(sessionKey) { sessionKey.split("@").last() }
 
-    Scaffold(
-        topBar = {
-            LargeTopAppBar(
-                scrollBehavior = topAppBarScrollBehavior,
-                title = {
-                    Text(
-                        text = sessionEntry.value.rootPath,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(sessionKey) {
+        scope.launch {
+            val (sessionId, endpoint) = sessionKey.split("@")
+            session = loadSession(endpoint, sessionId)
+        }
+    }
+
+    LoadingSuspense(session == null) {
+        session?.let { session ->
+            val sessionEntry = remember(sessionKey, session) { mapOf(sessionKey to session).entries.first() }
+
+            Scaffold(
+                topBar = {
+                    LargeTopAppBar(
+                        scrollBehavior = topAppBarScrollBehavior,
+                        title = {
+                            Text(
+                                text = session.rootPath,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        navigationIcon = {
+                            if (navigateBack != null) {
+                                IconButton(onClick = { navigateBack() }) {
+                                    Icon(
+                                        painterResource(Res.drawable.arrow_back_24px),
+                                        contentDescription = "Back"
+                                    )
+                                }
+                            }
+                        }
                     )
                 },
-                navigationIcon = {
-                    if (navigateBack != null) {
-                        IconButton(onClick = { navigateBack() }) {
-                            Icon(
-                                painterResource(Res.drawable.arrow_back_24px),
-                                contentDescription = "Back"
-                            )
-                        }
-                    }
+                floatingActionButton = {
+                    ExtendedFloatingActionButton(
+                        text = { Text(stringResource(Res.string.load_session)) },
+                        icon = { Icon(painterResource(Res.drawable.open_in_browser_24px), null) },
+                        onClick = { onClick(endpoint, session) },
+                    )
                 }
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(stringResource(Res.string.load_session)) },
-                icon = { Icon(painterResource(Res.drawable.open_in_browser_24px), null) },
-                onClick = { onClick?.let { it(endpoint, session) } },
-            )
-        }
-    ) { paddingValues ->
-        LazyVerticalGrid (
-            columns = GridCells.Adaptive((WIDTH_DP_MEDIUM_LOWER_BOUND / 2).dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
-            modifier = Modifier
-                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-                .padding(paddingValues)
-                .padding(horizontal = 24.dp)
-                .consumeWindowInsets(paddingValues)
-        ) {
-            item { InfoSection(sessionEntry, onDelete) } // TODO Confirm before delete
-            item { StatsSection(sessionEntry) }
-            item { Spacer(Modifier.padding(bottom = 64.dp)) }
+            ) { paddingValues ->
+                LazyVerticalGrid (
+                    columns = GridCells.Adaptive((WIDTH_DP_MEDIUM_LOWER_BOUND / 2).dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    modifier = Modifier
+                        .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+                        .padding(paddingValues)
+                        .padding(horizontal = 24.dp)
+                        .consumeWindowInsets(paddingValues)
+                ) {
+                    item { InfoSection(sessionEntry, onDelete) }
+                    item { StatsSection(sessionEntry) }
+                    item { Spacer(Modifier.padding(bottom = 64.dp)) }
+                }
+            }
         }
     }
 }
