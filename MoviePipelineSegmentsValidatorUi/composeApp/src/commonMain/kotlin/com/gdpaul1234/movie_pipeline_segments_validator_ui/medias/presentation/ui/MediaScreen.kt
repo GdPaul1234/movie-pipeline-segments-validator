@@ -281,9 +281,7 @@ private fun MediaPreviewSection(
             .aspectRatio(16f / 9f)
             .fillMaxHeight()
     ) {
-        AsyncImageWithPrevious(
-            url = frameUrl
-        )
+        AsyncImageWithPrevious(url = frameUrl)
 
         if (!isSmallScreen) {
             MediaPositionToolbar(Modifier.align(Alignment.BottomStart), position, duration, setPosition)
