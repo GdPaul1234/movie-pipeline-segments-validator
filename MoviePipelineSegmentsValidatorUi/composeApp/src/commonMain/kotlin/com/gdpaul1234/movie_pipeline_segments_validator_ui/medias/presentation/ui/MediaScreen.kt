@@ -17,16 +17,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.AsyncImageWithPrevious
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.LoadingSuspense
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.*
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.time.debounce
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.openapitools.client.models.Media
 import org.openapitools.client.models.MediaMetadata
 import org.openapitools.client.models.SegmentOutput
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
+import kotlin.time.toJavaDuration
 
 @Suppress("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
@@ -137,7 +144,13 @@ fun MediaScreen(
 
                     item {
                         uiState.duration?.let { duration ->
-                            MediaPreviewSection(uiState.position, duration, viewModel::setPosition, isSmallScreen)
+                            MediaPreviewSection(
+                                getFrameUrl = viewModel::getFrameUrl,
+                                position = uiState.position,
+                                duration = duration,
+                                setPosition = viewModel::setPosition,
+                                isSmallScreen = isSmallScreen
+                            )
 
                             uiState.media?.segments?.let { segments ->
                                 SegmentsEditSection(
@@ -240,13 +253,27 @@ private fun MediaMetadataSection(
     }
 }
 
+@OptIn(FlowPreview::class)
 @Composable
 private fun MediaPreviewSection(
+    getFrameUrl: () -> String,
     position: Double,
     duration: Double,
     setPosition: (Number) -> Unit,
     isSmallScreen: Boolean
 ) {
+    val frameUrlFlow = remember { MutableStateFlow(getFrameUrl()) }
+    LaunchedEffect(position) { frameUrlFlow.emit(getFrameUrl()) }
+
+    var frameUrl by remember { mutableStateOf(getFrameUrl()) }
+
+    LaunchedEffect(Unit) {
+        frameUrlFlow
+            .debounce(500.milliseconds.toJavaDuration()) // Wait for 300ms of inactivity
+            .distinctUntilChanged() // Emit only if the value has changed
+            .collect{ frameUrl = it }
+    }
+
     Box(
         Modifier
             .clip(ShapeDefaults.Large)
@@ -254,6 +281,10 @@ private fun MediaPreviewSection(
             .aspectRatio(16f / 9f)
             .fillMaxHeight()
     ) {
+        AsyncImageWithPrevious(
+            url = frameUrl
+        )
+
         if (!isSmallScreen) {
             MediaPositionToolbar(Modifier.align(Alignment.BottomStart), position, duration, setPosition)
         }

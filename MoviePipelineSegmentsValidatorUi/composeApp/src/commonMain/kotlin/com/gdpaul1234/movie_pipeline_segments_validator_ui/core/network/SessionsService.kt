@@ -2,7 +2,6 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network
 
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
 import io.ktor.client.plugins.*
-import kotlinx.coroutines.flow.firstOrNull
 import org.openapitools.client.apis.SessionsApi
 import org.openapitools.client.infrastructure.HttpResponse
 import org.openapitools.client.models.Session
@@ -34,11 +33,8 @@ class SessionsService(
     suspend fun createSession(rootPath: String) =
         persistSession(client.createSessionSessionsPost(SessionCreateBody(rootPath)))
 
-    suspend fun getSession(sessionId: String, useLocalData: Boolean, refresh: Boolean) =
-        when {
-            useLocalData -> sessionsRepository.get(endpoint, sessionId).firstOrNull()
-            else -> null
-        } ?: persistSession(client.showSessionSessionsSessionIdGet(sessionId, refresh))
+    suspend fun getSession(sessionId: String, refresh: Boolean) =
+        persistSession(client.showSessionSessionsSessionIdGet(sessionId, refresh))
 
     suspend fun deleteSession(sessionId: String) {
         client.destroySessionSessionsSessionIdDelete(sessionId)

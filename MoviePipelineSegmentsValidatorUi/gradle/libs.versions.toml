@@ -15,7 +15,7 @@ androidx-navigation = "2.9.0-rc01"
 androidx-window = "1.5.0-rc01"
 androidx-window-core = "1.5.0-rc01"
 androidx-window-java = "1.5.0-rc01"
-composeHotReload = "1.0.0-beta05"
+composeHotReload = "1.0.0-beta06"
 composeMultiplatform = "1.8.2"
 junit = "4.13.2"
 kotlin = "2.2.10"
@@ -23,6 +23,8 @@ kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 kotlinx-datetime = "0.7.1"
 ktor = "3.2.3"
+coil = "3.3.0"
+coil-client = "3.2.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -55,7 +57,10 @@ ktor-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json", versi
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktor-android = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-jvm = { module = "io.ktor:ktor-client-apache", version.ref = "ktor" }
-
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+coil-client-android = { module = "io.ktor:ktor-client-android", version.ref = "coil-client" }
+coil-client-jvm = { module = "io.ktor:ktor-client-java", version.ref = "coil-client" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
