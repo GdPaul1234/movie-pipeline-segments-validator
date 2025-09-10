@@ -3,14 +3,20 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.openapitools.client.models.SegmentOutput
+
+private data class SegmentRelativeRowLayout(val item: SegmentOutput, val paddingRight: Dp)
 
 @Suppress("UnusedBoxWithConstraintsScope")
 @Composable
@@ -31,19 +37,24 @@ fun SegmentsAsTimeline(
             .clip(ShapeDefaults.Small)
             .background(colors.inactiveTrackColor)
     ) {
+        val segmentsLayout = remember(segments) {
+            segments.zipWithNext { a, b ->
+                val delta = b.start - a.end
+                val deltaWidth = (delta / duration).coerceIn(0.0, 1.0)
 
-        // Render les segments
-        segments.forEach { segment ->
-            // Calculate the relative start position and width of the segment
-            // Ensure values are between 0 and 1
-            val segmentStart = (segment.start / duration).coerceIn(0.0, 1.0)
+                SegmentRelativeRowLayout(item = a, paddingRight = (deltaWidth * constraints.maxWidth).dp)
+            }
+        }
+
+        @Composable
+        fun SegmentBox(modifier: Modifier, segment: SegmentOutput) {
+            // Calculate the relative start width of the segment, ensure values are between 0 and 1
             val segmentWidth = (segment.duration / duration).coerceIn(0.0, 1.0)
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(segmentWidth.toFloat())
+                modifier = modifier
+                    .width((segmentWidth * constraints.maxWidth).dp)
                     .fillMaxHeight()
-                    .offset(x = (segmentStart * constraints.maxWidth).dp)
                     .clip(ShapeDefaults.ExtraSmall)
                     .background(
                         // Change background color based on selection state
@@ -52,6 +63,36 @@ fun SegmentsAsTimeline(
                     )
                     .clickable { toggleSegment(segment) }
             )
+        }
+
+        // Render les segments
+        LazyRow(
+            modifier = Modifier.size(maxWidth, maxHeight),
+            userScrollEnabled = false
+        ) {
+            if (segments.size == 1) {
+                item {
+                    val segment = segments.first()
+
+                    // Calculate the relative start position of the segment, ensure values are between 0 and 1
+                    val segmentStart = (segment.start / duration).coerceIn(0.0, 1.0)
+
+                    SegmentBox(Modifier.animateItem().offset(x = (segmentStart * constraints.maxWidth).dp), segment)
+                }
+
+            } else {
+                items(
+                    items = segmentsLayout,
+                    key = { with(it.item) { "$start-$end" } }
+                ) { (segment, paddingRight) ->
+                    SegmentBox(Modifier.animateItem().padding(end = paddingRight), segment)
+                }
+
+                item {
+                    val segment = segments.last()
+                    SegmentBox(Modifier.animateItem(), segment)
+                }
+            }
         }
 
         // Render current position indicator
