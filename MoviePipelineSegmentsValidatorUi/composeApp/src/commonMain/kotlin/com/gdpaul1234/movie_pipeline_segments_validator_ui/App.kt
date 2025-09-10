@@ -12,6 +12,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import coil3.ImageLoader
+import coil3.compose.setSingletonImageLoaderFactory
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.HomeRoute
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.homeDestination
@@ -22,6 +24,11 @@ fun App(
     dataStore: DataStore<Preferences>,
     navController: NavHostController = rememberNavController()
 ) {
+    setSingletonImageLoaderFactory { context ->
+        ImageLoader.Builder(context)
+            .build()
+    }
+
     MaterialTheme {
         Scaffold { paddingValues ->
             val sessionsRepository = SessionsRepository(dataStore)

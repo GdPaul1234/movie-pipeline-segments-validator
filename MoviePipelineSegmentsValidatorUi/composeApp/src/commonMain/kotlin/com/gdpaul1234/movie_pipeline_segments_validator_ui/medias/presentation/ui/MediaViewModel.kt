@@ -1,6 +1,5 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui
 
-import androidx.compose.ui.util.fastZipWithNext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -12,10 +11,14 @@ import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.MediaUiSt
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsSelectionMode
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.openapitools.client.models.*
-import kotlin.math.min
+import java.net.URLEncoder
+import java.util.*
 import kotlin.reflect.KClass
 
 class MediaViewModel(
@@ -52,6 +55,13 @@ class MediaViewModel(
             }
         }
     }
+
+    fun getFrameUrl() =
+        listOf(
+            "$endpoint/sessions/$sessionId/medias",
+            URLEncoder.encode(mediaStem, "UTF-8").replace("+", "%20"),
+            "frames/${String.format(Locale.ENGLISH, "%.1f", uiState.value.position)}s"
+        ).joinToString("/")
 
     fun setTitle(title: String) {
         _uiState.update { currentState ->

@@ -28,6 +28,7 @@ kotlin {
 
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.android)
+            implementation(libs.coil.client.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -55,15 +56,19 @@ kotlin {
 
             implementation(libs.androidx.datastore)
             implementation(libs.androidx.datastore.preferences)
+
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
 
+            implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.ktor.jvm)
+            implementation(libs.coil.client.jvm)
         }
     }
 }
