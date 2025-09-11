@@ -84,14 +84,9 @@ fun SegmentsAsTimeline(
                 items(
                     items = segmentsLayout,
                     key = { with(it.item) { "$start-$end" } }
-                ) { (segment, paddingRight) ->
-                    SegmentBox(Modifier.animateItem().padding(end = paddingRight), segment)
-                }
+                ) { (segment, paddingRight) -> SegmentBox(Modifier.animateItem().padding(end = paddingRight), segment) }
 
-                item {
-                    val segment = segments.last()
-                    SegmentBox(Modifier.animateItem(), segment)
-                }
+                item { segments.lastOrNull()?.let { SegmentBox(Modifier.animateItem(), it) } }
             }
         }
 

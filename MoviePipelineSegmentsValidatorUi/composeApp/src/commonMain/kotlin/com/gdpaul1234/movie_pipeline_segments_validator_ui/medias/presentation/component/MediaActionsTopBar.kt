@@ -16,6 +16,7 @@ fun MediaActionsTopAppBar(
     toggleSegmentsView: () -> Unit,
     setSelectionMode: (Boolean) -> Unit,
     importSegments: () -> Unit,
+    isReadOnly: Boolean
 ) {
     TooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
@@ -24,7 +25,8 @@ fun MediaActionsTopAppBar(
     ) {
         Checkbox(
             checked = segmentsSelectionMode == SegmentsSelectionMode.MULTI,
-            onCheckedChange = setSelectionMode
+            onCheckedChange = setSelectionMode,
+            enabled = !isReadOnly
         )
     }
 
@@ -38,7 +40,7 @@ fun MediaActionsTopAppBar(
         tooltip = { PlainTooltip { Text(stringResource(Res.string.segments_import)) } },
         state = rememberTooltipState()
     ) {
-        IconButton(onClick = importSegments) {
+        IconButton(onClick = importSegments, enabled = !isReadOnly) {
             Icon(
                 painter = painterResource(Res.drawable.download_24px),
                 contentDescription = stringResource(Res.string.segments_import)

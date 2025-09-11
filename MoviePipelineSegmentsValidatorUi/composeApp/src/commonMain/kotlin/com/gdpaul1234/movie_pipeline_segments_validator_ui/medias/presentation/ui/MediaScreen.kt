@@ -53,6 +53,8 @@ fun MediaScreen(
         it.state in listOf(Media.State.waiting_metadata, Media.State.segment_reviewed, Media.State.media_processing, Media.State.media_processed)
     } ?: true
 
+    var showImportSegmentsDialog by remember { mutableStateOf(false) }
+
     val title by remember { derivedStateOf { uiState.media?.title ?: "" } }
     val skipBackup by remember { derivedStateOf { uiState.media?.skipBackup ?: false } }
 
@@ -99,7 +101,8 @@ fun MediaScreen(
                                 segmentsSelectionMode = uiState.segmentsSelectionMode,
                                 toggleSegmentsView = viewModel::toggleSegmentsView,
                                 setSelectionMode = viewModel::setSelectionMode,
-                                importSegments = {/* TODO import segments */}
+                                importSegments = { showImportSegmentsDialog = true },
+                                isReadOnly = isReadOnly
                             )
                         }
                     }
@@ -117,7 +120,7 @@ fun MediaScreen(
                         segmentsSelectionMode = uiState.segmentsSelectionMode,
                         toggleSegmentsView = viewModel::toggleSegmentsView,
                         setSelectionMode = viewModel::setSelectionMode,
-                        importSegments = {/* TODO import segments */ },
+                        importSegments = { showImportSegmentsDialog = true },
                         validateSegments = { viewModel.validateSegments(navigateToMediaStem) },
                         isReadOnly = isReadOnly
                     )
@@ -178,6 +181,19 @@ fun MediaScreen(
                 selectedSegments = uiState.selectedSegments,
                 segmentsEditOnClick = segmentsEditOnClick,
                 isReadOnly = isReadOnly
+            )
+        }
+    }
+
+    if (showImportSegmentsDialog) {
+        uiState.media?.let { media ->
+            SegmentsImportDialog(
+                importedSegments = media.importedSegments,
+                onCancel = { showImportSegmentsDialog = false },
+                onConfirm = { selectedDetectorKey ->
+                    showImportSegmentsDialog = false
+                    viewModel.importSegments(selectedDetectorKey)
+                }
             )
         }
     }

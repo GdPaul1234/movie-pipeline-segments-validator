@@ -50,7 +50,7 @@ fun MediaActionsBottomBar(
             tooltip = { PlainTooltip { Text(stringResource(Res.string.segments_import)) } },
             state = rememberTooltipState()
         ) {
-            IconButton(onClick = importSegments) {
+            IconButton(onClick = importSegments, enabled = !isReadOnly) {
                 Icon(
                     painter = painterResource(Res.drawable.upload_24px),
                     contentDescription = stringResource(Res.string.segments_import)
@@ -65,7 +65,8 @@ fun MediaActionsBottomBar(
         ) {
             Checkbox(
                 checked = segmentsSelectionMode == SegmentsSelectionMode.MULTI,
-                onCheckedChange = setSelectionMode
+                onCheckedChange = setSelectionMode,
+                enabled = !isReadOnly
             )
         }
 
