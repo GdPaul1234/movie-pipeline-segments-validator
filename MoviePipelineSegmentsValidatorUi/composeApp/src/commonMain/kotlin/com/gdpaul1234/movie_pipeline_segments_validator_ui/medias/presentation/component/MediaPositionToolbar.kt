@@ -37,7 +37,7 @@ fun MediaPositionToolbar(
     ) {
         Surface(
             modifier = Modifier.fillMaxHeight(),
-            shape = ShapeDefaults.Medium,
+            shape = MaterialTheme.shapes.medium,
             tonalElevation = tonalElevation
         ) {
             Row(
@@ -51,7 +51,7 @@ fun MediaPositionToolbar(
             }
         }
 
-        Surface(shape = ShapeDefaults.Medium, tonalElevation = tonalElevation) {
+        Surface(shape = MaterialTheme.shapes.medium, tonalElevation = tonalElevation) {
             val adaptiveInfo = currentWindowAdaptiveInfo()
             val options = listOf(1.0, 5.0, 10.0, 30.0).takeWhile { value ->
                 value <= when {

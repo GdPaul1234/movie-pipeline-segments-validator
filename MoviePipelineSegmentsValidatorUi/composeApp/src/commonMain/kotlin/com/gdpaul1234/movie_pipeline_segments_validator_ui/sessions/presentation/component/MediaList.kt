@@ -51,8 +51,6 @@ fun MediaList(
             }
         )
 
-    val listItemShape = ShapeDefaults.Large
-
     Scaffold(
         containerColor = containerColor,
         topBar = {
@@ -92,7 +90,7 @@ fun MediaList(
                 ListItem(
                     modifier = Modifier
                         .animateItem()
-                        .clip(listItemShape)
+                        .clip(MaterialTheme.shapes.large)
                         .clickable { onItemClick?.let { it(mediaEntry) } },
                     colors = listItemColors(mediaStem),
                     headlineContent = { Text(media.title) },

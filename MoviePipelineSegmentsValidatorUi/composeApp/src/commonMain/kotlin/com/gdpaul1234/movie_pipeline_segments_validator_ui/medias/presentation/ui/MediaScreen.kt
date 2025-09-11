@@ -276,7 +276,7 @@ private fun MediaPreviewSection(
 
     Box(
         Modifier
-            .clip(ShapeDefaults.Large)
+            .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .aspectRatio(16f / 9f)
             .fillMaxHeight()
