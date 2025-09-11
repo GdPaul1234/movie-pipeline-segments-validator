@@ -5,7 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -34,7 +34,7 @@ fun SegmentsAsTimeline(
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp)
-            .clip(ShapeDefaults.Small)
+            .clip(MaterialTheme.shapes.small)
             .background(colors.inactiveTrackColor)
     ) {
         val segmentsLayout = remember(segments) {
@@ -55,7 +55,7 @@ fun SegmentsAsTimeline(
                 modifier = modifier
                     .width((segmentWidth * constraints.maxWidth).dp)
                     .fillMaxHeight()
-                    .clip(ShapeDefaults.ExtraSmall)
+                    .clip(MaterialTheme.shapes.extraSmall)
                     .background(
                         // Change background color based on selection state
                         color = if (segment in selectedSegments) colors.activeTrackColor

@@ -55,7 +55,7 @@ fun SessionList(
             }
         )
 
-    val listItemShape = ShapeDefaults.Large
+    val listItemShape = MaterialTheme.shapes.large
 
     Scaffold(
         containerColor = containerBackgroundColor,
