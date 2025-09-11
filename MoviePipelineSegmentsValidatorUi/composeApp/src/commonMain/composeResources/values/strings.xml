@@ -62,4 +62,6 @@
     <string name="split_selected_segment">Split selected segment at current position</string>
     <string name="set_selected_segment_start">Set start of selected segment</string>
     <string name="set_selected_segment_end">Set end of selected segment</string>
+    <string name="confirm_label">Confirm</string>
+    <string name="dismiss_label">Dismiss</string>
 </resources>

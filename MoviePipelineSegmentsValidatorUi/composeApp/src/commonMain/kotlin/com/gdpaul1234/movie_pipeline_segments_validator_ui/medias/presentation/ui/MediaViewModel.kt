@@ -179,6 +179,13 @@ class MediaViewModel(
             }
         }
 
+    fun importSegments(detectorKey: String) =
+        viewModelScope.launch {
+            loadableErrorWrapHandler {
+                segmentsService.loadImportedSegments(detectorKey)
+            }
+        }
+
     private suspend fun thenNavigateToNextMedia(navigateTo: ((String) -> Unit), block: suspend (Media) -> Unit) {
         val media = checkNotNull(uiState.value.media)
         val session = checkNotNull(sessionsRepository.get(endpoint, sessionId).first())
