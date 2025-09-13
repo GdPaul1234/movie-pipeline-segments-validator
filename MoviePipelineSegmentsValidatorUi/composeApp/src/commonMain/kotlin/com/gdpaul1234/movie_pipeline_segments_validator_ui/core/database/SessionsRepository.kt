@@ -50,7 +50,7 @@ class SessionsRepository(
 
     @OptIn(ExperimentalTime::class)
     @Throws(NoSuchElementException::class)
-    suspend fun updateMedia(endpoint: String, sessionId: String, media: Media, keepLocalData: Boolean = false) {
+    suspend fun updateMedia(endpoint: String, sessionId: String, media: Media) {
         dataStore.edit { sessions ->
             val sessionKey = stringPreferencesKey(getKey(endpoint, sessionId))
             val session = Json.decodeFromString<Session>(checkNotNull(sessions[sessionKey]))
@@ -59,12 +59,7 @@ class SessionsRepository(
                 updatedAt = Clock.System.now(),
                 medias = session.medias.toMutableMap().apply {
                     val mediaStem = File(media.filepath).nameWithoutExtension
-                    val prevMedia = this[mediaStem]
-
-                    this[mediaStem] = when {
-                        keepLocalData && prevMedia != null -> media.copy(title = prevMedia.title, skipBackup = prevMedia.skipBackup)
-                        else -> media
-                    }
+                    this[mediaStem] = media
                 }
             )
 

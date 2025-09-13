@@ -91,11 +91,6 @@ class TestHttpApi(unittest.TestCase):
         # init medias list
         self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in actual_session.medias.values()])
         self.assertEqual(['no_segment', 'waiting_segment_review'], [media.state for media in actual_session.medias.values()])
-        self.assertEqual([{}, {}], [media.imported_segments for media in actual_session.medias.values()]) # imported segments is empty because it is load on medias and segments endpoints
-
-        # import saved segments
-        video_context = actual_session.medias[self.video_path.stem]
-        self.assertEqual({}, video_context.imported_segments)
 
 
     def test_show_session_exist_no_refresh(self):
@@ -169,7 +164,7 @@ class TestHttpApi(unittest.TestCase):
         self.assertEqual(expected_segments, actual_media.media.segments)
 
         expected_imported_segments = {k: f'{v},' for k, v in serie_segments_content_dict.items()}
-        self.assertEqual(expected_imported_segments, actual_media.media.imported_segments)
+        self.assertEqual(expected_imported_segments, actual_media.imported_segments)
 
 
     def test_validate_media_segments(self):

@@ -186,16 +186,14 @@ fun MediaScreen(
     }
 
     if (showImportSegmentsDialog) {
-        uiState.media?.let { media ->
-            SegmentsImportDialog(
-                importedSegments = media.importedSegments,
-                onCancel = { showImportSegmentsDialog = false },
-                onConfirm = { selectedDetectorKey ->
-                    showImportSegmentsDialog = false
-                    viewModel.importSegments(selectedDetectorKey)
-                }
-            )
-        }
+        SegmentsImportDialog(
+            importedSegments = uiState.importedSegments,
+            onCancel = { showImportSegmentsDialog = false },
+            onConfirm = { selectedDetectorKey ->
+                showImportSegmentsDialog = false
+                viewModel.importSegments(selectedDetectorKey)
+            }
+        )
     }
 }
 

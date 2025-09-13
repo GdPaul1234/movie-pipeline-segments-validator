@@ -69,16 +69,6 @@ class Media(BaseModel):
         )
     ]
     skip_backup: Annotated[bool, Field(default=False, description='skip backup step')]
-    imported_segments: Annotated[
-        dict[str, StrSegment],
-        Field(
-            description='imported segments from `{filepath}.segments.json`',
-            examples=[{
-                "result_2024-10-05T11:40:39.732479": "00:25:26.000-00:34:06.000,00:40:10.000-01:01:23.000,01:07:34.000-01:17:59.000",
-                "auto": "00:00:00.000-01:05:54.840,00:42:38.980-01:49:59.300,01:05:54.840-01:49:59.300"
-            }]
-        )
-    ]
     segments: Annotated[list[Segment], Field(default_factory=list, description='segments for edit decision list output')]
 
     @property
@@ -112,7 +102,6 @@ class Media(BaseModel):
             state=MediaPath(context.filepath).state,
             title=context.title,
             skip_backup=context.skip_backup,
-            imported_segments=context.imported_segments,
             segments=[Segment(**asdict(segment)) for segment in context.segment_container.segments]
         )
 

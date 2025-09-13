@@ -26,7 +26,6 @@ import kotlinx.serialization.encoding.*
  *
  * @param filepath media file path
  * @param state  media state: * `waiting_metadata` - No metadata file exists * `no_segment` - Metadata file exists, but no segments file exists  * `waiting_segment_review` - Both metadata and segments files exist but no review * `segment_reviewed` - Segments have been reviewed * `media_processing` - Processing is in progress * `media_processed` -  Processing is complete 
- * @param importedSegments imported segments from `{filepath}.segments.json`
  * @param title output title, must ends with .mp4
  * @param skipBackup skip backup step
  * @param segments segments for edit decision list output
@@ -40,9 +39,6 @@ data class Media (
 
     /*  media state: * `waiting_metadata` - No metadata file exists * `no_segment` - Metadata file exists, but no segments file exists  * `waiting_segment_review` - Both metadata and segments files exist but no review * `segment_reviewed` - Segments have been reviewed * `media_processing` - Processing is in progress * `media_processed` -  Processing is complete  */
     @SerialName(value = "state") @Required val state: Media.State,
-
-    /* imported segments from `{filepath}.segments.json` */
-    @SerialName(value = "imported_segments") @Required val importedSegments: kotlin.collections.Map<kotlin.String, kotlin.String>,
 
     /* output title, must ends with .mp4 */
     @SerialName(value = "title") val title: kotlin.String,

@@ -17,13 +17,13 @@ class MediasService(
         )
     }
 
-    private suspend fun persistMedia(response: HttpResponse<MediaOut>, keepLocalData: Boolean) =
-        response.body().also { sessionsRepository.updateMedia(endpoint, sessionId, it.media, keepLocalData) }
+    private suspend fun persistMedia(response: HttpResponse<MediaOut>) =
+        response.body().also { sessionsRepository.updateMedia(endpoint, sessionId, it.media) }
 
-    suspend fun getMediaInDetails(mediaStem: String, keepLocalData: Boolean = true) =
-        persistMedia(client.showMediaSessionsSessionIdMediasMediaStemGet(mediaStem, sessionId), keepLocalData)
+    suspend fun getMediaInDetails(mediaStem: String) =
+        persistMedia(client.showMediaSessionsSessionIdMediasMediaStemGet(mediaStem, sessionId))
 
     suspend fun validateMediaSegments(mediaStem: String, body: ValidateSegmentsBody) =
         client.validateMediaSegmentsSessionsSessionIdMediasMediaStemValidateSegmentsPost(mediaStem, sessionId, body).body()
-            .also { getMediaInDetails(mediaStem, keepLocalData = false) }
+            .also { getMediaInDetails(mediaStem) }
 }

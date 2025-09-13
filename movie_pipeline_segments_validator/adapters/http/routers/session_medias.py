@@ -5,15 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Response, status
 from pydantic import BaseModel, Field, computed_field
 from pydantic.types import FilePath, NonNegativeFloat
 
-from ....adapters.http.dependencies import get_media, get_segment_validator_context, get_session_repository, get_settings
-from ....adapters.repository.resources import Media, MediaMetadata
+from ....adapters.http.dependencies import get_segment_validator_context, get_session_repository
+from ....adapters.repository.resources import Media, MediaMetadata, StrSegment
 from ....adapters.repository.session_repository import SessionRepository, build_media
 from ....domain import FILENAME_REGEX
 from ....domain.context import SegmentValidatorContext
-from ....domain.media_path import MediaPath
 from ....lib.video_player.simple_video_only_player import extract_frame
 from ....services import segment_service
-from ....settings import Settings
 
 router = APIRouter(
     prefix='/sessions/{session_id}/medias',
@@ -23,6 +21,16 @@ router = APIRouter(
 
 class MediaOut(BaseModel):
     media: Annotated[Media, Field(description='media')]
+    imported_segments: Annotated[
+        dict[str, StrSegment],
+        Field(
+            description='imported segments from `{filepath}.segments.json`',
+            examples=[{
+                "result_2024-10-05T11:40:39.732479": "00:25:26.000-00:34:06.000,00:40:10.000-01:01:23.000,01:07:34.000-01:17:59.000",
+                "auto": "00:00:00.000-01:05:54.840,00:42:38.980-01:49:59.300,01:05:54.840-01:49:59.300"
+            }]
+        )
+    ]
     
     @computed_field(description='media duration in seconds')
     @property
@@ -45,7 +53,16 @@ def show_media(
     # refresh media state by updating it from segment_validator_context
     updated_media = session_repository.update_media(session_id, segment_validator_context).medias[media_stem]
 
-    return MediaOut(media=updated_media)
+    # prefill media.segments from imported_segments if empty
+    if len(updated_media.segments) == 0:
+        config = segment_validator_context.config
+        updated_media = build_media(updated_media, config, force_load_segments=True, force_load_edl_file_content=True)
+        session_repository.update_media(session_id, updated_media.to_segment_validator_context(config)).medias[media_stem]
+
+    return MediaOut(
+        media=updated_media,
+        imported_segments=segment_validator_context.imported_segments
+    )
 
 
 class ValidateSegmentsBody(BaseModel):

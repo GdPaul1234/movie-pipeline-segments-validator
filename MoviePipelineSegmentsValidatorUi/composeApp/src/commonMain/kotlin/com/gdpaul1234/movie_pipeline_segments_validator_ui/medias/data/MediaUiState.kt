@@ -12,6 +12,7 @@ data class MediaUiState(
     val errors: List<String> = listOf(),
 
     val media: Media? = null,
+    val importedSegments: Map<String, String> = emptyMap(),
     val recordingMetadata: MediaMetadata? = null,
 
     val position: Double = 0.0,
