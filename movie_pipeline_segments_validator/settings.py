@@ -32,6 +32,7 @@ class ServerSettings(BaseModel):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     DEBUG_MODE: bool = False
+    ALLOW_ORIGINS: tuple[str] = ('*',)
 
 
 class Settings(BaseSettings):
