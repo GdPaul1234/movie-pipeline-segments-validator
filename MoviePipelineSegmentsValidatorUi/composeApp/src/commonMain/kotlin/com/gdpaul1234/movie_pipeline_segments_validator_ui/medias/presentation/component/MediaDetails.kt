@@ -67,7 +67,7 @@ fun MediaDetails(
                     .consumeWindowInsets(paddingValues),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                item { InfoSection(media) }
+                item { InfoSection(media, uiState.importedSegments) }
                 item { RecordingMetadataSection(uiState.recordingMetadata) }
             }
         }
@@ -78,6 +78,7 @@ fun MediaDetails(
 @Preview
 private fun InfoSection(
     @PreviewParameter(MediaPreviewParameter::class) media: Media,
+    @PreviewParameter(ImportedSegmentsPreviewParameter::class) importedSegments: Map<String, String>,
     isPreview: Boolean = LocalInspectionMode.current
 ) {
     val listItemColors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor)
@@ -117,7 +118,7 @@ private fun InfoSection(
             supportingContent = {
                 Text(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    text = media.importedSegments.entries.joinToString("\n") { "${it.key}: ${it.value}" },
+                    text = importedSegments.entries.joinToString("\n") { "${it.key}: ${it.value}" },
                     softWrap = false
                 )
             }
@@ -164,13 +165,18 @@ class MediaPreviewParameter : PreviewParameterProvider<Media> {
             state = Media.State.waiting_segment_review,
             title = "Movie Name, le titre long.mp4",
             skipBackup = false,
-            importedSegments = mapOf(
-                "auto" to "00:00:00.000-01:05:54.840,00:42:38.980-01:49:59.300,01:05:54.840-01:49:59.300",
-                "result_2024-10-05T11:40:39.732479" to "00:25:26.000-00:34:06.000,00:40:10.000-01:01:23.000,01:07:34.000-01:17:59.000"
-            ),
             segments = listOf(
                 SegmentOutput(start = 1526.0, end = 3246.0, duration = 1720.0)
             )
+        )
+    )
+}
+
+class ImportedSegmentsPreviewParameter : PreviewParameterProvider<Map<String, String>> {
+    override val values = sequenceOf(
+        mapOf(
+            "auto" to "00:00:00.000-01:05:54.840,00:42:38.980-01:49:59.300,01:05:54.840-01:49:59.300",
+            "result_2024-10-05T11:40:39.732479" to "00:25:26.000-00:34:06.000,00:40:10.000-01:01:23.000,01:07:34.000-01:17:59.000"
         )
     )
 }

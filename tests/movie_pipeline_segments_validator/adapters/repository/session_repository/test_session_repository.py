@@ -64,16 +64,6 @@ class TestSessionRepository(unittest.TestCase):
         self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in session.medias.values()])
         self.assertEqual(['no_segment', 'waiting_segment_review'], [media.state for media in session.medias.values()])
 
-        # imported segments is empty because it is load on medias and segments endpoints
-        self.assertEqual([{}, {}], [media.imported_segments for media in session.medias.values()])
-
-        # import saved segments
-        serie_context = session.medias[self.serie_path.stem]
-        self.assertEqual({}, serie_context.imported_segments) # empty as expected
-
-        expected_imported_segments = {k: f'{v},' for k, v in json.loads(self.serie_segments_content).items()}
-        self.assertEqual(expected_imported_segments, build_media(serie_context).imported_segments) # present because loaded when build media
-
 
     def test_get_session_exist(self):
         with closing(self.session_repository) as session_repository:

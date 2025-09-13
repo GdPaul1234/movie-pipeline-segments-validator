@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.navigation.NavHostController
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.SessionRoute
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network.MediasService
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.network.SessionsService
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.SessionsUiState
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.dummyNewSessionEntry
@@ -71,7 +72,19 @@ class SessionsViewModel(
 
         return when {
             localSession == null || localSession.updatedAt < remoteSession.updatedAt ->
-                sessionsService.getSession(sessionId, refresh = true)
+                sessionsService.getSession(sessionId, refresh = true).apply {
+                    // For performance reasons, edl file contents are not read when reloading session.
+                    // As a result, title for medias in state after waiting_segment_review can be incoherent with
+                    // filename in edl file.
+                    // So we need to refresh them. Because few files are in this state, we can accept this little
+                    // performance loss.
+
+                    val mediaService = MediasService(endpoint, sessionId, sessionsRepository)
+
+                    medias.filterValues { it.state.ordinal > Media.State.waiting_segment_review.ordinal }.forEach {
+                        mediaService.getMediaInDetails(it.key)
+                    }
+                }
             else -> remoteSession
         }
     }

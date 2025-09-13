@@ -48,7 +48,8 @@ class MediaViewModel(
                     _uiState.update { currentState ->
                         currentState.copy(
                             duration = mediaDetails.duration,
-                            recordingMetadata = mediaDetails.recordingMetadata
+                            recordingMetadata = mediaDetails.recordingMetadata,
+                            importedSegments = mediaDetails.importedSegments
                         )
                     }
                 }

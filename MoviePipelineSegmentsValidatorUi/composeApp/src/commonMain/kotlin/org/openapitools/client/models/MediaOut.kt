@@ -26,6 +26,7 @@ import kotlinx.serialization.encoding.*
  * 
  *
  * @param media media
+ * @param importedSegments imported segments from `{filepath}.segments.json`
  * @param duration media duration in seconds
  * @param recordingMetadata 
  */
@@ -35,6 +36,9 @@ data class MediaOut (
 
     /* media */
     @SerialName(value = "media") @Required val media: Media,
+
+    /* imported segments from `{filepath}.segments.json` */
+    @SerialName(value = "imported_segments") @Required val importedSegments: kotlin.collections.Map<kotlin.String, kotlin.String>,
 
     /* media duration in seconds */
     @SerialName(value = "duration") @Required val duration: kotlin.Double,

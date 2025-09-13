@@ -30,7 +30,12 @@ def import_detector_segments(imported_segments):
     ]
 
 
-def build_media(source: MediaPath | Media, config: Optional[Settings] = None, force_load_segments = False):
+def build_media(
+        source: MediaPath | Media, 
+        config: Optional[Settings] = None,
+        force_load_segments = False,
+        force_load_edl_file_content = False
+    ):
     """Build media from MediaPath or Media
 
     Args:
@@ -43,7 +48,7 @@ def build_media(source: MediaPath | Media, config: Optional[Settings] = None, fo
         Media: Media filled with title, state, skip_backup and imported segments
     """
     if isinstance(source, Media):
-        imported_segments = source.imported_segments or import_media_segments(source.filepath)
+        imported_segments = import_media_segments(source.filepath) if force_load_segments else {}
         imported_detector_segments = source.segments or import_detector_segments(imported_segments)
         filepath, state, title, skip_backup = source.filepath, source.state, source.title, source.skip_backup
 
@@ -53,12 +58,17 @@ def build_media(source: MediaPath | Media, config: Optional[Settings] = None, fo
 
         imported_segments = import_media_segments(source.path) if force_load_segments else {}
         imported_detector_segments = import_detector_segments(imported_segments)
-
         filepath, state = source.path, source.state
+        title, skip_backup = extract_title(filepath, config), False # default value
 
-        edl_files = list(islice(source.path.parent.glob(f'{source.path.name}*.*yml*'), 1))
+
+    if force_load_edl_file_content:
+        if config is None:
+            raise ValueError('Missing config when force_load_edl_file_content is True')
+
+        edl_files = list(islice(filepath.parent.glob(f'{filepath.name}*.*yml*'), 1))
         eld_file_content: dict[str, Any] = yaml.safe_load(edl_files[0].read_text()) if len(edl_files) == 1 else {}
-        title: str = eld_file_content.get('filename', extract_title(source.path, config))
+        title: str = eld_file_content.get('filename', extract_title(filepath, config))
         skip_backup: bool = eld_file_content.get('skip_backup', False)
 
     return Media(
@@ -66,7 +76,6 @@ def build_media(source: MediaPath | Media, config: Optional[Settings] = None, fo
         state=state,
         title=f"{title.removesuffix('.mp4')}.mp4",
         skip_backup=skip_backup,
-        imported_segments=imported_segments,
         segments=imported_detector_segments
     )
 
