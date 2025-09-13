@@ -1,5 +1,7 @@
 import dbm
 import logging
+from pathlib import Path
+from threading import Lock
 import uuid
 from datetime import datetime, timezone
 from itertools import islice
@@ -22,8 +24,8 @@ logger = logging.getLogger(__name__)
 
 def import_detector_segments(imported_segments):
     raw_segments = items[0][1] if len(items := list(imported_segments.items())) > 0 else ''
-    return  [
-        Segment(start=segment[0], end=segment[1]) 
+    return [
+        Segment(start=segment[0], end=segment[1])
         for segment in MovieSegments(raw_segments).segments
     ]
 
@@ -70,9 +72,32 @@ def build_media(source: MediaPath | Media, config: Optional[Settings] = None, fo
 
 
 class SessionRepository:
+    __repository: dict[Path, Any] = {}
+    __repository_locks: dict[Path, Lock] = {}
+    _session_type_adapter = TypeAdapter(Session)
+
+    @property
+    def _db_path(self):
+        return self._config.Paths.db_path.resolve()
+
+    @property
+    def _db(self):
+        with self.__repository_locks[self._db_path]:
+            return self.__repository[self._db_path]
+
     def __init__(self, config: Settings) -> None:
         self._config = config
-        self._session_type_adapter = TypeAdapter(Session)
+
+        try:
+            self._db
+        except KeyError:
+            self.__repository[self._db_path] = dbm.open(self._db_path, 'c')
+            self.__repository_locks[self._db_path] = Lock()
+
+    def close(self):
+        self._db.close()
+        del self.__repository[self._db_path]
+        del self.__repository_locks[self._db_path]
 
     def create(self, root_path: DirectoryPath) -> Session:
         new_session = Session(
@@ -86,22 +111,15 @@ class SessionRepository:
             }
         )
 
-        with dbm.open(self._config.Paths.db_path, 'c') as db:
-            db[new_session.id] = self._session_type_adapter.dump_json(new_session)
-
+        self._db[new_session.id] = self._session_type_adapter.dump_json(new_session)
         return new_session
 
     def get(self, id: str) -> Session:
-        with dbm.open(self._config.Paths.db_path, 'c') as db:
-            session = self._session_type_adapter.validate_json(db[id])
-
-        return session
+        return self._session_type_adapter.validate_json(self._db[id])
 
     def set(self, session: Session) -> Session:
-        with dbm.open(self._config.Paths.db_path, 'c') as db:
-            session.updated_at = datetime.now(timezone.utc)
-            db[session.id] = self._session_type_adapter.dump_json(session)
-
+        session.updated_at = datetime.now(timezone.utc)
+        self._db[session.id] = self._session_type_adapter.dump_json(session)
         return session
 
     def update_media(self, session_id: str, session_validator_context: SegmentValidatorContext) -> Session:
@@ -114,5 +132,4 @@ class SessionRepository:
         return self.set(session)
 
     def delete(self, id: str) -> None:
-        with dbm.open(self._config.Paths.db_path, 'c') as db:
-            del db[id]
+        del self._db[id]

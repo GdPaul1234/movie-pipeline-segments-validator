@@ -1,3 +1,4 @@
+from contextlib import closing
 import json
 import shutil
 import unittest
@@ -55,8 +56,9 @@ class TestSessionRepository(unittest.TestCase):
 
     def test_create_session(self):
         # create session
-        session = self.session_repository.create(self.input_dir_path)
-        self.assertTrue(self.config.Paths.db_path.with_suffix('.dat').is_file())
+        with closing(self.session_repository) as session_repository:
+            session = session_repository.create(self.input_dir_path)
+            self.assertTrue(self.config.Paths.db_path.with_suffix('.dat').is_file())
 
         # init medias list
         self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in session.medias.values()])
@@ -74,60 +76,69 @@ class TestSessionRepository(unittest.TestCase):
 
 
     def test_get_session_exist(self):
-        session = self.session_repository.create(self.input_dir_path)
-        self.assertEqual(session, self.session_repository.get(session.id))
+        with closing(self.session_repository) as session_repository:
+            session = session_repository.create(self.input_dir_path)
+            self.assertEqual(session, self.session_repository.get(session.id))
 
 
     def test_get_session_not_found(self):
-        self.session_repository.create(self.input_dir_path)
+        with closing(self.session_repository) as session_repository:
+            session_repository.create(self.input_dir_path)
 
-        with self.assertRaisesRegex(KeyError, 'unknown-session'):
-            self.session_repository.get('unknown-session')
+            with self.assertRaisesRegex(KeyError, 'unknown-session'):
+                self.session_repository.get('unknown-session')
 
 
     def test_update_media_valid(self):
-        session = self.session_repository.create(self.input_dir_path)
-        serie_context = build_media(session.medias[self.serie_path.stem]).to_segment_validator_context(self.config)
+        with closing(self.session_repository) as session_repository:
+            session = session_repository.create(self.input_dir_path)
+            serie_context = build_media(session.medias[self.serie_path.stem]).to_segment_validator_context(self.config)
 
-        segment_container = SegmentContainer()
-        segment_container.add(Segment(start=1526, end=3246))
-        serie_context.segment_container = segment_container
+            segment_container = SegmentContainer()
+            segment_container.add(Segment(start=1526, end=3246))
+            serie_context.segment_container = segment_container
 
-        segment_service.validate_segments(serie_context)
+            segment_service.validate_segments(serie_context)
 
-        updated_session = self.session_repository.update_media(session.id, serie_context)
+            updated_session = session_repository.update_media(session.id, serie_context)
 
-        updated_serie_media = updated_session.medias[self.serie_path.stem]
-        self.assertEqual('segment_reviewed', updated_serie_media.state)
-        self.assertEqual([MediaSegment(start=1526, end=3246)], updated_serie_media.segments)
+            updated_serie_media = updated_session.medias[self.serie_path.stem]
+            self.assertEqual('segment_reviewed', updated_serie_media.state)
+            self.assertEqual([MediaSegment(start=1526, end=3246)], updated_serie_media.segments)
 
 
     def test_update_media_invalid(self):
-        session = self.session_repository.create(self.input_dir_path)
-        serie_context = build_media(session.medias[self.serie_path.stem]).to_segment_validator_context(self.config)
+        with closing(self.session_repository) as session_repository:
+            session = session_repository.create(self.input_dir_path)
+            serie_context = build_media(session.medias[self.serie_path.stem]).to_segment_validator_context(self.config)
 
-        serie_context.title = serie_context.title.replace('.mp4', '.invalid_ext')
+            serie_context.title = serie_context.title.replace('.mp4', '.invalid_ext')
 
-        expected_error_message = re.escape("String should match pattern '^[\\w&àéèï'!()\\[\\], #-.:]+\\.mp4$' [type=string_pattern_mismatch, input_value='Serie Name S01E16.invalid_ext', input_type=str]")
-        with self.assertRaisesRegex(ValidationError, expected_error_message):
-            self.session_repository.update_media(session.id, serie_context)
+            expected_error_message = re.escape("String should match pattern '^[\\w&àéèï'!()\\[\\], #-.:]+\\.mp4$' [type=string_pattern_mismatch, input_value='Serie Name S01E16.invalid_ext', input_type=str]")
+            with self.assertRaisesRegex(ValidationError, expected_error_message):
+                session_repository.update_media(session.id, serie_context)
 
 
     def test_destroy_session_exist(self):
-        session = self.session_repository.create(self.input_dir_path)
+        with closing(self.session_repository) as session_repository:
+            session = session_repository.create(self.input_dir_path)
 
-        self.session_repository.delete(session.id)
+            session_repository.delete(session.id)
 
-        with self.assertRaisesRegex(KeyError, session.id):
-            self.session_repository.get(session.id)
+            with self.assertRaisesRegex(KeyError, session.id):
+                session_repository.get(session.id)
 
 
     def test_destroy_session_not_found(self):
         with self.assertRaisesRegex(KeyError, 'unknown-session'):
-            self.session_repository.get('unknown-session')
+            with closing(self.session_repository) as session_repository:
+                session_repository.get('unknown-session')
 
 
     def tearDown(self) -> None:
-        [db_file.unlink() for db_file in Path(__file__).parent.glob('sessions.*')]
         shutil.rmtree(self.input_dir_path)
         shutil.rmtree(self.output_dir_path)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        [db_file.unlink() for db_file in Path(__file__).parent.glob('sessions.*')]

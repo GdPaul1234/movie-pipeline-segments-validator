@@ -82,8 +82,9 @@ class TestHttpApi(unittest.TestCase):
     # routers/sessions.py
     
     def test_create_session(self):
-        response = self.client.post('/sessions', json={ 'root_path': str(self.input_dir_path) })
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        with self.client as client:
+            response = client.post('/sessions', json={ 'root_path': str(self.input_dir_path) })
+            self.assertEqual(status.HTTP_201_CREATED, response.status_code)
 
         actual_session = TypeAdapter(Session).validate_json(response.text)
 
@@ -100,8 +101,9 @@ class TestHttpApi(unittest.TestCase):
     def test_show_session_exist_no_refresh(self):
         session = self.session_repository.create(self.input_dir_path)
 
-        response = self.client.get(f'/sessions/{session.id}', params={'refresh': False})
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        with self.client as client:
+            response = client.get(f'/sessions/{session.id}', params={'refresh': False})
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_session = TypeAdapter(Session).validate_json(response.text)
         self.assertEqual(session, actual_session)
@@ -110,28 +112,31 @@ class TestHttpApi(unittest.TestCase):
     def test_show_session_exist_refresh(self):
         session = self.session_repository.create(self.input_dir_path)
 
-        response = self.client.get(f'/sessions/{session.id}', params={'refresh': True})
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        with self.client as client:
+            response = client.get(f'/sessions/{session.id}', params={'refresh': True})
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_session = TypeAdapter(Session).validate_json(response.text)
         self.assertEqual(session.model_dump(exclude={'updated_at',}), actual_session.model_dump(exclude={'updated_at',}))
 
     
     def test_show_session_not_found(self):
-        response = self.client.get('/sessions/unknown-session')
-        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
-        self.assertEqual("Session b'unknown-session' not found", response.json()['detail'])
+        with self.client as client:
+            response = client.get('/sessions/unknown-session')
+            self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+            self.assertEqual("Session b'unknown-session' not found", response.json()['detail'])
 
 
     def test_destroy_session(self):
         session = self.session_repository.create(self.input_dir_path)
 
-        response = self.client.delete(f'/sessions/{session.id}')
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.assertEqual({}, response.json())
+        with self.client as client:
+            response = client.delete(f'/sessions/{session.id}')
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
+            self.assertEqual({}, response.json())
 
-        response = self.client.get(f'/sessions/{session.id}')
-        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+            response = client.get(f'/sessions/{session.id}')
+            self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
 
 
     # routers/session_medias.py
@@ -139,8 +144,9 @@ class TestHttpApi(unittest.TestCase):
     def test_show_video_media(self):
         session = self.session_repository.create(self.input_dir_path)
 
-        response = self.client.get(f'/sessions/{session.id}/medias/{self.video_path.stem}')
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        with self.client as client:
+            response = client.get(f'/sessions/{session.id}/medias/{self.video_path.stem}')
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_media = TypeAdapter(MediaOut).validate_json(response.text)
         self.assertEqual(session.medias[self.video_path.stem], actual_media.media)    
@@ -150,8 +156,9 @@ class TestHttpApi(unittest.TestCase):
     def test_show_serie_media(self):
         session = self.session_repository.create(self.input_dir_path)
 
-        response = self.client.get(f'/sessions/{session.id}/medias/{self.serie_path.stem}')
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        with self.client as client:
+            response = client.get(f'/sessions/{session.id}/medias/{self.serie_path.stem}')
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_media = TypeAdapter(MediaOut).validate_json(response.text)
         self.assertEqual(30, actual_media.duration)
@@ -172,8 +179,9 @@ class TestHttpApi(unittest.TestCase):
         self.session_repository.update_media(session.id, serie_context)
 
         body = {'title': 'Movie Title.mp4', 'skip_backup': True}
-        response = self.client.post(f'/sessions/{session.id}/medias/{self.serie_path.stem}/validate_segments', json=body)
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        with self.client as client:
+            response = client.post(f'/sessions/{session.id}/medias/{self.serie_path.stem}/validate_segments', json=body)
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         expected_edl_path = self.serie_path.with_suffix('.mp4.yml')
         self.assertTrue(expected_edl_path.is_file())
@@ -190,8 +198,9 @@ class TestHttpApi(unittest.TestCase):
         session = self.session_repository.create(self.input_dir_path)
         detector_key = 'result_2024-10-05T11:40:39.732479'
 
-        response = self.client.post(f'/sessions/{session.id}/medias/{self.serie_path.stem}/segments/{detector_key}/import')
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        with self.client as client:
+            response = client.post(f'/sessions/{session.id}/medias/{self.serie_path.stem}/segments/{detector_key}/import')
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_media = TypeAdapter(Media).validate_json(response.text)
         self.assertEqual(
@@ -204,8 +213,9 @@ class TestHttpApi(unittest.TestCase):
         session = self.session_repository.create(self.input_dir_path)
 
         body = {'position': 15.2}
-        response = self.client.post(f'/sessions/{session.id}/medias/{self.video_path.stem}/segments', json=body)
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        with self.client as client:
+            response = client.post(f'/sessions/{session.id}/medias/{self.video_path.stem}/segments', json=body)
+            self.assertEqual(status.HTTP_201_CREATED, response.status_code)
 
         actual_media = TypeAdapter(Media).validate_json(response.text)
         self.assertEqual([Segment(start=15.2, end=16.2)], actual_media.segments)
@@ -218,15 +228,16 @@ class TestHttpApi(unittest.TestCase):
         self.session_repository.update_media(session.id, serie_context)
 
         body = {'new_position': 12, 'edge': 'start'}
-        response = self.client.patch(f'/sessions/{session.id}/medias/{self.video_path.stem}/segments/10s-17s', json=body)
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        with self.client as client:
+            response = client.patch(f'/sessions/{session.id}/medias/{self.video_path.stem}/segments/10s-17s', json=body)
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-        actual_media = TypeAdapter(Media).validate_json(response.text)
-        self.assertEqual([Segment(start=3, end=8), Segment(start=12, end=17), Segment(start=18, end=25)], actual_media.segments)
+            actual_media = TypeAdapter(Media).validate_json(response.text)
+            self.assertEqual([Segment(start=3, end=8), Segment(start=12, end=17), Segment(start=18, end=25)], actual_media.segments)
 
-        body = {'new_position': 15, 'edge': 'end'}
-        response = self.client.patch(f'/sessions/{session.id}/medias/{self.video_path.stem}/segments/12s-17s', json=body)
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+            body = {'new_position': 15, 'edge': 'end'}
+            response = client.patch(f'/sessions/{session.id}/medias/{self.video_path.stem}/segments/12s-17s', json=body)
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_media = TypeAdapter(Media).validate_json(response.text)
         self.assertEqual([Segment(start=3, end=8), Segment(start=12, end=15), Segment(start=18, end=25)], actual_media.segments)
@@ -239,7 +250,8 @@ class TestHttpApi(unittest.TestCase):
         self.session_repository.update_media(session.id, serie_context)
 
         body = {'segments': [{'start': segment[0], 'end': segment[1]} for segment in ((3, 8), (18, 25))]}
-        response = self.client.request('DELETE', f'/sessions/{session.id}/medias/{self.video_path.stem}/segments', json=body)
+        with self.client as client:
+            response = client.request('DELETE', f'/sessions/{session.id}/medias/{self.video_path.stem}/segments', json=body)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_media = TypeAdapter(Media).validate_json(response.text)
@@ -253,14 +265,18 @@ class TestHttpApi(unittest.TestCase):
         self.session_repository.update_media(session.id, serie_context)
 
         body = {'segments': [{'start': segment[0], 'end': segment[1]} for segment in ((6, 8), (9, 10))]}
-        response = self.client.post(f'/sessions/{session.id}/medias/{self.video_path.stem}/segments/merge', json=body)
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        with self.client as client:
+            response = client.post(f'/sessions/{session.id}/medias/{self.video_path.stem}/segments/merge', json=body)
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         actual_media = TypeAdapter(Media).validate_json(response.text)
         self.assertEqual([Segment(start=0, end=5), Segment(start=6, end=10)], actual_media.segments)
 
 
     def tearDown(self) -> None:
-        [db_file.unlink() for db_file in Path(__file__).parent.glob('sessions.*')]
         shutil.rmtree(self.input_dir_path)
         shutil.rmtree(self.output_dir_path)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        [db_file.unlink() for db_file in Path(__file__).parent.glob('sessions.*')]
