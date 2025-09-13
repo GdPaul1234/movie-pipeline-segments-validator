@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
@@ -80,13 +80,26 @@ fun SegmentsAsTimeline(
                     SegmentBox(Modifier.animateItem().offset(x = (segmentStart * constraints.maxWidth).dp), segment)
                 }
 
-            } else {
-                items(
+            } else if (segments.size > 1) {
+                itemsIndexed(
                     items = segmentsLayout,
-                    key = { with(it.item) { "$start-$end" } }
-                ) { (segment, paddingRight) -> SegmentBox(Modifier.animateItem().padding(end = paddingRight), segment) }
+                    key = { _, (item) -> with(item) { "$start-$end" } }
+                ) { index, (segment, paddingRight) ->
+                    val paddingLeft = when {
+                        index == 0 -> {
+                            val segmentStart = (segment.start / duration).coerceIn(0.0, 1.0)
+                            (segmentStart * constraints.maxWidth).dp
+                        }
+                        else -> 0.dp
+                    }
 
-                item { segments.lastOrNull()?.let { SegmentBox(Modifier.animateItem(), it) } }
+                    SegmentBox(
+                        Modifier.animateItem().padding(start = paddingLeft, end = paddingRight),
+                        segment
+                    )
+                }
+
+                item { SegmentBox(Modifier.animateItem(), segments.last()) }
             }
         }
 
