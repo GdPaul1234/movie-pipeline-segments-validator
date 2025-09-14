@@ -1,5 +1,11 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -335,21 +341,39 @@ private fun SegmentsEditSection(
             SegmentsEditHorizontalToolbar(selectedSegments, segmentsEditOnClick, isSmallScreen, isReadOnly)
         }
 
-        when (segmentsView) {
-            SegmentsView.TIMELINE -> SegmentsAsTimeline(
-                segments = segments,
-                selectedSegments = selectedSegments,
-                toggleSegment = toggleSegment,
-                position = position,
-                duration = duration
-            )
+        AnimatedContent(
+            targetState = segmentsView,
+            transitionSpec = {
+                // Compare the incoming number with the previous number.
+                if (targetState > initialState) {
+                    // If the target number is larger, it slides up and fades in
+                    // while the initial (smaller) number slides up and fades out.
+                    slideInVertically { height -> height } + fadeIn() togetherWith
+                            slideOutVertically { height -> -height } + fadeOut()
+                } else {
+                    // If the target number is smaller, it slides down and fades in
+                    // while the initial number slides down and fades out.
+                    slideInVertically { height -> -height } + fadeIn() togetherWith
+                            slideOutVertically { height -> height } + fadeOut()
+                }
+            }
+        ) { segmentsView ->
+            when (segmentsView) {
+                SegmentsView.TIMELINE -> SegmentsAsTimeline(
+                    segments = segments,
+                    selectedSegments = selectedSegments,
+                    toggleSegment = toggleSegment,
+                    position = position,
+                    duration = duration
+                )
 
-            SegmentsView.LIST -> SegmentsAsList(
-                modifier = if (canShowEditSegmentsSideToolbar) Modifier else Modifier.padding(8.dp),
-                segments = segments,
-                selectedSegments = selectedSegments,
-                toggleSegment = toggleSegment
-            )
+                SegmentsView.LIST -> SegmentsAsList(
+                    modifier = if (canShowEditSegmentsSideToolbar) Modifier else Modifier.padding(8.dp),
+                    segments = segments,
+                    selectedSegments = selectedSegments,
+                    toggleSegment = toggleSegment
+                )
+            }
         }
     }
 }
