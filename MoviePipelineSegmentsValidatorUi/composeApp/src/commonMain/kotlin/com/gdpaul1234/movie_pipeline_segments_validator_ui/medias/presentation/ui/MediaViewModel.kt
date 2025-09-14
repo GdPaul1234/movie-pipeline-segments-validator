@@ -193,10 +193,8 @@ class MediaViewModel(
 
         val nextMediaKey = session.medias.entries
             .filter { it.value.state == media.state }
-            .dropWhile { it.value == media }
-            .zipWithNext()
+            .dropWhile { it.value.filepath <= media.filepath }
             .firstOrNull()
-            ?.second
             ?.key
 
         block(media)
