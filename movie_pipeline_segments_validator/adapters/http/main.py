@@ -52,7 +52,7 @@ app = FastAPI(
     title="movie-pipeline-segments-validator",
     version=version('movie_pipeline_segments_validator'),
     summary='A simple API to validate detected segments and generate edit decision files for movie-pipeline',
-    description='\n'.join(metadata('movie_pipeline_segments_validator')['Description'].splitlines()[22:]).strip(),
+    description='\n'.join(metadata('movie_pipeline_segments_validator')['Description'].splitlines()[39:]).strip(),
     lifespan=lifespan
 )
 
