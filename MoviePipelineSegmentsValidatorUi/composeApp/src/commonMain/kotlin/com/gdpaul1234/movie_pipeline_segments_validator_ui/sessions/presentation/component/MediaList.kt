@@ -7,11 +7,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.util.getMediaStem
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.Res
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.arrow_back_24px
 import org.jetbrains.compose.resources.painterResource
@@ -26,9 +27,9 @@ import org.openapitools.client.models.Session
 @Preview
 fun MediaList(
     @PreviewParameter(SessionPreviewParameterProvider::class) session: Session,
-    @PreviewParameter(MediaEntriesPreviewParameterProvider::class) mediaEntries: Set<Map.Entry<String, Media>>,
+    @PreviewParameter(MediasListPreviewParameterProvider::class) medias: Collection<Media>,
     @PreviewParameter(CurrentSelectedMediaStemPreviewParameterProvider::class) currentSelectedMediaStem: String?,
-    onItemClick: ((Map.Entry<String, Media>) -> Unit)?,
+    onItemClick: ((String) -> Unit)?,
     navigateBack: (() -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -50,6 +51,8 @@ fun MediaList(
                 else -> MaterialTheme.colorScheme.onSurfaceVariant
             }
         )
+
+    val sortedMedias = remember(medias) { medias.sortedBy { it.filepath } }
 
     Scaffold(
         containerColor = containerColor,
@@ -78,20 +81,15 @@ fun MediaList(
             modifier = Modifier
                 .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
                 .padding(paddingValues)
-                .padding(horizontal = 4.dp)
                 .consumeWindowInsets(paddingValues)
         ) {
-            items(
-                items = mediaEntries.sortedBy { it.value.filepath },
-                key = { it.value.filepath }
-            ) { mediaEntry ->
-                val (mediaStem, media) = mediaEntry
+            items(items = sortedMedias, key = { it.filepath }) { media ->
+                val mediaStem = getMediaStem(media, session)
 
                 ListItem(
                     modifier = Modifier
-                        .animateItem()
                         .clip(MaterialTheme.shapes.large)
-                        .clickable { onItemClick?.let { it(mediaEntry) } },
+                        .clickable { onItemClick?.let { it(mediaStem) } },
                     colors = listItemColors(mediaStem),
                     headlineContent = { Text(media.title) },
                     supportingContent = {
@@ -111,9 +109,9 @@ private class SessionPreviewParameterProvider : PreviewParameterProvider<Session
     override val values = SessionEntryPreviewParameterProvider().values.map { it.value }
 }
 
-private class MediaEntriesPreviewParameterProvider : PreviewParameterProvider<Set<Map.Entry<String, Media>>> {
+private class MediasListPreviewParameterProvider : PreviewParameterProvider<List<Media>> {
     override val values = SessionPreviewParameterProvider().values.map {
-        it.medias.entries + it.medias.entries + it.medias.entries
+        it.medias.values.toList()
     }
 }
 

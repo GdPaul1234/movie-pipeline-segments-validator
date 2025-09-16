@@ -133,7 +133,6 @@ fun MediaScreen(
                 }
             },
             modifier = Modifier
-                .safeContentPadding()
                 .widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)
                 .align(Alignment.TopCenter)
                 .fillMaxSize()
@@ -143,11 +142,10 @@ fun MediaScreen(
             val rootModifier = Modifier
                 .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
                 .padding(paddingValues)
-                .padding(24.dp, 8.dp)
                 .consumeWindowInsets(paddingValues)
 
             LoadingSuspense(uiState.loading) {
-                LazyColumn(modifier = rootModifier) {
+                LazyColumn(modifier = rootModifier, contentPadding = PaddingValues(horizontal = 24.dp)) {
                     item { SetSkipBackupSection(isReadOnly, skipBackup, viewModel::setSkipBackup) }
                     item { MediaMetadataSection(uiState.recordingMetadata, uiState.duration, navigateToDetails) }
 
@@ -289,7 +287,7 @@ private fun MediaPreviewSection(
 
     LaunchedEffect(Unit) {
         frameUrlFlow
-            .debounce(500.milliseconds.toJavaDuration()) // Wait for 300ms of inactivity
+            .debounce(100.milliseconds.toJavaDuration()) // Wait for 100ms of inactivity
             .distinctUntilChanged() // Emit only if the value has changed
             .collect{ frameUrl = it }
     }

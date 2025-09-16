@@ -123,20 +123,18 @@ fun MediaNavigationRail(
             Spacer(Modifier.height(4.dp)) // NavigationRailVerticalPadding
         }
 
-        Column(
+        LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            TOP_LEVEL_DESTINATIONS.forEach { mediaStateDestination ->
+            items(items = TOP_LEVEL_DESTINATIONS, key = { it.mediaStateEq }) { mediaStateDestination ->
                 NavigationRailItem(
                     selected = currentMediaStateEq == mediaStateDestination.mediaStateEq,
                     onClick = { navigateToTopLevelDestination(mediaStateDestination.mediaStateEq) },
                     icon = {
                         Icon(
                             painter = painterResource(mediaStateDestination.icon),
-                            contentDescription = stringResource(
-                                mediaStateDestination.iconTextResource,
-                            ),
+                            contentDescription = stringResource(mediaStateDestination.iconTextResource),
                         )
                     },
                 )

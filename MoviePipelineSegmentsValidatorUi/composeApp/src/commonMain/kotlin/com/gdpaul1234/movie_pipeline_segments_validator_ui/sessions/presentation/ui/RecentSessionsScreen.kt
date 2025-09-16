@@ -3,7 +3,6 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentatio
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -25,7 +24,6 @@ import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.dummyNe
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionCreateForm
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionDetails
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.SessionList
-import org.openapitools.client.models.Session
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -64,7 +62,7 @@ fun RecentSessionsScreen(
     }
 
     Scaffold(
-        modifier = Modifier.safeContentPadding().fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         ListDetailPaneScaffold(

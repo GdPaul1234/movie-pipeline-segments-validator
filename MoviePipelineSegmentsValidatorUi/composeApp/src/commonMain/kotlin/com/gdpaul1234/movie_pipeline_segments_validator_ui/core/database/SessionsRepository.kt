@@ -4,12 +4,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.util.getMediaStem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import org.openapitools.client.models.Media
 import org.openapitools.client.models.Session
-import java.io.File
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -58,7 +58,8 @@ class SessionsRepository(
             val updatedSession = session.copy(
                 updatedAt = Clock.System.now(),
                 medias = session.medias.toMutableMap().apply {
-                    val mediaStem = File(media.filepath).nameWithoutExtension
+                    val mediaStem = getMediaStem(media, session)
+                    requireNotNull(this[mediaStem])
                     this[mediaStem] = media
                 }
             )

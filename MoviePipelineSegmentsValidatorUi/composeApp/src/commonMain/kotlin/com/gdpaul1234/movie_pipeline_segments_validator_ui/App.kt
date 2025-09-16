@@ -1,12 +1,7 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui
 
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
@@ -30,17 +25,11 @@ fun App(
     }
 
     MaterialTheme {
-        Scaffold { paddingValues ->
             val sessionsRepository = SessionsRepository(dataStore)
 
-            NavHost(
-                navController = navController,
-                startDestination = HomeRoute,
-                modifier = Modifier.fillMaxSize().padding(paddingValues).consumeWindowInsets(paddingValues)
-            ) {
+            NavHost(navController = navController, startDestination = HomeRoute) {
                 homeDestination(sessionsRepository, navController)
                 sessionDestination(sessionsRepository, navController)
             }
-        }
     }
 }
