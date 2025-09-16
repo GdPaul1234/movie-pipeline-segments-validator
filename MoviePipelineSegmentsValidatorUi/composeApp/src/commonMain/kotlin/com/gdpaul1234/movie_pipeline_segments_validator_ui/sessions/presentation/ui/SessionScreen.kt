@@ -4,8 +4,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -61,7 +59,7 @@ fun SessionScreen(
     }
 
     Scaffold(
-        modifier = Modifier.safeContentPadding().fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         MediasNavigationWrapper(
@@ -69,7 +67,7 @@ fun SessionScreen(
             navigateToTopLevelDestination = { viewModel.navigateToOtherSessionMediaState(navController, it) }
         ) {
             ListDetailPaneScaffold(
-                modifier = Modifier.padding(paddingValues).consumeWindowInsets(paddingValues),
+                modifier = Modifier.consumeWindowInsets(paddingValues),
                 directive = navigator.scaffoldDirective,
                 scaffoldState = navigator.scaffoldState,
                 listPane = {
@@ -81,10 +79,10 @@ fun SessionScreen(
                     ) {
                         LoadingSuspense(uiState.loading) {
                             MediaList(
-                                mediaEntries = uiState.filteredMedias.entries,
+                                medias = uiState.filteredMedias.values,
                                 currentSelectedMediaStem = if (isDetailVisible) uiState.selectedMediaStem else "",
                                 session = uiState.session,
-                                onItemClick = { item -> viewModel.navigateTo(item.key) },
+                                onItemClick = viewModel::navigateTo,
                                 navigateBack = { navController.navigateUp() }
                             )
                         }
