@@ -88,6 +88,7 @@ fun MediaList(
 
                 ListItem(
                     modifier = Modifier
+                        .animateItem()
                         .clip(MaterialTheme.shapes.large)
                         .clickable { onItemClick?.let { it(mediaStem) } },
                     colors = listItemColors(mediaStem),

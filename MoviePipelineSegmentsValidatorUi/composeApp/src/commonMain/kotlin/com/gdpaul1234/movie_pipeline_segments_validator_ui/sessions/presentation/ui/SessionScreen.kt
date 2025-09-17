@@ -2,12 +2,11 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentatio
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.*
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.*
@@ -17,9 +16,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.LoadingSuspense
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.navigation.MediasNavigationWrapper
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.navigation.getNavLayoutType
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component.MediaDetails
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui.MediaScreen
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui.NoMediaScreen
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.util.MediasNavigationType
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component.MediaList
 import kotlinx.coroutines.launch
 
@@ -58,81 +59,97 @@ fun SessionScreen(
         }
     }
 
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+
+    @Composable
+    fun containerColor(adaptiveInfo: WindowAdaptiveInfo) =
+        when {
+            navigator.scaffoldValue[ListDetailPaneScaffoldRole.List]  == PaneAdaptedValue.Hidden -> MaterialTheme.colorScheme.surface
+            getNavLayoutType(adaptiveInfo) == MediasNavigationType.NAVIGATION_RAIL -> MaterialTheme.colorScheme.inverseOnSurface
+            else -> NavigationBarDefaults.containerColor
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = containerColor(adaptiveInfo),
+        contentWindowInsets = WindowInsets.displayCutout,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
-        MediasNavigationWrapper(
-            currentMediaStateEq = uiState.mediaStateEq,
-            navigateToTopLevelDestination = { viewModel.navigateToOtherSessionMediaState(navController, it) }
+        Surface(
+            modifier = Modifier.fillMaxSize().padding(paddingValues).consumeWindowInsets(paddingValues),
+            color = containerColor(adaptiveInfo),
         ) {
-            ListDetailPaneScaffold(
-                modifier = Modifier.consumeWindowInsets(paddingValues),
-                directive = navigator.scaffoldDirective,
-                scaffoldState = navigator.scaffoldState,
-                listPane = {
-                    val isDetailVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded
+            MediasNavigationWrapper(
+                currentMediaStateEq = uiState.mediaStateEq,
+                navigateToTopLevelDestination = { viewModel.navigateToOtherSessionMediaState(navController, it) }
+            ) {
+                ListDetailPaneScaffold(
+                    directive = navigator.scaffoldDirective,
+                    scaffoldState = navigator.scaffoldState,
+                    listPane = {
+                        val isDetailVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded
 
-                    AnimatedPane(
-                        enterTransition = if (animationIsDisabled) EnterTransition.None else motionDataProvider.calculateDefaultEnterTransition(paneRole),
-                        exitTransition = if (animationIsDisabled) ExitTransition.None else motionDataProvider.calculateDefaultExitTransition(paneRole)
-                    ) {
-                        LoadingSuspense(uiState.loading) {
-                            MediaList(
-                                medias = uiState.filteredMedias.values,
-                                currentSelectedMediaStem = if (isDetailVisible) uiState.selectedMediaStem else "",
-                                session = uiState.session,
-                                onItemClick = viewModel::navigateTo,
-                                navigateBack = { navController.navigateUp() }
-                            )
+                        AnimatedPane(
+                            enterTransition = if (animationIsDisabled) EnterTransition.None else motionDataProvider.calculateDefaultEnterTransition(paneRole),
+                            exitTransition = if (animationIsDisabled) ExitTransition.None else motionDataProvider.calculateDefaultExitTransition(paneRole)
+                        ) {
+                            LoadingSuspense(uiState.loading) {
+                                MediaList(
+                                    medias = uiState.filteredMedias.values,
+                                    currentSelectedMediaStem = if (isDetailVisible) uiState.selectedMediaStem else "",
+                                    session = uiState.session,
+                                    onItemClick = viewModel::navigateTo,
+                                    navigateBack = { navController.navigateUp() }
+                                )
+                            }
                         }
-                    }
-                },
-                detailPane = {
-                    val isListVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
-                    val isExtraVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Extra] == PaneAdaptedValue.Expanded
+                    },
+                    detailPane = {
+                        val isListVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
+                        val isExtraVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Extra] == PaneAdaptedValue.Expanded
 
-                    AnimatedPane(
-                        enterTransition = motionDataProvider.calculateDefaultEnterTransition(paneRole),
-                        exitTransition = if (animationIsDisabled) ExitTransition.None else motionDataProvider.calculateDefaultExitTransition(paneRole)
-                    ) {
-                        navigator.currentDestination?.contentKey?.let {
-                            MediaScreen(
-                                viewModel = viewModel.buildMediaViewModel(it),
-                                navigateToMediaStem = viewModel::navigateTo,
-                                navigateBack = when {
-                                    isListVisible -> null
-                                    else -> { -> viewModel.navigateTo("") }
-                                },
-                                navigateToDetails = when {
-                                    isExtraVisible -> null
-                                    else -> { ->
-                                        scope.launch {
-                                            withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it) }
-                                            navigator.navigateTo(ListDetailPaneScaffoldRole.Extra, it)
+                        AnimatedPane(
+                            enterTransition = motionDataProvider.calculateDefaultEnterTransition(paneRole),
+                            exitTransition = if (animationIsDisabled) ExitTransition.None else motionDataProvider.calculateDefaultExitTransition(paneRole)
+                        ) {
+                            navigator.currentDestination?.contentKey?.let {
+                                MediaScreen(
+                                    viewModel = viewModel.buildMediaViewModel(it),
+                                    navigateToMediaStem = viewModel::navigateTo,
+                                    navigateBack = when {
+                                        isListVisible -> null
+                                        else -> { -> viewModel.navigateTo("") }
+                                    },
+                                    navigateToDetails = when {
+                                        isExtraVisible -> null
+                                        else -> { ->
+                                            scope.launch {
+                                                withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it) }
+                                                navigator.navigateTo(ListDetailPaneScaffoldRole.Extra, it)
+                                            }
                                         }
                                     }
-                                }
-                            )
-                        } ?: NoMediaScreen()
-                    }
-                },
-                extraPane = {
-                    AnimatedPane {
-                        navigator.currentDestination?.contentKey?.let {
-                            MediaDetails(
-                                viewModel = viewModel.buildMediaViewModel(it),
-                                close = {
-                                    scope.launch {
-                                        withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.List, it) }
-                                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                                )
+                            } ?: NoMediaScreen()
+                        }
+                    },
+                    extraPane = {
+                        AnimatedPane {
+                            navigator.currentDestination?.contentKey?.let {
+                                MediaDetails(
+                                    viewModel = viewModel.buildMediaViewModel(it),
+                                    close = {
+                                        scope.launch {
+                                            withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.List, it) }
+                                            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
