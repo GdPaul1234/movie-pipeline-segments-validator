@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,6 +30,13 @@ import org.openapitools.client.models.Media
 private fun WindowSizeClass.isMedium() =
     isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
 
+fun getNavLayoutType(adaptiveInfo: WindowAdaptiveInfo) =
+    when {
+        adaptiveInfo.windowPosture.isTabletop -> MediasNavigationType.NAVIGATION_BAR
+        adaptiveInfo.windowSizeClass.isMedium() -> MediasNavigationType.NAVIGATION_RAIL
+        else -> MediasNavigationType.NAVIGATION_BAR
+    }
+
 @Composable
 fun MediasNavigationWrapper(
     currentMediaStateEq: Media.State,
@@ -36,12 +44,7 @@ fun MediasNavigationWrapper(
     content: @Composable (MediasNavigationType) -> Unit
 ) {
     val adaptiveInfo = currentWindowAdaptiveInfo()
-
-    val navLayoutType = when {
-        adaptiveInfo.windowPosture.isTabletop -> MediasNavigationType.NAVIGATION_BAR
-        adaptiveInfo.windowSizeClass.isMedium() -> MediasNavigationType.NAVIGATION_RAIL
-        else -> MediasNavigationType.NAVIGATION_BAR
-    }
+    val navLayoutType = getNavLayoutType(adaptiveInfo)
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
@@ -68,7 +71,8 @@ fun MediasNavigationWrapper(
                         navigateToTopLevelDestination = navigateToTopLevelDestination,
                     )
                 }
-            }
+            },
+            contentWindowInsets = WindowInsets.displayCutout
         ) { paddingValues ->
             Box(
                 modifier = Modifier

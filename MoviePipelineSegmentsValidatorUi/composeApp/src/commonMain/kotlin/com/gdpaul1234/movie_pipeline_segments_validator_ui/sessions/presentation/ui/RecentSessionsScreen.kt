@@ -1,8 +1,12 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.ui
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -63,6 +67,11 @@ fun RecentSessionsScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = when {
+            navigator.scaffoldValue[ListDetailPaneScaffoldRole.List]  == PaneAdaptedValue.Hidden -> MaterialTheme.colorScheme.surface
+            else -> MaterialTheme.colorScheme.primaryContainer
+        },
+        contentWindowInsets = WindowInsets.displayCutout,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         ListDetailPaneScaffold(
