@@ -15,7 +15,7 @@ class PathSettings(BaseModel):
     title_strategies: Optional[FilePath] = None
     title_re_blacklist: Optional[FilePath] = None
     series_extracted_metadata: Optional[FilePath] = None
-    db_path: Path = Path.home() / '.movie_pipeline_segments_validator' / 'sessions'
+    db_path: Path = Path.home() / '.movie_pipeline_segments_validator' / 'sessions.sqlite3'
 
 
 class PathContent(BaseModel):
