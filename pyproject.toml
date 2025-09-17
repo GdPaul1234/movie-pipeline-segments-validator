@@ -12,7 +12,7 @@ movie_pipeline_segments_validator_server = "movie_pipeline_segments_validator.ad
 packages = [{include = "movie_pipeline_segments_validator"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.13"
 PyYAML = "^6.0.2"
 ffmpeg-python = "^0.2.0"
 schema = "^0.7.7"

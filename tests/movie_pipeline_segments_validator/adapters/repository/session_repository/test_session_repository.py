@@ -58,7 +58,7 @@ class TestSessionRepository(unittest.TestCase):
         # create session
         with closing(self.session_repository) as session_repository:
             session = session_repository.create(self.input_dir_path)
-            self.assertTrue(self.config.Paths.db_path.with_suffix('.dat').is_file())
+            self.assertTrue(self.config.Paths.db_path.with_suffix('.sqlite3').is_file())
 
         # init medias list
         self.assertEqual(['Movie Name, le titre long.mp4', 'Serie Name S01E16.mp4'], [media.title for media in session.medias.values()])

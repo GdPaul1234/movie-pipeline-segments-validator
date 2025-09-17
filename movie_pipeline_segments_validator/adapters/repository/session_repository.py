@@ -1,4 +1,6 @@
+from contextlib import contextmanager
 import dbm
+import dbm.sqlite3
 import logging
 from pathlib import Path
 from threading import Lock
@@ -81,7 +83,6 @@ def build_media(
 
 
 class SessionRepository:
-    __repository: dict[Path, Any] = {}
     __repository_locks: dict[Path, Lock] = {}
     _session_type_adapter = TypeAdapter(Session)
 
@@ -89,23 +90,19 @@ class SessionRepository:
     def _db_path(self):
         return self._config.Paths.db_path.resolve()
 
-    @property
-    def _db(self):
+    @contextmanager
+    def _get_db(self):
         with self.__repository_locks[self._db_path]:
-            return self.__repository[self._db_path]
+            with dbm.sqlite3.open(self._db_path, 'c') as db:
+                yield db
 
     def __init__(self, config: Settings) -> None:
         self._config = config
 
-        try:
-            self._db
-        except KeyError:
-            self.__repository[self._db_path] = dbm.open(self._db_path, 'c')
+        if self._db_path not in self.__repository_locks:
             self.__repository_locks[self._db_path] = Lock()
 
     def close(self):
-        self._db.close()
-        del self.__repository[self._db_path]
         del self.__repository_locks[self._db_path]
 
     def create(self, root_path: DirectoryPath) -> Session:
@@ -120,15 +117,16 @@ class SessionRepository:
             }
         )
 
-        self._db[new_session.id] = self._session_type_adapter.dump_json(new_session)
-        return new_session
+        return self.set(new_session)
 
     def get(self, id: str) -> Session:
-        return self._session_type_adapter.validate_json(self._db[id])
+        with self._get_db() as db:
+            return self._session_type_adapter.validate_json(db[id])
 
     def set(self, session: Session) -> Session:
         session.updated_at = datetime.now(timezone.utc)
-        self._db[session.id] = self._session_type_adapter.dump_json(session)
+        with self._get_db() as db:
+            db[session.id] = self._session_type_adapter.dump_json(session)
         return session
 
     def update_media(self, session_id: str, session_validator_context: SegmentValidatorContext) -> Session:
@@ -141,4 +139,5 @@ class SessionRepository:
         return self.set(session)
 
     def delete(self, id: str) -> None:
-        del self._db[id]
+        with self._get_db() as db:
+            del db[id]

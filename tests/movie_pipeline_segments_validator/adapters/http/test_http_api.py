@@ -119,7 +119,7 @@ class TestHttpApi(unittest.TestCase):
         with self.client as client:
             response = client.get('/sessions/unknown-session')
             self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
-            self.assertEqual("Session b'unknown-session' not found", response.json()['detail'])
+            self.assertEqual("Session unknown-session not found", response.json()['detail'])
 
 
     def test_destroy_session(self):
