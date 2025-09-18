@@ -12,13 +12,11 @@ import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.Session
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.data.dummyNewSessionEntry
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.openapitools.client.models.Media
 import org.openapitools.client.models.Session
 import kotlin.reflect.KClass
-import kotlin.time.ExperimentalTime
 
 class SessionsViewModel(
     private val sessionsRepository: SessionsRepository
@@ -40,40 +38,28 @@ class SessionsViewModel(
         }
     }
 
-    fun createSession(endpoint: String, rootPath: String) =
-        viewModelScope.launch {
-            loadableErrorWrapHandler {
-                val newSession = SessionsService(endpoint, sessionsRepository).createSession(rootPath)
-                val newSessionKey = "${newSession.id}@$endpoint"
-                _uiState.update { currentState ->  currentState.copy(selectedSessionEntryKey = newSessionKey) }
-            }
+    fun createSession(endpoint: String, rootPath: String) = viewModelScope.launch {
+        loadableErrorWrapHandler {
+            val newSession = SessionsService(endpoint, sessionsRepository).createSession(rootPath)
+            val newSessionKey = "${newSession.id}@$endpoint"
+            _uiState.update { currentState ->  currentState.copy(selectedSessionEntryKey = newSessionKey) }
         }
+    }
 
-    fun deleteSession(endpoint: String, session: Session) =
-        viewModelScope.launch {
-            loadableErrorWrapHandler {
-                SessionsService(endpoint, sessionsRepository).deleteSession(session.id)
-                _uiState.update { currentState -> currentState.copy(selectedSessionEntryKey = dummyNewSessionEntry.key) }
-            }
+    fun deleteSession(endpoint: String, session: Session) = viewModelScope.launch {
+        loadableErrorWrapHandler {
+            SessionsService(endpoint, sessionsRepository).deleteSession(session.id)
+            _uiState.update { currentState -> currentState.copy(selectedSessionEntryKey = dummyNewSessionEntry.key) }
         }
+    }
 
     fun openSession(navController: NavHostController, endpoint: String, session: Session) {
         val route = SessionRoute(endpoint, session.id, Media.State.waiting_segment_review.value)
         navController.navigate(route)
     }
 
-    @OptIn(ExperimentalTime::class)
-    suspend fun loadSession(endpoint: String, sessionId: String): Session {
-        val sessionsService = SessionsService(endpoint, sessionsRepository)
-
-        val localSession = sessionsRepository.get(endpoint, sessionId).firstOrNull()
-        val remoteSession = sessionsService.getSession(sessionId, refresh = false)
-
-        return when {
-            localSession == null || localSession.updatedAt < remoteSession.updatedAt -> sessionsService.getSession(sessionId, refresh = true)
-            else -> remoteSession
-        }
-    }
+    suspend fun loadSession(endpoint: String, sessionId: String) =
+        SessionsService(endpoint, sessionsRepository).getSession(sessionId, refresh = true)
 
     private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {
         _uiState.update { currentState -> currentState.copy(loading = true, errors = listOf()) }

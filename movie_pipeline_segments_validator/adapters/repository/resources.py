@@ -1,9 +1,10 @@
+from pathlib import Path
 import textwrap
 from dataclasses import asdict
 from typing import Annotated, Optional
 
 from pydantic import AwareDatetime, BaseModel, Field, TypeAdapter, computed_field
-from pydantic.types import DirectoryPath, FilePath, NonNegativeFloat
+from pydantic.types import NonNegativeFloat
 
 from ...domain import FILENAME_REGEX, STR_SEGMENT_REGEX
 from ...domain.context import SegmentValidatorContext
@@ -43,7 +44,7 @@ class MediaMetadata(BaseModel):
 
 class Media(BaseModel):
     filepath: Annotated[
-        FilePath,
+        Path,
         Field(description='media file path', examples=[r'V:\PVR\Channel 1_Movie Name_2022-12-05-2203-20.ts'])
     ]
     state: Annotated[
@@ -110,7 +111,7 @@ class Session(BaseModel):
     id: Annotated[str, Field(description='session id')]
     created_at: AwareDatetime
     updated_at: AwareDatetime
-    root_path: Annotated[DirectoryPath, Field(description='root path for medias', examples=[r'V:\PVR'])]
+    root_path: Annotated[Path, Field(description='root path for medias', examples=[r'V:\PVR'])]
     medias: Annotated[dict[str, Media], Field(
         description='medias to process in root_path indexed by stem (filename without extension).\n\n'
             '`imported_segments` and `segments` is empty unless you query media from `medias` or `segments` endpoints'

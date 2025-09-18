@@ -30,7 +30,7 @@ class MediaViewModel(
     val uiState = _uiState.asStateFlow()
 
     private val mediasService = MediasService(endpoint, sessionId, sessionsRepository)
-    private val segmentsService by lazy { SegmentsService(endpoint, sessionId, mediaStem,sessionsRepository) }
+    private val segmentsService by lazy { SegmentsService(endpoint, sessionId, mediaStem, sessionsRepository) }
 
     init {
         viewModelScope.launch {
@@ -56,29 +56,13 @@ class MediaViewModel(
             "frames/${String.format(Locale.ENGLISH, "%.1f", uiState.value.position)}s"
         ).joinToString("/")
 
-    fun setTitle(title: String) {
-        _uiState.update { currentState ->
-            currentState.copy(media = currentState.media?.copy(title = title))
-        }
-    }
+    fun setTitle(title: String) = _uiState.update { currentState -> currentState.copy(media = currentState.media?.copy(title = title)) }
+    fun setSkipBackup(skipBackup: Boolean) = _uiState.update { currentState -> currentState.copy(media = currentState.media?.copy(skipBackup = skipBackup)) }
 
-    fun setSkipBackup(skipBackup: Boolean) {
-        _uiState.update { currentState ->
-            currentState.copy(media = currentState.media?.copy(skipBackup = skipBackup))
-        }
-    }
+    fun setPosition(position: Number) = _uiState.update { currentState -> currentState.copy(position = position.toDouble()) }
+    fun setPositionAtStartOfSelectedSegment() = uiState.value.selectedSegments.single().run { setPosition(start) }
+    fun setPositionAtEndOfSelectedSegment() = uiState.value.selectedSegments.single().run { setPosition(end) }
 
-    fun setPosition(position: Number) {
-        _uiState.update { currentState -> currentState.copy(position = position.toDouble()) }
-    }
-
-    fun setPositionAtStartOfSelectedSegment() {
-        uiState.value.selectedSegments.single().run { setPosition(start) }
-    }
-
-    fun setPositionAtEndOfSelectedSegment() {
-        uiState.value.selectedSegments.single().run { setPosition(end) }
-    }
 
     fun toggleSegmentsView() {
         _uiState.update { currentState ->
@@ -117,14 +101,13 @@ class MediaViewModel(
                     }
                 }
             )
-
         }
     }
 
     fun addSegmentAtCurrentPosition() = viewModelScope.launch {
         errorWrapHandler {
             segmentsService.addSegment(uiState.value.position).also {
-                _uiState.update { currentState -> currentState.copy(media = it) }
+                _uiState.update { currentState -> currentState.copy(media = currentState.media?.copy(segments = it.segments)) }
             }
         }
     }
@@ -132,7 +115,7 @@ class MediaViewModel(
     fun removeSelectedSegments() = viewModelScope.launch {
         errorWrapHandler {
             segmentsService.removeSegments(SegmentsDeleteBody(uiState.value.selectedSegments.map { (start, end) -> SegmentInput(start, end) })).also {
-             _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet(), media = it) }
+                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet(), media = currentState.media?.copy(segments = it.segments)) }
             }
         }
     }
@@ -140,7 +123,7 @@ class MediaViewModel(
     fun mergeSelectedSegments() = viewModelScope.launch {
         errorWrapHandler {
             segmentsService.mergeSegments(SegmentsMergeBody(uiState.value.selectedSegments.map { (start, end) -> SegmentInput(start, end) })).also {
-                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet(), media = it) }
+                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet(), media = currentState.media?.copy(segments = it.segments)) }
             }
         }
     }
@@ -150,8 +133,8 @@ class MediaViewModel(
         val body = SegmentEditBody(uiState.value.position, SegmentEditBody.Edge.start)
 
         errorWrapHandler {
-            segmentsService.editSegment(start, end, body).let {
-                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet(), media = it) }
+            segmentsService.editSegment(start, end, body).also {
+                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet(), media = currentState.media?.copy(segments = it.segments)) }
             }
         }
     }
@@ -161,8 +144,8 @@ class MediaViewModel(
         val body = SegmentEditBody(uiState.value.position, SegmentEditBody.Edge.end)
 
         errorWrapHandler {
-            segmentsService.editSegment(start, end, body).let {
-                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet(), media = it) }
+            segmentsService.editSegment(start, end, body).also {
+                _uiState.update { currentState -> currentState.copy(selectedSegments = emptySet(), media = currentState.media?.copy(segments = it.segments)) }
             }
         }
     }
@@ -180,8 +163,8 @@ class MediaViewModel(
 
     fun importSegments(detectorKey: String) = viewModelScope.launch {
         loadableErrorWrapHandler {
-            segmentsService.loadImportedSegments(detectorKey).let {
-                _uiState.update { currentState -> currentState.copy(media = it) }
+            segmentsService.loadImportedSegments(detectorKey).also {
+                _uiState.update { currentState -> currentState.copy(media = currentState.media?.copy(segments = it.segments)) }
             }
         }
     }
@@ -201,7 +184,7 @@ class MediaViewModel(
         if (nextMediaKey != null) navigateTo(nextMediaKey)
     }
 
-    private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {
+    private suspend fun <R> loadableErrorWrapHandler(block: suspend () -> R) {
         _uiState.update { currentState -> currentState.copy(loading = true, errors = listOf()) }
         try {
             block()
@@ -213,7 +196,7 @@ class MediaViewModel(
         }
     }
 
-    private suspend fun <R> errorWrapHandler (block: suspend () -> R) {
+    private suspend fun <R> errorWrapHandler(block: suspend () -> R) {
         _uiState.update { currentState -> currentState.copy(errors = listOf()) }
         try {
             block()
