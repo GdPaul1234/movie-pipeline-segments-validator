@@ -12,6 +12,7 @@ import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaf
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.LoadingSuspense
@@ -84,7 +85,7 @@ fun SessionScreen(
                 navigateToTopLevelDestination = { viewModel.navigateToOtherSessionMediaState(navController, it) }
             ) {
                 ListDetailPaneScaffold(
-                    directive = navigator.scaffoldDirective,
+                    directive = navigator.scaffoldDirective.copy(horizontalPartitionSpacerSize = 0.dp),
                     scaffoldState = navigator.scaffoldState,
                     listPane = {
                         val isDetailVisible = navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded

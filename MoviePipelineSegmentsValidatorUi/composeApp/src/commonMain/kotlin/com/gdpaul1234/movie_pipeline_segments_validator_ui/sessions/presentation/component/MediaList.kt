@@ -57,8 +57,8 @@ fun MediaList(
     Scaffold(
         containerColor = containerColor,
         topBar = {
-            LargeTopAppBar(
-                colors = TopAppBarDefaults.largeTopAppBarColors().copy(
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors().copy(
                     containerColor = containerColor,
                     scrolledContainerColor = containerColor
                 ),
