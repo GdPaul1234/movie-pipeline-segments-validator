@@ -31,7 +31,7 @@ fun MediaRecordingMetadataCard(
     navigateToDetails: (() -> Unit)?
 ) {
     recordingMetadata.apply {
-        Card(modifier = Modifier.padding(bottom = 16.dp)) {
+        Card {
             val listItemColors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor)
 
             val metadata = listOf(

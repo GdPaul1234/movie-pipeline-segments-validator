@@ -41,7 +41,7 @@ fun MediaPositionToolbar(
             tonalElevation = tonalElevation
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = if (isSmallScreen) Modifier else Modifier.padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -64,7 +64,7 @@ fun MediaPositionToolbar(
             var selectedIndex by remember { mutableIntStateOf(1) }
             val delta = remember(selectedIndex) { options[selectedIndex] }
 
-            Row(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            Row(Modifier.padding(horizontal = if (isSmallScreen) 0.dp else 8.dp, vertical = 4.dp)) {
                 SingleChoiceSegmentedButtonRow {
                     options.forEachIndexed { index, value ->
                         SegmentedButton(
