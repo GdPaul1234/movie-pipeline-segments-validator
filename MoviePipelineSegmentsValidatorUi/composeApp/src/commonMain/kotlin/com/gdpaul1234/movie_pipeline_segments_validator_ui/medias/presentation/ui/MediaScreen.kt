@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,8 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
@@ -47,7 +50,7 @@ fun MediaScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val isReadOnly = uiState.media?.let {
@@ -84,6 +87,7 @@ fun MediaScreen(
             topBar = {
                 TopAppBar(
                     scrollBehavior = topAppBarScrollBehavior,
+                    expandedHeight = 80.dp,
                     title = { TitleSection(isReadOnly, title, viewModel::setTitle) },
                     navigationIcon = {
                         if (navigateBack != null) {
@@ -130,8 +134,7 @@ fun MediaScreen(
             modifier = Modifier
                 .widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)
                 .align(Alignment.TopCenter)
-                .fillMaxSize()
-            ,
+                .fillMaxSize(),
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         ) { paddingValues ->
             val rootModifier = Modifier
@@ -140,33 +143,73 @@ fun MediaScreen(
                 .consumeWindowInsets(paddingValues)
 
             LoadingSuspense(uiState.loading) {
-                LazyColumn(modifier = rootModifier, contentPadding = PaddingValues(horizontal = 24.dp)) {
-                    item { SetSkipBackupSection(isReadOnly, skipBackup, viewModel::setSkipBackup) }
-                    item { MediaMetadataSection(uiState.recordingMetadata, uiState.duration, navigateToDetails) }
+                val sections = remember(isReadOnly, skipBackup, isSmallScreen, canShowEditSegmentsSideToolbar) {
+                    listOf<Pair<String, @Composable () -> Unit>>(
+                        "SetSkipBackupSection" to { SetSkipBackupSection(isReadOnly, skipBackup, viewModel::setSkipBackup) },
+                        "MediaMetadataSection" to { MediaMetadataSection(uiState.recordingMetadata, uiState.duration, navigateToDetails) },
+                        "MediaPreviewSection" to { uiState.duration?.let { duration -> MediaPreviewSection(viewModel::getFrameUrl, uiState.position, duration, viewModel::setPosition, isSmallScreen) } },
+                        "SegmentsEditSection" to {
+                            uiState.duration?.let { duration ->
+                                uiState.media?.segments?.let { segments ->
+                                    Column {
+                                        if (!isSmallScreen) {
+                                            Box(
+                                                Modifier.layout { measurable, constraints ->
+                                                    val placeable = measurable.measure(constraints)
+                                                    layout(placeable.width, 0) { placeable.place(0, -placeable.height) }
+                                                }
+                                            ) { MediaPositionToolbar(Modifier, uiState.position, duration, viewModel::setPosition) }
+                                        }
 
-                    item {
-                        uiState.duration?.let { duration ->
-                            MediaPreviewSection(
-                                getFrameUrl = viewModel::getFrameUrl,
-                                position = uiState.position,
-                                duration = duration,
-                                setPosition = viewModel::setPosition,
-                                isSmallScreen = isSmallScreen
-                            )
+                                        Surface {
+                                            Column {
+                                                MediaPositionSlider(uiState.position, duration, viewModel::setPosition)
 
-                            uiState.media?.segments?.let { segments ->
-                                SegmentsEditSection(
-                                    segmentsView = uiState.segmentsView,
-                                    segments = segments,
-                                    selectedSegments = uiState.selectedSegments,
-                                    position = uiState.position,
-                                    duration = duration,
-                                    toggleSegment = viewModel::toggleSegment,
-                                    segmentsEditOnClick = segmentsEditOnClick,
-                                    canShowEditSegmentsSideToolbar = canShowEditSegmentsSideToolbar,
-                                    isReadOnly = isReadOnly,
-                                    isSmallScreen = isSmallScreen
-                                )
+                                                Spacer(Modifier.height(8.dp))
+
+                                                SegmentsEditSection(
+                                                    segmentsView = uiState.segmentsView,
+                                                    segments = segments,
+                                                    selectedSegments = uiState.selectedSegments,
+                                                    position = uiState.position,
+                                                    duration = duration,
+                                                    toggleSegment = viewModel::toggleSegment,
+                                                    segmentsEditOnClick = segmentsEditOnClick,
+                                                    canShowEditSegmentsSideToolbar = canShowEditSegmentsSideToolbar,
+                                                    isReadOnly = isReadOnly,
+                                                    isSmallScreen = isSmallScreen
+                                                )
+
+                                                Spacer(Modifier.height(if (isSmallScreen) 64.dp else 16.dp))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ).let { if (isSmallScreen) it else it.asReversed() }
+                }
+
+                LazyColumn(
+                    modifier = rootModifier,
+                    contentPadding = PaddingValues(horizontal = 24.dp),
+                    reverseLayout = !isSmallScreen
+                ) {
+                    if (!isSmallScreen) stickyHeader { sections.first().let { (_, value) -> Box{ value.invoke() } } }
+
+                    itemsIndexed(items = sections, key = { _, (key, _) -> key }) { index, (key, value) ->
+                        if (index > 0 || isSmallScreen) {
+                            val zIndex = when (key) {
+                                "SetSkipBackupSection", "MediaMetadataSection" -> 1f
+                                "MediaPreviewSection" -> -1f
+                                else -> 0f
+                            }
+
+                            Surface(Modifier.zIndex(zIndex)) {
+                                Column {
+                                    value.invoke()
+                                    if (key != "MediaPreviewSection") Spacer(Modifier.height(16.dp))
+                                }
                             }
                         }
                     }
@@ -202,15 +245,9 @@ private fun TitleSection(
     title: String,
     setTitle: (String) -> Unit
 ) {
-    if (isReadOnly) {
-        Text(title)
-    } else {
-        TextField(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-            value = title,
-            onValueChange = setTitle,
-            singleLine = true
-        )
+    Column(Modifier.padding(start = 8.dp, end = 16.dp)) {
+        if (isReadOnly) Text(title)
+        else TextField(modifier = Modifier.fillMaxWidth(), value = title, onValueChange = setTitle, singleLine = true)
     }
 }
 
@@ -221,12 +258,7 @@ private fun SetSkipBackupSection(
     setSkipBackup: (Boolean) -> Unit
 ) {
     ListItem(
-        modifier = Modifier
-            .padding(bottom = 16.dp)
-            .then(
-                if (isReadOnly) Modifier
-                else Modifier.clickable { setSkipBackup(!skipBackup) }
-            ),
+        modifier = Modifier.then(if (isReadOnly) Modifier else Modifier.clickable { setSkipBackup(!skipBackup) }),
         headlineContent = { Text(stringResource(Res.string.skip_backup_label)) },
         supportingContent = { Text(stringResource(Res.string.skip_backup_supporting_text)) },
         trailingContent = {
@@ -250,7 +282,7 @@ private fun MediaMetadataSection(
             duration = duration,
             navigateToDetails = navigateToDetails
         )
-    } ?: Card(modifier = Modifier.padding(bottom = 16.dp)) {
+    } ?: Card {
         if (navigateToDetails != null) {
             ListItem(
                 modifier = Modifier.clickable { navigateToDetails() },
@@ -287,24 +319,21 @@ private fun MediaPreviewSection(
             .collect{ frameUrl = it }
     }
 
-    Box(
-        Modifier
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .aspectRatio(16f / 9f)
-            .fillMaxHeight()
-    ) {
-        AsyncImageWithPrevious(url = frameUrl)
+    Column {
+        Box(
+            Modifier
+                .clip(MaterialTheme.shapes.large)
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .aspectRatio(16f / 9f)
+                .fillMaxHeight()
+        ) { AsyncImageWithPrevious(url = frameUrl) }
 
-        if (!isSmallScreen) {
-            MediaPositionToolbar(Modifier.align(Alignment.BottomStart), position, duration, setPosition)
-        }
+        if (isSmallScreen) MediaPositionToolbar(Modifier, position, duration, setPosition, isSmallScreen = true)
     }
+}
 
-    if (isSmallScreen) {
-        MediaPositionToolbar(Modifier, position, duration, setPosition, isSmallScreen = true)
-    }
-
+@Composable
+private fun MediaPositionSlider(position: Double, duration: Double, setPosition: (Number) -> Unit) {
     Slider(
         modifier = Modifier.fillMaxWidth(),
         valueRange = 0f..duration.toFloat(),
@@ -327,12 +356,10 @@ private fun SegmentsEditSection(
     isSmallScreen: Boolean
 ) {
     Card(
-        modifier = if (canShowEditSegmentsSideToolbar) Modifier else Modifier.padding(top = 16.dp, bottom = 72.dp).fillMaxSize(),
+        modifier = Modifier.fillMaxWidth(),
         colors = if (canShowEditSegmentsSideToolbar) CardDefaults.cardColors(Color.Transparent) else CardDefaults.cardColors()
     ) {
-        if (!canShowEditSegmentsSideToolbar) {
-            SegmentsEditHorizontalToolbar(selectedSegments, segmentsEditOnClick, isSmallScreen, isReadOnly)
-        }
+        if (!canShowEditSegmentsSideToolbar) { SegmentsEditHorizontalToolbar(selectedSegments, segmentsEditOnClick, isSmallScreen, isReadOnly) }
 
         AnimatedContent(
             targetState = segmentsView,
