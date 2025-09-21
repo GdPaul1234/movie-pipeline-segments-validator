@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import org.openapitools.client.models.SegmentOutput
 
@@ -26,6 +27,7 @@ fun SegmentsAsTimeline(
     toggleSegment: (SegmentOutput) -> Unit
 ) {
     val colors = SliderDefaults.colors()
+    val minSegmentWidth = 4.dp
 
     // Render segments with their respective positions and widths
     BoxWithConstraints(
@@ -53,7 +55,7 @@ fun SegmentsAsTimeline(
             Box(
                 modifier = modifier
                     .animateContentSize()
-                    .size(fractionToWidth(segmentWidth), maxHeight)
+                    .size(fractionToWidth(segmentWidth).coerceAtLeast(minSegmentWidth), maxHeight)
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(
                         // Change background color based on selection state
@@ -79,7 +81,9 @@ fun SegmentsAsTimeline(
                         index == 0 -> fractionToWidth((segment.start / duration).coerceIn(0.0, 1.0).toFloat())
                         else -> 0.dp
                     }
-                    val paddingRight = fractionToWidth(paddingRight)
+
+                    val segmentWidth = fractionToWidth((segment.duration / duration).coerceIn(0.0, 1.0).toFloat())
+                    val paddingRight = fractionToWidth(paddingRight) - (if (segmentWidth < minSegmentWidth) minSegmentWidth else 0.dp)
 
                     SegmentBox(Modifier.padding(start = paddingLeft, end = paddingRight), segment)
                 }
