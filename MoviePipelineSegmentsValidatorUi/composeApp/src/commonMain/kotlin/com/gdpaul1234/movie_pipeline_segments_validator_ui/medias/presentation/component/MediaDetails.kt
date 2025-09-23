@@ -16,8 +16,10 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.MediaRoute
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.buildMediaViewModel
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.navigation.TOP_LEVEL_DESTINATIONS
-import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.ui.MediaViewModel
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -31,9 +33,11 @@ import org.openapitools.client.models.SegmentOutput
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaDetails(
-    viewModel: MediaViewModel,
+    route: MediaRoute,
+    sessionsRepository: SessionsRepository,
     close: (() -> Unit)?
 ) {
+    val viewModel = buildMediaViewModel(route, sessionsRepository)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     uiState.media?.let { media ->

@@ -29,22 +29,22 @@ class MediaViewModel(
     private val _uiState = MutableStateFlow(MediaUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val mediasService = MediasService(endpoint, sessionId, sessionsRepository)
+    private val mediasService by lazy { MediasService(endpoint, sessionId, sessionsRepository) }
     private val segmentsService by lazy { SegmentsService(endpoint, sessionId, mediaStem, sessionsRepository) }
 
-    init {
-        viewModelScope.launch {
-            loadableErrorWrapHandler {
-                val mediaDetails = mediasService.getMediaInDetails(mediaStem)
+    fun load() = viewModelScope.launch {
+        loadableErrorWrapHandler {
+            val mediaDetails = mediasService.getMediaInDetails(mediaStem)
 
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        media = mediaDetails.media,
-                        duration = mediaDetails.duration,
-                        recordingMetadata = mediaDetails.recordingMetadata,
-                        importedSegments = mediaDetails.importedSegments
-                    )
-                }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    media = mediaDetails.media,
+                    importedSegments = mediaDetails.importedSegments,
+                    recordingMetadata = mediaDetails.recordingMetadata,
+                    position = 0.0,
+                    duration = mediaDetails.duration,
+                    selectedSegments = emptySet()
+                )
             }
         }
     }

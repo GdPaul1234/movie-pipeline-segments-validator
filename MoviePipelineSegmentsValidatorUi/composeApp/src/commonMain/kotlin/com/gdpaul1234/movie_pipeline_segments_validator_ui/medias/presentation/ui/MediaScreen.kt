@@ -21,6 +21,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.SessionsRepository
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.MediaRoute
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.buildMediaViewModel
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.AsyncImageWithPrevious
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.LoadingSuspense
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
@@ -36,19 +39,22 @@ import org.openapitools.client.models.Media
 import org.openapitools.client.models.MediaMetadata
 import org.openapitools.client.models.SegmentOutput
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaDuration
 
 @Suppress("UnusedBoxWithConstraintsScope")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaScreen(
-    viewModel: MediaViewModel,
+    route: MediaRoute,
+    sessionsRepository: SessionsRepository,
     navigateToMediaStem: (String) -> Unit,
     navigateBack: (() -> Unit)?,
     navigateToDetails: (() -> Unit)?
 ) {
+    val viewModel = buildMediaViewModel(route, sessionsRepository)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(route) { viewModel.load() }
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
