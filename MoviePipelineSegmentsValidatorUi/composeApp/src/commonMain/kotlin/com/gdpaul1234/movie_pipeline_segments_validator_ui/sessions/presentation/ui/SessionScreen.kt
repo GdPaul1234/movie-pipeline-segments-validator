@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.MediaRoute
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.component.LoadingSuspense
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.navigation.MediasNavigationWrapper
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.navigation.getNavLayoutType
@@ -115,7 +116,8 @@ fun SessionScreen(
                         ) {
                             navigator.currentDestination?.contentKey?.let {
                                 MediaScreen(
-                                    viewModel = viewModel.buildMediaViewModel(it),
+                                    route = MediaRoute(viewModel.endpoint, viewModel.sessionId, mediaStem = it),
+                                    sessionsRepository = viewModel.sessionsRepository,
                                     navigateToMediaStem = viewModel::navigateTo,
                                     navigateBack = when {
                                         isListVisible -> null
@@ -138,7 +140,8 @@ fun SessionScreen(
                         AnimatedPane {
                             navigator.currentDestination?.contentKey?.let {
                                 MediaDetails(
-                                    viewModel = viewModel.buildMediaViewModel(it),
+                                    route = MediaRoute(viewModel.endpoint, viewModel.sessionId, mediaStem = it),
+                                    sessionsRepository = viewModel.sessionsRepository,
                                     close = {
                                         scope.launch {
                                             withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.List, it) }

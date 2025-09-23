@@ -21,10 +21,10 @@ import org.openapitools.client.models.Media
 import kotlin.reflect.KClass
 
 class SessionViewModel(
-    private val endpoint: String,
-    private val sessionId: String,
+    val endpoint: String,
+    val sessionId: String,
     private val mediaStateEq: Media.State,
-    private val sessionsRepository: SessionsRepository
+    val sessionsRepository: SessionsRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SessionUiState(mediaStateEq))
     val uiState = _uiState.asStateFlow()
@@ -60,19 +60,6 @@ class SessionViewModel(
         val route = SessionRoute(endpoint, sessionId, mediaStateEq.value)
         navController.navigate(route)
     }
-
-    @Composable
-    fun buildMediaViewModel(mediaStem: String) =
-         viewModel<MediaViewModel>(
-            key = "$sessionId@$endpoint/$mediaStem",
-            factory = MediaViewModel.Factory,
-            extras = MutableCreationExtras().apply {
-                set(MediaViewModel.ENDPOINT_KEY, endpoint)
-                set(MediaViewModel.SESSION_ID_KEY, sessionId)
-                set(MediaViewModel.MEDIA_STEM_KEY, mediaStem)
-                set(MediaViewModel.SESSION_REPOSITORY_KEY, sessionsRepository)
-            }
-        )
 
     private suspend fun <R> loadableErrorWrapHandler (block: suspend () -> R) {
         _uiState.update { currentState -> currentState.copy(loading = true, errors = listOf()) }
