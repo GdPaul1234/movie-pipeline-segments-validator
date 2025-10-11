@@ -13,13 +13,13 @@ packages = [{include = "movie_pipeline_segments_validator"}]
 
 [tool.poetry.dependencies]
 python = "^3.13"
-PyYAML = "^6.0.2"
+PyYAML = "^6.0.3"
 ffmpeg-python = "^0.2.0"
-schema = "^0.7.7"
+schema = "^0.7.8"
 deffcode = "^0.2.6"
-pydantic = {version = "^2.11.9"}
-pydantic-settings = "^2.10.1"
-fastapi = {extras = ["standard"], version = "^0.116.1"}
+pydantic = {version = "^2.12.0"}
+pydantic-settings = "^2.11.0"
+fastapi = {extras = ["standard"], version = "^0.119.0"}
 httpx = "^0.28.1"
 
 
