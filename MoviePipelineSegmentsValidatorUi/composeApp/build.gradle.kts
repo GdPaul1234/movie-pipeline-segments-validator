@@ -107,11 +107,10 @@ compose.desktop {
         mainClass = "com.gdpaul1234.movie_pipeline_segments_validator_ui.MainKt"
 
         nativeDistributions {
+            includeAllModules = true
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.gdpaul1234.movie_pipeline_segments_validator_ui"
             packageVersion = "1.0.0"
-
-            modules("java.instrument", "java.management", "jdk.unsupported")
         }
     }
 }

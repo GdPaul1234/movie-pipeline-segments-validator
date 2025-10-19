@@ -2,22 +2,18 @@
 
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
@@ -167,8 +163,7 @@ private fun InfoSection(
 @Composable
 @Preview
 private fun StatsSection (
-    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>,
-    isPreview: Boolean = LocalInspectionMode.current
+    @PreviewParameter(SessionEntryPreviewParameterProvider::class) sessionEntry: Map.Entry<String, Session>
 ) {
     val listItemColors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor)
 
@@ -184,9 +179,13 @@ private fun StatsSection (
         )
 
         Media.State.entries.forEach { mediaState ->
-            val stateLabel = when {
-                isPreview -> mediaState.value
-                else -> stringResource(Res.allStringResources["stats_${mediaState.value}"]!!)
+            val stateLabel = when (mediaState) {
+                Media.State.waiting_metadata -> stringResource(Res.string.stats_waiting_metadata)
+                Media.State.no_segment -> stringResource(Res.string.stats_no_segment)
+                Media.State.waiting_segment_review -> stringResource(Res.string.stats_waiting_segment_review)
+                Media.State.segment_reviewed -> stringResource(Res.string.stats_segment_reviewed)
+                Media.State.media_processing -> stringResource(Res.string.stats_media_processing)
+                Media.State.media_processed -> stringResource((Res.string.stats_media_processed))
             }
 
             val count = sessionEntry.value.medias.count { it.value.state == mediaState }
