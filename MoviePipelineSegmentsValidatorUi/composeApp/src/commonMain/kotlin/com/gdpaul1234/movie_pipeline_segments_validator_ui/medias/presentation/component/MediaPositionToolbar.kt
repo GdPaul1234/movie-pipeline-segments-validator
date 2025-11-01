@@ -82,7 +82,7 @@ fun MediaPositionToolbar(
                 val replayContentDescription = stringResource(Res.string.replay_x_seconds, delta)
 
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { PlainTooltip { Text(replayContentDescription) } },
                     state = rememberTooltipState()
                 ) {
@@ -106,7 +106,7 @@ fun MediaPositionToolbar(
                 val forwardContentDescription = stringResource(Res.string.forward_x_seconds, delta)
 
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { PlainTooltip { Text(forwardContentDescription) } },
                     state = rememberTooltipState()
                 ) {

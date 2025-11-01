@@ -19,7 +19,7 @@ fun MediaActionsTopAppBar(
     isReadOnly: Boolean
 ) {
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = { PlainTooltip { Text(stringResource(Res.string.segments_multi_selection_mode)) } },
         state = rememberTooltipState()
     ) {
@@ -36,7 +36,7 @@ fun MediaActionsTopAppBar(
     }
 
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = { PlainTooltip { Text(stringResource(Res.string.segments_import)) } },
         state = rememberTooltipState()
     ) {
@@ -49,7 +49,7 @@ fun MediaActionsTopAppBar(
     }
 
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = { PlainTooltip { Text(stringResource(selectionModeDescription)) } },
         state = rememberTooltipState()
     ) {

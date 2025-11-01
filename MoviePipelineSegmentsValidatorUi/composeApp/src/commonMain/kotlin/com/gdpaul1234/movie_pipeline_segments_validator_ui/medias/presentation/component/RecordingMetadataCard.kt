@@ -67,7 +67,7 @@ fun MediaRecordingMetadataCard(
                     colors = listItemColors,
                     headlineContent = {
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                             tooltip = { PlainTooltip { Text(errorMessage) } },
                             state = rememberTooltipState()
                         ) {

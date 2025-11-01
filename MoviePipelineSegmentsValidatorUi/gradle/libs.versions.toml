@@ -7,18 +7,19 @@ androidx-activity = "1.11.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.9.4"
+androidx-lifecycle = "2.9.5"
 androidx-testExt = "1.3.0"
 androidx-datastore = "1.1.7"
-androidx-adaptative = "1.1.2"
-androidx-navigation = "2.9.0"
+androidx-adaptative = "1.2.0"
+androidx-navigation = "2.9.1"
 androidx-window = "1.5.0"
 androidx-window-core = "1.5.0"
 androidx-window-java = "1.5.0"
+androidx-material3 = "1.9.0-alpha04"
 composeHotReload = "1.0.0-rc02"
-composeMultiplatform = "1.9.0"
+composeMultiplatform = "1.9.2"
 junit = "4.13.2"
-kotlin = "2.2.20"
+kotlin = "2.2.21"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 kotlinx-datetime = "0.7.1"
@@ -39,6 +40,7 @@ androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecyc
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore" }
+androidx-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "androidx-material3" }
 androidx-adaptative = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "androidx-adaptative" }
 androidx-adaptative-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "androidx-adaptative" }
 androidx-adaptative-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation", version.ref = "androidx-adaptative" }
