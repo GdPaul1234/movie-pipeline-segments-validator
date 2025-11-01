@@ -33,7 +33,7 @@ fun SegmentsAsTimeline(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
+            .height(80.dp)
             .clip(MaterialTheme.shapes.small)
             .background(colors.inactiveTrackColor)
     ) {

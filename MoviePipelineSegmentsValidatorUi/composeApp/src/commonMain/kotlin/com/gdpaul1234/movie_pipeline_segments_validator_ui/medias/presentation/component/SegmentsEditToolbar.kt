@@ -1,13 +1,11 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.component
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.DrawableResource
@@ -87,7 +85,7 @@ private fun getIconButtons(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SegmentsEditVerticalToolbar(
     modifier: Modifier,
@@ -97,34 +95,29 @@ fun SegmentsEditVerticalToolbar(
 ) {
     val iconButtons = getIconButtons(selectedSegments, segmentsEditOnClick, isReadOnly)
 
-    Surface(
-        modifier = modifier.width(IntrinsicSize.Min).clip(CircleShape),
-        tonalElevation = 2.dp
-    ) {
-        Column(Modifier.padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            iconButtons.forEachIndexed { index, (label, icon, disabled, onClick) ->
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                    tooltip = { PlainTooltip { Text(label) } },
-                    state = rememberTooltipState()
-                ) {
-                    IconButton(onClick = onClick, enabled = !disabled) {
-                        Icon(
-                            painter = painterResource(icon),
-                            contentDescription = label
-                        )
-                    }
+    VerticalFloatingToolbar(expanded = true, modifier) {
+        iconButtons.forEachIndexed { index, (label, icon, disabled, onClick) ->
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(label) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = onClick, enabled = !disabled) {
+                    Icon(
+                        painter = painterResource(icon),
+                        contentDescription = label
+                    )
                 }
+            }
 
-                if (index in listOf(2, 4)) {
-                    HorizontalDivider(Modifier.width(32.dp))
-                }
+            if (index in listOf(2, 4)) {
+                HorizontalDivider(Modifier.width(48.dp))
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SegmentsEditHorizontalToolbar(
     selectedSegments: Set<SegmentOutput>,
@@ -137,7 +130,7 @@ fun SegmentsEditHorizontalToolbar(
         iconButtons.filter { !isSmallScreen || !it.disabled }
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    HorizontalFloatingToolbar(expanded = true) {
         filteredIconButtons.forEachIndexed { index, (label, icon, disabled, onClick) ->
             TooltipBox(
                 positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
@@ -153,7 +146,7 @@ fun SegmentsEditHorizontalToolbar(
             }
 
             if (!isSmallScreen && index in listOf(2, 4)) {
-                VerticalDivider(Modifier.height(32.dp))
+                VerticalDivider(Modifier.height(48.dp))
             }
         }
     }

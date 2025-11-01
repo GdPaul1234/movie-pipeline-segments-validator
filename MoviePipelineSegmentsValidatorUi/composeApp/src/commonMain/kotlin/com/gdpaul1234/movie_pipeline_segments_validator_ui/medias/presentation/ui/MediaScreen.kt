@@ -76,7 +76,7 @@ fun MediaScreen(
 
     BoxWithConstraints {
         val isSmallScreen = minWidth < WIDTH_DP_MEDIUM_LOWER_BOUND.dp
-        val canShowEditSegmentsSideToolbar = minWidth >= (WIDTH_DP_LARGE_LOWER_BOUND + 130).dp &&
+        val canShowEditSegmentsSideToolbar = minWidth >= (WIDTH_DP_LARGE_LOWER_BOUND + 146).dp &&
                 minHeight >= (HEIGHT_DP_MEDIUM_LOWER_BOUND + 48).dp
 
         val segmentsEditOnClick = SegmentsEditOnClick(
@@ -348,6 +348,7 @@ private fun MediaPositionSlider(position: Double, duration: Double, setPosition:
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SegmentsEditSection(
     segmentsView: SegmentsView,
@@ -363,7 +364,10 @@ private fun SegmentsEditSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = if (canShowEditSegmentsSideToolbar) CardDefaults.cardColors(Color.Transparent) else CardDefaults.cardColors()
+        colors = CardDefaults.cardColors(
+            if (canShowEditSegmentsSideToolbar) Color.Transparent
+            else FloatingToolbarDefaults.standardFloatingToolbarColors().toolbarContainerColor
+        )
     ) {
         if (!canShowEditSegmentsSideToolbar) { SegmentsEditHorizontalToolbar(selectedSegments, segmentsEditOnClick, isSmallScreen, isReadOnly) }
 
