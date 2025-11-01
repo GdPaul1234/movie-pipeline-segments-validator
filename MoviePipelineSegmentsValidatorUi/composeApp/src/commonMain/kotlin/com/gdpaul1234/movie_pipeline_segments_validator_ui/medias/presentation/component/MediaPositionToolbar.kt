@@ -6,8 +6,8 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.util.formatSecondsToPeriod
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
@@ -17,7 +17,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MediaPositionToolbar(
     modifier: Modifier = Modifier,
@@ -51,78 +51,90 @@ fun MediaPositionToolbar(
             }
         }
 
-        Surface(shape = MaterialTheme.shapes.medium, tonalElevation = tonalElevation) {
-            val adaptiveInfo = currentWindowAdaptiveInfo()
-            val options = listOf(1.0, 5.0, 10.0, 30.0).takeWhile { value ->
-                value <= when {
-                    adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) -> Double.MAX_VALUE
-                    adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) -> 10.0
-                    else -> 5.0
+        val adaptiveInfo = currentWindowAdaptiveInfo()
+        val options = listOf(1.0, 5.0, 10.0, 30.0).takeWhile { value ->
+            value <= when {
+                adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) -> Double.MAX_VALUE
+                else -> 10.0
+            }
+        }
+
+        var selectedIndex by remember { mutableIntStateOf(1) }
+        val delta = remember(selectedIndex) { options[selectedIndex] }
+
+        HorizontalFloatingToolbar(
+            expanded = true,
+            colors = when {
+                isSmallScreen -> FloatingToolbarDefaults.standardFloatingToolbarColors().copy(Color.Transparent)
+                else -> FloatingToolbarDefaults.standardFloatingToolbarColors()
+            },
+            shape = MaterialTheme.shapes.medium
+        )  {
+            ButtonGroup(
+                overflowIndicator = { menuState ->
+                    IconButton(onClick = { if (menuState.isExpanded) menuState.dismiss() else menuState.show() }) {
+                        Icon(
+                            painter = painterResource(Res.drawable.more_vert_24px),
+                            contentDescription = stringResource(Res.string.more_seconds),
+                        )
+                    }
+                },
+                expandedRatio = 0f
+            ) {
+                options.forEachIndexed { index, value ->
+                    toggleableItem(
+                        checked = index == selectedIndex,
+                        label = value.seconds.toString(),
+                        onCheckedChange = { selectedIndex = index },
+                    )
                 }
             }
 
-            var selectedIndex by remember { mutableIntStateOf(1) }
-            val delta = remember(selectedIndex) { options[selectedIndex] }
+            // Replay button
 
-            Row(Modifier.padding(horizontal = if (isSmallScreen) 0.dp else 8.dp, vertical = 4.dp)) {
-                SingleChoiceSegmentedButtonRow {
-                    options.forEachIndexed { index, value ->
-                        SegmentedButton(
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                            onClick = { selectedIndex = index },
-                            selected = index == selectedIndex,
-                        ) {
-                            Text(value.seconds.toString())
-                        }
-                    }
+            val replayContentDescription = stringResource(Res.string.replay_x_seconds, delta)
+
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(replayContentDescription) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = { setPosition(max(0.0, position - delta)) }) {
+                    Icon(
+                        painter = painterResource(
+                            when (delta) {
+                                30.0 -> Res.drawable.replay_30_24px
+                                10.0 -> Res.drawable.replay_10_24px
+                                5.0 -> Res.drawable.replay_5_24px
+                                else -> Res.drawable.replay_24px
+                            }
+                        ),
+                        contentDescription = replayContentDescription
+                    )
                 }
+            }
 
-                // Replay button
+            // Forward button
 
-                val replayContentDescription = stringResource(Res.string.replay_x_seconds, delta)
+            val forwardContentDescription = stringResource(Res.string.forward_x_seconds, delta)
 
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                    tooltip = { PlainTooltip { Text(replayContentDescription) } },
-                    state = rememberTooltipState()
-                ) {
-                    IconButton(onClick = { setPosition(max(0.0, position - delta)) }) {
-                        Icon(
-                            painter = painterResource(
-                                when (delta) {
-                                    30.0 -> Res.drawable.replay_30_24px
-                                    10.0 -> Res.drawable.replay_10_24px
-                                    5.0 -> Res.drawable.replay_5_24px
-                                    else -> Res.drawable.replay_24px
-                                }
-                            ),
-                            contentDescription = replayContentDescription
-                        )
-                    }
-                }
-
-                // Forward button
-
-                val forwardContentDescription = stringResource(Res.string.forward_x_seconds, delta)
-
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                    tooltip = { PlainTooltip { Text(forwardContentDescription) } },
-                    state = rememberTooltipState()
-                ) {
-                    IconButton(onClick = { setPosition(min(position + delta, duration)) }) {
-                        Icon(
-                            painter = painterResource(
-                                when (delta) {
-                                    30.0 -> Res.drawable.forward_30_24px
-                                    10.0 -> Res.drawable.forward_10_24px
-                                    5.0 -> Res.drawable.forward_5_24px
-                                    else -> Res.drawable.forward_media_24px
-                                }
-                            ),
-                            contentDescription = forwardContentDescription
-                        )
-                    }
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text(forwardContentDescription) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = { setPosition(min(position + delta, duration)) }) {
+                    Icon(
+                        painter = painterResource(
+                            when (delta) {
+                                30.0 -> Res.drawable.forward_30_24px
+                                10.0 -> Res.drawable.forward_10_24px
+                                5.0 -> Res.drawable.forward_5_24px
+                                else -> Res.drawable.forward_media_24px
+                            }
+                        ),
+                        contentDescription = forwardContentDescription
+                    )
                 }
             }
         }

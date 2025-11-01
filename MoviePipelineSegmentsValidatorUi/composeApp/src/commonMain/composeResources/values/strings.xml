@@ -51,6 +51,7 @@
     <string name="segments_import">Import segments</string>
     <string name="forward_x_seconds">Forward %1$ds</string>
     <string name="replay_x_seconds">Replay %1$ds</string>
+    <string name="more_seconds">More time</string>
     <string name="segment_add">Add segment</string>
     <plurals name="segments_remove">
         <item quantity="one">Remove segment</item>
