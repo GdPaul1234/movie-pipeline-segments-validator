@@ -33,7 +33,7 @@
     <string name="media_duration">Media duration</string>
     <string name="media_nb_data_errors">Nb data errors</string>
     <string name="media_validate_segments">Validate segments</string>
-    <string name="navigation_drawer">Navigation Drawer</string>
+    <string name="navigation_drawer">Open drawer</string>
     <string name="close_drawer">Close drawer</string>
     <string name="media_more_details_label">More details...</string>
     <string name="media_details">Details</string>
