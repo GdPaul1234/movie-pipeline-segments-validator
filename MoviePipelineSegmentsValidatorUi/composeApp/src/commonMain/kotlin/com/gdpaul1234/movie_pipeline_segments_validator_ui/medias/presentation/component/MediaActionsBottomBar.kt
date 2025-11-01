@@ -33,7 +33,7 @@ fun MediaActionsBottomBar(
         }
 
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
             tooltip = { PlainTooltip { Text(stringResource(selectionModeDescription)) } },
             state = rememberTooltipState()
         ) {
@@ -46,7 +46,7 @@ fun MediaActionsBottomBar(
         }
 
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
             tooltip = { PlainTooltip { Text(stringResource(Res.string.segments_import)) } },
             state = rememberTooltipState()
         ) {
@@ -59,7 +59,7 @@ fun MediaActionsBottomBar(
         }
 
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
             tooltip = { PlainTooltip { Text(stringResource(Res.string.segments_multi_selection_mode)) } },
             state = rememberTooltipState()
         ) {

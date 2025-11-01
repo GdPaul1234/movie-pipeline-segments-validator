@@ -1,6 +1,7 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui
 
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -14,6 +15,7 @@ import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.HomeR
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.homeDestination
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.navigation.sessionDestination
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun App(
     dataStore: DataStore<Preferences>,
@@ -24,7 +26,7 @@ fun App(
             .build()
     }
 
-    MaterialTheme {
+    MaterialExpressiveTheme {
             val sessionsRepository = SessionsRepository(dataStore)
 
             NavHost(navController = navController, startDestination = HomeRoute) {

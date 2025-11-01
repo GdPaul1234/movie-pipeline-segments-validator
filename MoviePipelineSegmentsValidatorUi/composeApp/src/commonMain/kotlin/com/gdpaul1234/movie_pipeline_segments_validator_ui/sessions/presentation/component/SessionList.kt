@@ -61,7 +61,7 @@ fun SessionList(
         containerColor = containerBackgroundColor,
         topBar = {
             LargeTopAppBar(
-                colors = TopAppBarDefaults.largeTopAppBarColors().copy(
+                colors = TopAppBarDefaults.topAppBarColors().copy(
                     containerColor = containerBackgroundColor,
                     scrolledContainerColor = containerBackgroundColor
                 ),

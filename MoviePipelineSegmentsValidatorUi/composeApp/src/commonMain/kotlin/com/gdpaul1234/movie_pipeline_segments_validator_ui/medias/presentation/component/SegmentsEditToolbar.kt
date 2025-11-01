@@ -104,7 +104,7 @@ fun SegmentsEditVerticalToolbar(
         Column(Modifier.padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             iconButtons.forEachIndexed { index, (label, icon, disabled, onClick) ->
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { PlainTooltip { Text(label) } },
                     state = rememberTooltipState()
                 ) {
@@ -140,7 +140,7 @@ fun SegmentsEditHorizontalToolbar(
     Row(verticalAlignment = Alignment.CenterVertically) {
         filteredIconButtons.forEachIndexed { index, (label, icon, disabled, onClick) ->
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                 tooltip = { PlainTooltip { Text(label) } },
                 state = rememberTooltipState()
             ) {
