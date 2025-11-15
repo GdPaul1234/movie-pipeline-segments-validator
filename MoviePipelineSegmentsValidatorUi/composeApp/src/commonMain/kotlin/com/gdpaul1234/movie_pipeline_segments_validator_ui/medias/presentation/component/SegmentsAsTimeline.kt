@@ -85,7 +85,7 @@ fun SegmentsAsTimeline(
                     val segmentWidth = fractionToWidth((segment.duration / duration).coerceIn(0.0, 1.0).toFloat())
                     val paddingRight = fractionToWidth(paddingRight) - (if (segmentWidth < minSegmentWidth) minSegmentWidth else 0.dp)
 
-                    SegmentBox(Modifier.padding(start = paddingLeft, end = paddingRight), segment)
+                    SegmentBox(Modifier.padding(start = paddingLeft, end = paddingRight.coerceIn(0.dp, null)), segment)
                 }
 
                 SegmentBox(Modifier, segments.last())
