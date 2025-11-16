@@ -76,9 +76,14 @@ Given a video named `Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts`:
 
 ## Release History
 
+- V0.3.1
+  - Update MoviePipelineSegmentsValidatorUI to Material 3 Expressive Design
+  - Handle back action in more views
+  - Fix desktop target package
+
 - V0.3.0
   - Remove PySimpleGUI movie_pipeline_segments_validator UI
-  - Add kotlin compose multiplatform MoviePipelineSeglentsValidatorUI, see Installation section to use it
+  - Add kotlin compose multiplatform MoviePipelineSegmentsValidatorUI, see Installation section to use it
   - Improve API performance: EDL file contents and imported segments are loaded on demand, so you must load media details
     (`GET /sessions/{session_id}/medias/{media_stem}`) before validating / editing segments to prefill segments from
     imported segments and load filename and `skip_backup` property from EDL files.
