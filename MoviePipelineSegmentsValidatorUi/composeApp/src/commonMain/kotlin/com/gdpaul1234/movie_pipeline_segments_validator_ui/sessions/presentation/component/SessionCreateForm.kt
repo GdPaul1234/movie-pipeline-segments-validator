@@ -6,7 +6,9 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
@@ -20,7 +22,7 @@ import java.net.URISyntaxException
 import java.nio.file.InvalidPathException
 import java.nio.file.Paths
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class, ExperimentalComposeUiApi::class)
 @Composable
 @Preview
 fun SessionCreateForm (
@@ -28,6 +30,10 @@ fun SessionCreateForm (
     navigateBack: (() -> Unit)?
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    BackHandler(enabled = navigateBack != null) {
+        navigateBack?.invoke()
+    }
 
     Scaffold(
         topBar = {

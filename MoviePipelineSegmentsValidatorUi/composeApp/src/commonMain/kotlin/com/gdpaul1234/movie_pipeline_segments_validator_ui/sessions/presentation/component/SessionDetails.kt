@@ -12,7 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -33,7 +35,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SessionDetails(
     sessionKey: String,
@@ -54,6 +56,10 @@ fun SessionDetails(
             val (sessionId, endpoint) = sessionKey.split("@")
             session = loadSession(endpoint, sessionId)
         }
+    }
+
+    BackHandler(enabled = navigateBack != null) {
+        navigateBack?.invoke()
     }
 
     LoadingSuspense(session == null) {

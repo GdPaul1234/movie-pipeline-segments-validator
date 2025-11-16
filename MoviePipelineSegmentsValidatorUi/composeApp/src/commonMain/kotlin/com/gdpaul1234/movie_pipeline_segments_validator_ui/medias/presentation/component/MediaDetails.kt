@@ -11,7 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,7 +32,7 @@ import org.openapitools.client.models.Media
 import org.openapitools.client.models.MediaMetadata
 import org.openapitools.client.models.SegmentOutput
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MediaDetails(
     route: MediaRoute,
@@ -39,6 +41,10 @@ fun MediaDetails(
 ) {
     val viewModel = buildMediaViewModel(route, sessionsRepository)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    BackHandler(enabled = close != null) {
+        close?.invoke()
+    }
 
     uiState.media?.let { media ->
         Scaffold(
