@@ -109,7 +109,7 @@ compose.desktop {
         nativeDistributions {
             includeAllModules = true
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.gdpaul1234.movie_pipeline_segments_validator_ui"
+            packageName = "MoviePipelineSegmentsValidatorUi"
             packageVersion = "1.0.0"
         }
     }
