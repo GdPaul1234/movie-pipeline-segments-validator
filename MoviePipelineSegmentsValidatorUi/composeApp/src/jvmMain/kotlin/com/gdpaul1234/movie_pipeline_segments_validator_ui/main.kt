@@ -8,7 +8,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.database.createDataStore
 
 fun main() = application {
-    val state = rememberWindowState(size = DpSize(1366.dp, 768.dp))
+    val state = rememberWindowState(size = DpSize(1280.dp, 800.dp))
 
     Window(
         onCloseRequest = ::exitApplication,
