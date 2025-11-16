@@ -114,26 +114,30 @@ fun SessionScreen(
                             enterTransition = motionDataProvider.calculateDefaultEnterTransition(paneRole),
                             exitTransition = if (animationIsDisabled) ExitTransition.None else motionDataProvider.calculateDefaultExitTransition(paneRole)
                         ) {
-                            navigator.currentDestination?.contentKey?.let {
-                                MediaScreen(
-                                    route = MediaRoute(viewModel.endpoint, viewModel.sessionId, mediaStem = it),
-                                    sessionsRepository = viewModel.sessionsRepository,
-                                    navigateToMediaStem = viewModel::navigateTo,
-                                    navigateBack = when {
-                                        isListVisible -> null
-                                        else -> { -> viewModel.navigateTo("") }
-                                    },
-                                    navigateToDetails = when {
-                                        isExtraVisible -> null
-                                        else -> { ->
-                                            scope.launch {
-                                                withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it) }
-                                                navigator.navigateTo(ListDetailPaneScaffoldRole.Extra, it)
+                            navigator.currentDestination?.contentKey.let {
+                                when (it) {
+                                    null -> NoMediaScreen()
+
+                                    else -> MediaScreen(
+                                        route = MediaRoute(viewModel.endpoint, viewModel.sessionId, mediaStem = it),
+                                        sessionsRepository = viewModel.sessionsRepository,
+                                        navigateToMediaStem = viewModel::navigateTo,
+                                        navigateBack = when {
+                                            isListVisible -> null
+                                            else -> { -> viewModel.navigateTo("") }
+                                        },
+                                        navigateToDetails = when {
+                                            isExtraVisible -> null
+                                            else -> { ->
+                                                scope.launch {
+                                                    withAnimationDisabled { navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it) }
+                                                    navigator.navigateTo(ListDetailPaneScaffoldRole.Extra, it)
+                                                }
                                             }
                                         }
-                                    }
-                                )
-                            } ?: NoMediaScreen()
+                                    )
+                                }
+                            }
                         }
                     },
                     extraPane = {

@@ -65,4 +65,7 @@
     <string name="set_selected_segment_end">Set end of selected segment</string>
     <string name="confirm_label">Confirm</string>
     <string name="dismiss_label">Dismiss</string>
+    <string name="welcome_title">Welcome to Movie Pipeline Segments Validator!</string>
+    <string name="welcome_subtitle">Effortlessly review and edit video segments for Movie Pipeline</string>
+    <string name="welcome_supporting_text">Select or create a session to continue</string>
 </resources>
