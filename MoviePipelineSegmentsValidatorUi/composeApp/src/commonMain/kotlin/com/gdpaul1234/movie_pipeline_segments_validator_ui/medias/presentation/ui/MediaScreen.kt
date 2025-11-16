@@ -43,6 +43,8 @@ import org.openapitools.client.models.SegmentOutput
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaDuration
 
+enum class MediaScreenSection { SetSkipBackup, MediaMetadata, MediaPreview, SegmentsEdit }
+
 @Suppress("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -156,11 +158,11 @@ fun MediaScreen(
 
             LoadingSuspense(uiState.loading) {
                 val sections = remember(isReadOnly, skipBackup, isSmallScreen, canShowEditSegmentsSideToolbar) {
-                    listOf<Pair<String, @Composable () -> Unit>>(
-                        "SetSkipBackupSection" to { SetSkipBackupSection(isReadOnly, skipBackup, viewModel::setSkipBackup) },
-                        "MediaMetadataSection" to { MediaMetadataSection(uiState.recordingMetadata, uiState.duration, navigateToDetails) },
-                        "MediaPreviewSection" to { uiState.duration?.let { duration -> MediaPreviewSection(viewModel::getFrameUrl, uiState.position, duration, viewModel::setPosition, isSmallScreen) } },
-                        "SegmentsEditSection" to {
+                    listOf<Pair<MediaScreenSection, @Composable () -> Unit>>(
+                        MediaScreenSection.SetSkipBackup to { SetSkipBackupSection(isReadOnly, skipBackup, viewModel::setSkipBackup) },
+                        MediaScreenSection.MediaMetadata to { MediaMetadataSection(uiState.recordingMetadata, uiState.duration, navigateToDetails) },
+                        MediaScreenSection.MediaPreview to { uiState.duration?.let { duration -> MediaPreviewSection(viewModel::getFrameUrl, uiState.position, duration, viewModel::setPosition, isSmallScreen) } },
+                        MediaScreenSection.SegmentsEdit to {
                             uiState.duration?.let { duration ->
                                 uiState.media?.segments?.let { segments ->
                                     Column {
@@ -212,15 +214,15 @@ fun MediaScreen(
                     itemsIndexed(items = sections, key = { _, (key, _) -> key }) { index, (key, value) ->
                         if (index > 0 || isSmallScreen) {
                             val zIndex = when (key) {
-                                "SetSkipBackupSection", "MediaMetadataSection" -> 1f
-                                "MediaPreviewSection" -> -1f
+                                MediaScreenSection.SetSkipBackup, MediaScreenSection.MediaMetadata -> 1f
+                                MediaScreenSection.MediaPreview -> -1f
                                 else -> 0f
                             }
 
                             Surface(Modifier.zIndex(zIndex)) {
                                 Column {
                                     value.invoke()
-                                    if (key != "MediaPreviewSection") Spacer(Modifier.height(16.dp))
+                                    if (key != MediaScreenSection.MediaPreview) Spacer(Modifier.height(16.dp))
                                 }
                             }
                         }
