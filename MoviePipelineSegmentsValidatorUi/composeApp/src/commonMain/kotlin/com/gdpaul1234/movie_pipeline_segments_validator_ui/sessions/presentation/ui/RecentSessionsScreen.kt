@@ -1,11 +1,6 @@
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.ui
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.displayCutoutPadding
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -99,9 +94,11 @@ fun RecentSessionsScreen(
                         }
 
                         // Show the detail pane content if selected item is available
-                        navigator.currentDestination?.contentKey?.let {
+                        navigator.currentDestination?.contentKey.let {
                             when (it) {
-                                "new_session" -> SessionCreateForm(
+                                null, "" -> WelcomeScreen()
+
+                                dummyNewSessionEntry.key -> SessionCreateForm(
                                     onCreate = viewModel::createSession,
                                     navigateBack = navigateBack
                                 )
