@@ -63,6 +63,7 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" 
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 coil-client-android = { module = "io.ktor:ktor-client-android", version.ref = "coil-client" }
 coil-client-jvm = { module = "io.ktor:ktor-client-java", version.ref = "coil-client" }
+ui-backhandler = { module = "org.jetbrains.compose.ui:ui-backhandler", version.ref = "composeMultiplatform" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
