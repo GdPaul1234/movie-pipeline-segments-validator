@@ -1,6 +1,6 @@
 [project]
 name = "movie-pipeline-segments-validator"
-version = "0.3.1"
+version = "0.3.2"
 description = "A simple GUI to validate detected segments and to generate edit decision files for movie-pipeline"
 readme = "README.md"
 authors = [{email = "GdPaul1234 <paul.godin1234@outlook.fr>"}]

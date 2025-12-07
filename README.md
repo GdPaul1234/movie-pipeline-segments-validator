@@ -76,6 +76,9 @@ Given a video named `Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts`:
 
 ## Release History
 
+- V0.3.2
+  - Improve Serie Subtitle Extractor when apostrophe in episode title
+
 - V0.3.1
   - Update MoviePipelineSegmentsValidatorUI to Material 3 Expressive Design
   - Handle back action in more views
