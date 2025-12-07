@@ -57,13 +57,13 @@ class TestTitleExtractor(unittest.TestCase):
     def test_serie_subtitle_title_expander_title_extractor(self):
         content = json.dumps({
             "title": "Serie Name. \"It's a title...",
-            "sub_title": "Serie Name. 'It's a title overflow!' Série (FR). Episode condensed synopsis"
+            "sub_title": "Serie Name. 'It's a title. With overflow!' Série (FR). Episode condensed synopsis"
         }, indent=2)
 
         with file_path_with_metadata_content(content, serie_metadata_path) as serie_file_path:
             title_extractor = SubtitleTitleExpanderExtractor(default_title_cleaner)
             extracted_title = title_extractor.extract_title(serie_file_path, cache_busting_key=int(time.time() * 1000))
-            self.assertEqual("Serie Name__It's a title overflow!", extracted_title)
+            self.assertEqual("Serie Name__It's a title. With overflow!", extracted_title)
 
     def test_serie_subtitle_aware_title_extractor(self):
         test_serie_metadata_path = serie_metadata_path.with_name('Channel 1_Serie Name_2022-12-05-2203-20.ts.metadata.json')
