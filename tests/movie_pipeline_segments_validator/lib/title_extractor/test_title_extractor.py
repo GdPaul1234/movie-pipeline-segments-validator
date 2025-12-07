@@ -46,7 +46,7 @@ class TestTitleExtractor(unittest.TestCase):
     def test_movie_subtitle_title_expander_title_extractor(self):
         content = json.dumps({
             "title": "Movie Name...",
-            "sub_title": "Movie Name... : Movie Name, le titre long. Bla Bla Bla"
+            "sub_title": "Movie Name... : Movie Name, le titre long. Movie condensed synopsis"
         }, indent=2)
 
         with file_path_with_metadata_content(content, movie_metadata_path) as movie_file_path:
@@ -56,20 +56,20 @@ class TestTitleExtractor(unittest.TestCase):
 
     def test_serie_subtitle_title_expander_title_extractor(self):
         content = json.dumps({
-            "title": "Serie Name. \"Title...",
-            "sub_title": "Serie Name. 'Title overflow!' Série (FR)"
+            "title": "Serie Name. \"It's a title...",
+            "sub_title": "Serie Name. 'It's a title overflow!' Série (FR). Episode condensed synopsis"
         }, indent=2)
 
         with file_path_with_metadata_content(content, serie_metadata_path) as serie_file_path:
             title_extractor = SubtitleTitleExpanderExtractor(default_title_cleaner)
             extracted_title = title_extractor.extract_title(serie_file_path, cache_busting_key=int(time.time() * 1000))
-            self.assertEqual("Serie Name__Title overflow!", extracted_title)
+            self.assertEqual("Serie Name__It's a title overflow!", extracted_title)
 
     def test_serie_subtitle_aware_title_extractor(self):
         test_serie_metadata_path = serie_metadata_path.with_name('Channel 1_Serie Name_2022-12-05-2203-20.ts.metadata.json')
         content = json.dumps({
             "title": "Serie Name",
-            "sub_title": "Serie Name : Episode Name. Série policière. 2022. Saison 1. 16/26.",
+            "sub_title": "Serie Name : Episode Name. Série policière. 2022. Saison 1. 16/26. Episode condensed synopsis",
             "description": ""
         }, indent=2)
 
@@ -83,7 +83,7 @@ class TestTitleExtractor(unittest.TestCase):
         content = json.dumps({
             "title": "Serie Name (2-3)",
             "sub_title": "",
-            "description": "Série documentaire (France, 2022, 52 min) Description",
+            "description": "Série documentaire (France, 2022, 52 min) Episode condensed synopsis",
         }, indent=2)
 
         with file_path_with_metadata_content(content, test_serie_metadata_path) as serie_file_path:
@@ -96,7 +96,7 @@ class TestTitleExtractor(unittest.TestCase):
         content = json.dumps({
             "title": "Serie Name - Saison 2 (4-6) (VM)",
             "sub_title": "",
-            "description": "Série documentaire (France, 2022, 52 min) Description",
+            "description": "Série documentaire (France, 2022, 52 min) Episode condensed synopsis",
         }, indent=2)
 
         with file_path_with_metadata_content(content, test_serie_metadata_path) as serie_file_path:
