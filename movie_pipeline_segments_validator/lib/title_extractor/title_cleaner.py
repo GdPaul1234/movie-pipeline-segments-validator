@@ -4,7 +4,7 @@ import re
 
 class TitleCleaner:
     def __init__(self, blacklist_path: Path) -> None:
-        blacklist = blacklist_path.read_text()
+        blacklist = blacklist_path.read_text(encoding='utf-8')
         self._blacklist_pattern = re.compile('|'.join(blacklist.splitlines()))
 
     def clean_title(self, title: str) -> str:

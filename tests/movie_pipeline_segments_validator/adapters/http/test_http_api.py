@@ -182,7 +182,7 @@ class TestHttpApi(unittest.TestCase):
         self.assertTrue(expected_edl_path.is_file())
         self.assertEqual(str(expected_edl_path), response.json()['edl_path'])
 
-        edl_content = yaml.safe_load(expected_edl_path.read_text())
+        edl_content = yaml.safe_load(expected_edl_path.read_text(encoding='utf-8'))
         self.assertEqual('Movie Title.mp4', edl_content['filename'])
         self.assertTrue(edl_content['skip_backup'])
 

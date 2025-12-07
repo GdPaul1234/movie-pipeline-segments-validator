@@ -47,10 +47,10 @@ class Settings(BaseSettings):
 
     def model_post_init(self, __context: Any) -> None:
         if (title_strategies_path := self.Paths.title_strategies) is not None:
-            self.PathsContent.title_strategies = yaml.safe_load(title_strategies_path.read_text('utf-8'))
+            self.PathsContent.title_strategies = yaml.safe_load(title_strategies_path.read_text(encoding='utf-8'))
 
         if (title_re_blacklist_path := self.Paths.title_re_blacklist) is not None:
-            self.PathsContent.title_re_blacklist = title_re_blacklist_path.read_text()
+            self.PathsContent.title_re_blacklist = title_re_blacklist_path.read_text(encoding='utf-8')
 
         if (series_extracted_metadata_path := self.Paths.series_extracted_metadata) is not None:
             self.PathsContent.series_extracted_metadata = json.loads(series_extracted_metadata_path.read_text(encoding='utf-8'))
