@@ -69,7 +69,7 @@ def build_media(
             raise ValueError('Missing config when force_load_edl_file_content is True')
 
         edl_files = list(islice(filepath.parent.glob(f'{filepath.name}*.*yml*'), 1))
-        eld_file_content: dict[str, Any] = yaml.safe_load(edl_files[0].read_text()) if len(edl_files) == 1 else {}
+        eld_file_content: dict[str, Any] = yaml.safe_load(edl_files[0].read_text(encoding='utf-8')) if len(edl_files) == 1 else {}
         title: str = eld_file_content.get('filename', extract_title(filepath, config))
         skip_backup: bool = eld_file_content.get('skip_backup', False)
 
