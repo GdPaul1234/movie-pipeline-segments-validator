@@ -58,7 +58,7 @@ def get_title_strategy_context(config: Settings) -> TitleStrategyContext:
     titles_strategies = title_strategies_schema.validate(config.PathsContent.title_strategies or {})
     series_extracted_metadata = config.PathsContent.series_extracted_metadata or {}
 
-    blacklist_path = cast(Path, SimpleNamespace(read_text=lambda: config.PathsContent.title_re_blacklist or ''))
+    blacklist_path = cast(Path, SimpleNamespace(read_text=lambda *args, **kwargs: config.PathsContent.title_re_blacklist or ''))
     title_cleaner = TitleCleaner(blacklist_path)
 
     return TitleStrategyContext(titles_strategies, series_extracted_metadata, title_cleaner)
