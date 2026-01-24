@@ -19,7 +19,6 @@ class PathSettings(BaseModel):
 
 
 class PathContent(BaseModel):
-    title_strategies: Optional[dict] = None
     title_re_blacklist: Optional[str] = None
     series_extracted_metadata: Optional[dict] = None
 
@@ -46,9 +45,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter='__')
 
     def model_post_init(self, __context: Any) -> None:
-        if (title_strategies_path := self.Paths.title_strategies) is not None:
-            self.PathsContent.title_strategies = yaml.safe_load(title_strategies_path.read_text(encoding='utf-8'))
-
         if (title_re_blacklist_path := self.Paths.title_re_blacklist) is not None:
             self.PathsContent.title_re_blacklist = title_re_blacklist_path.read_text(encoding='utf-8')
 

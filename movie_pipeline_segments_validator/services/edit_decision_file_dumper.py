@@ -1,4 +1,3 @@
-import importlib
 from pathlib import Path
 
 import yaml
@@ -16,13 +15,12 @@ def extract_title(source_path: Path, config: Settings):
 
     if not matches:
         return 'Nom du fichier converti.mp4'
-
-    channel = matches.group(1)
-    title_strategy_name = title_strategy_context.titles_strategies.get(channel) or 'NaiveTitleExtractor'
-    mod = importlib.import_module('movie_pipeline_segments_validator.lib.title_extractor.title_extractor')
-    title_strategy = getattr(mod, title_strategy_name)(title_strategy_context.title_cleaner)
-
-    return MovieProcessedFileGenerator(source_path, title_strategy, title_strategy_context.normalized_title_series_extracted_metadata).extract_title()
+    
+    return MovieProcessedFileGenerator(
+        source_path,
+        title_strategy_context.title_cleaner,
+        title_strategy_context.normalized_title_series_extracted_metadata
+    ).extract_title()
 
 
 def dump_decision_file(title: str, source_path: Path, segment_container: SegmentContainer, skip_backup: bool):
