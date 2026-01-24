@@ -75,7 +75,9 @@ def subtitle_aware_title(movie_path: Path, metadata, **kwargs) -> TitleExtractor
             title = re.sub(episode_extractor_params[1], '', title)
     title = re.sub(r'\(\w*\)', '', title).strip('- ')
 
-    return TitleExtractorOutput(title=title, episode=episode, season=season or 1)
+    episode_title = cast(str, metadata['sub_title']).split('. ')[0].removeprefix(f'{title} : ')
+
+    return TitleExtractorOutput(title=title, episode=episode, season=season or 1, episode_title=episode_title)
 
 
 # Serie field extractors
@@ -105,11 +107,11 @@ def is_serie_from_supplied_value(supplied_value: str | dict) -> bool:
 def extract_title_serie_episode_from_metadata(
     normalized_title_series_extracted_metadata: dict[str, dict[str, dict[str, str]]],
     title_extractor_output : TitleExtractorOutput
-):    
+):
     if title_extractor_output.episode_title is not None:
         show_title = title_extractor_output.title
         episode_title = remove_diacritics(title_extractor_output.episode_title.lower())
-    elif (m := re.match(r"(?P<showtitle>[\w&àéèï'!., ()\[\]#-]+) '(?P<title>.+)'", title_extractor_output.title)) is not None:
+    elif (m := re.match(r"(?P<showtitle>[\w&àéèï'!., ()\[\]#-]+) '(?P<title>.+)'", title_extractor_output.formatted_title)) is not None:
         show_title = m.group('showtitle')
         episode_title = remove_diacritics(m.group('title').lower())
     else: # is movie or title_extractor_output.episode is not None
