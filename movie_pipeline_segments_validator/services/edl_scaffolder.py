@@ -5,9 +5,9 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import cast
 
+from ..lib.title_extractor.strategy import extract_title_serie_episode_from_metadata
 from ..lib.title_extractor.title_cleaner import TitleCleaner
 from ..lib.title_extractor.title_extractor import extract_title
-from ..lib.title_extractor.title_serie_extractor import extract_title_serie_episode_from_metadata
 from ..lib.util import remove_diacritics
 from ..settings import Settings
 
@@ -21,9 +21,9 @@ class MovieProcessedFileGenerator:
         self._series_extracted_metadata = series_extracted_metadata
 
     def extract_title(self) -> str:
-        extracted_title = extract_title(self._movie_file_path).formatted_title
-        extracted_title = self._title_cleaner.clean_title(extracted_title)
-        return extract_title_serie_episode_from_metadata(self._series_extracted_metadata, extracted_title)
+        title_extractor_output = extract_title(self._movie_file_path)
+        title_extractor_output.title = self._title_cleaner.clean_title(title_extractor_output.title)
+        return extract_title_serie_episode_from_metadata(self._series_extracted_metadata, title_extractor_output)
 
 
 channel_pattern = re.compile(r'^([^_]+)_')
