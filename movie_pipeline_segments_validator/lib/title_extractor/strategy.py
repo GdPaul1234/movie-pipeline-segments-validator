@@ -4,7 +4,7 @@ from operator import itemgetter
 from pathlib import Path
 from typing import cast
 
-from .title_serie_extractor import extract_serie_field, is_serie_from_supplied_value
+from ..util import remove_diacritics
 
 
 class NotSuitableTitleExtractorStrategy(Exception):
@@ -32,6 +32,8 @@ class TitleExtractorOutput:
 
         return title
 
+
+# Title extractor strategies
 
 def naive_title(movie_path: Path, metadata, **kwargs) -> TitleExtractorOutput:
     if metadata:
@@ -74,3 +76,44 @@ def subtitle_aware_title(movie_path: Path, metadata, **kwargs) -> TitleExtractor
     title = re.sub(r'\(\w*\)', '', title).strip('- ')
 
     return TitleExtractorOutput(title=title, episode=episode, season=season or 1)
+
+
+# Serie field extractors
+
+ExtractorParams = tuple[str, re.Pattern[str]]
+
+
+
+def extract_serie_field(metadata, extractor_params: ExtractorParams) -> str | None:
+    field, pattern = extractor_params
+
+    matches = pattern.search(metadata[field])
+    return matches.group(1).rjust(2, '0') if matches else None
+
+
+def is_serie_from_supplied_value(supplied_value: str | dict) -> bool:
+    def contains_any_serie_hint(value: str):
+        serie_hints = ['Série', 'Saison', 'Mini-série']
+        return any(value.count(serie_hint) for serie_hint in serie_hints)
+
+    if isinstance(supplied_value, str):
+        return contains_any_serie_hint(supplied_value)
+
+    return any(contains_any_serie_hint(supplied_value[field]) for field in ['description', 'title', 'sub_title'])
+
+
+def extract_title_serie_episode_from_metadata(
+    normalized_title_series_extracted_metadata: dict[str, dict[str, dict[str, str]]],
+    title_extractor_output : TitleExtractorOutput
+):    
+    if title_extractor_output.episode_title is not None:
+        show_title = title_extractor_output.title
+        episode_title = remove_diacritics(title_extractor_output.episode_title.lower())
+    elif (m := re.match(r"(?P<showtitle>[\w&àéèï'!., ()\[\]#-]+) '(?P<title>.+)'", title_extractor_output.title)) is not None:
+        show_title = m.group('showtitle')
+        episode_title = remove_diacritics(m.group('title').lower())
+    else: # is movie or title_extractor_output.episode is not None
+        return title_extractor_output.formatted_title
+
+    formatted_episode = normalized_title_series_extracted_metadata.get(show_title, {}).get(episode_title, {}).get('formattedEpisode')
+    return ' '.join([show_title, formatted_episode]) if formatted_episode else title_extractor_output.formatted_title
