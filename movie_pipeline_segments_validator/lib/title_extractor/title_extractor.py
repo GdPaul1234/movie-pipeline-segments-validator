@@ -1,13 +1,10 @@
 import json
-import logging
 import re
 from functools import lru_cache
 from itertools import combinations_with_replacement
 from pathlib import Path
 
 from .strategy import NotSuitableTitleExtractorStrategy, TitleExtractorOutput, expanded_subtitle_title, naive_title, subtitle_aware_title
-
-logger = logging.getLogger(__name__)
 
 
 @lru_cache
@@ -58,7 +55,6 @@ def extract_title(movie_path: Path, cache_busting_key=0) -> TitleExtractorOutput
         try:
             return strategy()
         except NotSuitableTitleExtractorStrategy as e:
-            logger.exception(e)
             pass
 
     raise NotSuitableTitleExtractorStrategy
