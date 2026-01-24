@@ -39,7 +39,7 @@ def extract_title(movie_path: Path, cache_busting_key=0) -> TitleExtractorOutput
                 season_extractor_params=(season_field, season_pattern)
             )
 
-            if title_extractor_output.episode is not None:
+            if any((title_extractor_output.episode, title_extractor_output.episode_title)):
                 return title_extractor_output
 
         raise NotSuitableTitleExtractorStrategy(f'Not suitable "serie_subtitle_aware_title_extractor" strategy found for "{movie_path.stem}"')
@@ -54,7 +54,7 @@ def extract_title(movie_path: Path, cache_busting_key=0) -> TitleExtractorOutput
     for strategy in [subtitle_title_expander_extractor, serie_subtitle_aware_title_extractor, naive_title_extractor]:
         try:
             return strategy()
-        except NotSuitableTitleExtractorStrategy as e:
+        except NotSuitableTitleExtractorStrategy:
             pass
 
     raise NotSuitableTitleExtractorStrategy
