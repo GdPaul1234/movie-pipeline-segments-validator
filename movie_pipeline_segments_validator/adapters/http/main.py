@@ -1,6 +1,6 @@
 import os
 from contextlib import asynccontextmanager
-from importlib.metadata import metadata, version
+from importlib.metadata import PackageNotFoundError, metadata, version
 from pathlib import Path
 from typing import Optional
 
@@ -17,6 +17,21 @@ from .routers import session_medias, sessions
 
 
 config: Optional[Settings] = None
+
+def get_version():
+    try:
+        return version('movie_pipeline_segments_validator')
+    except PackageNotFoundError:
+        return 'dev'
+
+
+def get_description():
+    try:
+        readme_content = metadata('movie_pipeline_segments_validator')['Description']
+    except PackageNotFoundError:
+        readme_content = (Path(__file__).parent.parent.parent.parent / 'README.md').read_text(encoding='utf-8')
+
+    return '\n'.join(readme_content.splitlines()[39:]).strip()
 
 
 def get_config():
@@ -50,9 +65,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="movie-pipeline-segments-validator",
-    version=version('movie_pipeline_segments_validator'),
+    version=get_version(),
     summary='A simple API to validate detected segments and generate edit decision files for movie-pipeline',
-    description='\n'.join(metadata('movie_pipeline_segments_validator')['Description'].splitlines()[39:]).strip(),
+    description=get_description(),
     lifespan=lifespan
 )
 
