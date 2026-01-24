@@ -7,14 +7,14 @@ serie_hints = ['Série', 'Saison', 'Mini-série']
 serie_hints_location = ['description', 'title', 'sub_title']
 
 
-def extract_serie_field(metadata, extractor_params: ExtractorParams):
+def extract_serie_field(metadata, extractor_params: ExtractorParams) -> str | None:
     field, pattern = extractor_params
 
     matches = pattern.search(metadata[field])
-    return matches.group(1).rjust(2, '0') if matches else 'xx'
+    return matches.group(1).rjust(2, '0') if matches else None
 
 
-def is_serie_from_supplied_value(supplied_value: str | dict):
+def is_serie_from_supplied_value(supplied_value: str | dict) -> bool:
     def contains_any_serie_hint(value: str):
         return any(value.count(serie_hint) for serie_hint in serie_hints)
 
