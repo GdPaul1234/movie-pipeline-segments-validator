@@ -35,18 +35,19 @@ class TitleExtractorOutput:
 
 # Title extractor strategies
 
-def naive_title(movie_path: Path, metadata, **kwargs) -> TitleExtractorOutput:
-    if metadata:
+def naive_title(movie_path: Path | None, metadata, **kwargs) -> TitleExtractorOutput:
+    if metadata is not None:
         return TitleExtractorOutput(title=metadata['title'])
-    elif matches := kwargs['title_pattern'].search(movie_path.stem):
+    elif movie_path is not None and (matches := kwargs['title_pattern'].search(movie_path.stem)):
         return TitleExtractorOutput(title=matches.group(1))
     else:
         raise ValueError('Inappropriate file path provided: not following movie name convention')
 
 
-def expanded_subtitle_title(movie_path: Path, metadata, **kwargs) -> TitleExtractorOutput:
+def expanded_subtitle_title(movie_path: Path | None, metadata, **kwargs) -> TitleExtractorOutput:
     if not metadata or '...' not in metadata['title']:
-        raise NotSuitableTitleExtractorStrategy(f'Not suitable "expanded_subtitle_title" strategy for "{movie_path.stem}" ({kwargs})')
+        media_id = movie_path.stem if movie_path is not None else 'this entry'
+        raise NotSuitableTitleExtractorStrategy(f'Not suitable "expanded_subtitle_title" strategy for "{media_id}" ({kwargs})')
 
     title, sub_title = cast(tuple[str, str], itemgetter('title', 'sub_title')(metadata))
     sub_title = sub_title.removeprefix(f'{title} : ')
@@ -60,9 +61,10 @@ def expanded_subtitle_title(movie_path: Path, metadata, **kwargs) -> TitleExtrac
     return TitleExtractorOutput(title=extracted_title, episode_title=extracted_episode_title)
 
 
-def subtitle_aware_title(movie_path: Path, metadata, **kwargs) -> TitleExtractorOutput:
+def subtitle_aware_title(movie_path: Path | None, metadata, **kwargs) -> TitleExtractorOutput:
     if not metadata or not is_serie_from_supplied_value(metadata):
-        raise NotSuitableTitleExtractorStrategy(f'Not suitable "subtitle_aware_title" strategy for "{movie_path.stem} ({kwargs})"')
+        media_id = movie_path.stem if movie_path is not None else 'this entry'
+        raise NotSuitableTitleExtractorStrategy(f'Not suitable "subtitle_aware_title" strategy for "{media_id} ({kwargs})"')
 
     episode, season = [
         int(extracted_serie_field) if (extracted_serie_field := extract_serie_field(metadata, episode_extractor_params)) else None

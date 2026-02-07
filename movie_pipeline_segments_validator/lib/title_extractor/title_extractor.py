@@ -15,7 +15,7 @@ def load_metadata(movie_path: Path, cache_busting_key: int):
         return json.loads(movie_metadata_path.read_text(encoding='utf-8'))
 
 
-def extract_title(movie_path: Path, metadata: dict | None = None, cache_busting_key = 0) -> TitleExtractorOutput:
+def extract_title(movie_path: Path | None = None, metadata: dict | None = None, cache_busting_key = 0) -> TitleExtractorOutput:
     if metadata is None:
         metadata = load_metadata(movie_path, cache_busting_key)
 
@@ -43,7 +43,8 @@ def extract_title(movie_path: Path, metadata: dict | None = None, cache_busting_
             if any((title_extractor_output.episode, title_extractor_output.episode_title)):
                 return title_extractor_output
 
-        raise NotSuitableTitleExtractorStrategy(f'Not suitable "serie_subtitle_aware_title_extractor" strategy found for "{movie_path.stem}"')
+        media_id = movie_path.stem if movie_path is not None else 'this entry'
+        raise NotSuitableTitleExtractorStrategy(f'Not suitable "serie_subtitle_aware_title_extractor" strategy found for "{media_id}"')
 
     def naive_title_extractor():
         return naive_title(

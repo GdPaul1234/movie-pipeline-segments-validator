@@ -5,12 +5,13 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import yaml
 from fastapi import status
 from fastapi.testclient import TestClient
 from pydantic import TypeAdapter
-import yaml
 
 from movie_pipeline_segments_validator.adapters.http.main import app
+from movie_pipeline_segments_validator.adapters.http.routers.epg_entries import ExtractTitleOut
 from movie_pipeline_segments_validator.adapters.http.routers.session_medias import MediaOut
 from movie_pipeline_segments_validator.adapters.repository.resources import Media, Segment, Session
 from movie_pipeline_segments_validator.adapters.repository.session_repository import SessionRepository
@@ -266,6 +267,43 @@ class TestHttpApi(unittest.TestCase):
 
         actual_media = TypeAdapter(Media).validate_json(response.text)
         self.assertEqual([Segment(start=0, end=5), Segment(start=6, end=10)], actual_media.segments)
+
+
+    # routers/epg_entries.py
+
+    def test_extract_title(self):
+        body = {
+            "eventId": 2418080,
+            "channelName": "France 4",
+            "channelUuid": "67d14e60ad007f65fbcecde5e7c920e4",
+            "channelNumber": "4",
+            "channelIcon": "imagecache/14",
+            "start": 1770546360,
+            "stop": 1770546420,
+            "title": "Les as de la jungle à la rescousse",
+            "subtitle": "La fête des gros cerveaux. Série d'animation. 2015. Saison 2. 24/52. C'est le rendez-vous des scientifiques de la Jungle, ils vie",
+            "widescreen": 1,
+            "subtitled": 1,
+            "hd": 1,
+            "genre": [85],
+            "nextEventId": 2418081
+        }
+
+        expected_extract_title_out = ExtractTitleOut(
+            title='Les as de la jungle à la rescousse',
+            season=2,
+            episode=24,
+            episode_title='La fête des gros cerveaux',
+            formatted_title='Les as de la jungle à la rescousse S02E24',
+            genre='children'
+        )
+
+        with self.client as client:
+            response = client.post(f'/epg_entries/extract_title', json=body)
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        actual_extract_title_out = TypeAdapter(ExtractTitleOut).validate_json(response.text)
+        self.assertEqual(expected_extract_title_out, actual_extract_title_out)
 
 
     def tearDown(self) -> None:
