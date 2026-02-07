@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from operator import itemgetter
 from pathlib import Path
-from typing import cast
+from typing import Literal, cast
 
 from ..util import remove_diacritics
 
@@ -80,10 +80,42 @@ def subtitle_aware_title(movie_path: Path, metadata, **kwargs) -> TitleExtractor
     return TitleExtractorOutput(title=title, episode=episode, season=season or 1, episode_title=episode_title)
 
 
+# Genre extractor params
+
+MediaGenre = Literal['movie', 'serie', 'news', 'shows', 'sports', 'children', 'music', 'documentary']
+
+
+def is_genre_from_hints(supplied_value: str | dict, hints: list[str]):
+    def contains_genre_hint(value: str):
+        return any(value.count(serie_hint) for serie_hint in hints)
+
+    if isinstance(supplied_value, str):
+        return contains_genre_hint(supplied_value)
+    return any(contains_genre_hint(supplied_value[field]) for field in ['description', 'title', 'sub_title'])
+
+
+def get_genre_from_supplied_value(supplied_value: str | dict) -> MediaGenre:
+    if is_genre_from_hints(supplied_value, ['Documentaire', 'Reportage', 'Série documentaire']):
+        return 'documentary'
+    elif is_genre_from_hints(supplied_value, ['Concert', 'Ballet', 'Clips']):
+        return 'music'
+    elif is_genre_from_hints(supplied_value, ['Dessin animé', 'animation']):
+        return 'children'
+    elif is_genre_from_hints(supplied_value, ['Football', 'Rugby', 'Tennis', 'Basket-ball', 'Cyclisme', 'MMA', 'Pétanques', 'Fléchettes', 'Jeux olympiques']):
+        return 'sports'
+    elif is_genre_from_hints(supplied_value, ['Journal', "Magazine d'information"]):
+        return 'news'
+    elif is_genre_from_hints(supplied_value, ['Talk-show', 'Jeu', 'Magazine']):
+        return 'shows'
+    elif is_genre_from_hints(supplied_value, ['Série', 'Saison', 'Mini-série']):
+        return 'serie'
+    else:
+        return 'movie'
+
+
 # Serie field extractors
 
 ExtractorParams = tuple[str, re.Pattern[str]]
-
 
 
 def extract_serie_field(metadata, extractor_params: ExtractorParams) -> str | None:
@@ -94,14 +126,7 @@ def extract_serie_field(metadata, extractor_params: ExtractorParams) -> str | No
 
 
 def is_serie_from_supplied_value(supplied_value: str | dict) -> bool:
-    def contains_any_serie_hint(value: str):
-        serie_hints = ['Série', 'Saison', 'Mini-série']
-        return any(value.count(serie_hint) for serie_hint in serie_hints)
-
-    if isinstance(supplied_value, str):
-        return contains_any_serie_hint(supplied_value)
-
-    return any(contains_any_serie_hint(supplied_value[field]) for field in ['description', 'title', 'sub_title'])
+    return is_genre_from_hints(supplied_value, ['Série', 'Saison', 'Mini-série'])
 
 
 def extract_title_serie_episode_from_metadata(

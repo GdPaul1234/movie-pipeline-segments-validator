@@ -9,12 +9,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
-from ...adapters.http.dependencies import get_config_path, get_settings
-from ...adapters.http.routers import session_media_segments
-from ...adapters.repository.session_repository import SessionRepository
 from ...settings import Settings
-from .routers import session_medias, sessions
-
+from ..repository.session_repository import SessionRepository
+from .dependencies import get_config_path, get_settings
+from .routers import epg_entries, session_media_segments, session_medias, sessions
 
 config: Optional[Settings] = None
 
@@ -77,3 +75,4 @@ app.add_middleware(GZipMiddleware)
 app.include_router(sessions.router)
 app.include_router(session_medias.router)
 app.include_router(session_media_segments.router)
+app.include_router(epg_entries.router)
