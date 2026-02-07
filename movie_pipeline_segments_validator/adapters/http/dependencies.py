@@ -4,8 +4,8 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 
-from ...adapters.repository.resources import Media, Session
-from ...adapters.repository.session_repository import SessionRepository, build_media
+from ..repository.resources import Media, Session
+from ..repository.session_repository import SessionRepository, build_media
 from ...settings import Settings
 
 

@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, Path, status
 from pydantic import BaseModel, Field
 from pydantic.types import NonNegativeFloat
 
-from ....adapters.http.dependencies import get_segment_validator_context, get_session, get_session_repository
-from ....adapters.repository.resources import Media, Segment, Session
-from ....adapters.repository.session_repository import SessionRepository
 from ....domain.context import SegmentValidatorContext
 from ....domain.segment_container import Segment as SegmentContainerSegment
 from ....services import detector_service, segment_service
+from ...repository.resources import Media, Segment, Session
+from ...repository.session_repository import SessionRepository
+from ..dependencies import get_segment_validator_context, get_session, get_session_repository
 
 router = APIRouter(
     prefix='/sessions/{session_id}/medias/{media_stem}/segments',
