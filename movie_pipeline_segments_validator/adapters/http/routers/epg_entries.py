@@ -1,6 +1,4 @@
 import re
-from dataclasses import asdict
-from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -24,6 +22,9 @@ class EpgEntryExtractTitleBody(BaseModel):
     description: Annotated[str, Field(description='Program description', default='', examples=[''])]
 
 
+epg_entry_extract_title_body_adapter = TypeAdapter(EpgEntryExtractTitleBody)
+
+
 class ExtractTitleOut(BaseModel):
     title: Annotated[str, Field(description='Program title', examples=['Serie Name'])]
     season: Annotated[int | None, Field(description='Program season number', default=None, examples=[1])]
@@ -38,7 +39,7 @@ def extract_title(
     body: EpgEntryExtractTitleBody,
     config: Annotated[Settings, Depends(get_settings)]
 ) -> ExtractTitleOut:
-    body_as_dict = TypeAdapter(EpgEntryExtractTitleBody).dump_python(body, by_alias=True)
+    body_as_dict = epg_entry_extract_title_body_adapter.dump_python(body, by_alias=True)
     title_strategy_context = get_title_strategy_context(config)
 
     title_extractor_output = title_extractor.extract_title(metadata=body_as_dict)

@@ -42,6 +42,9 @@ class MediaMetadata(BaseModel):
     recording_id: Annotated[str, Field(description='Unique ID of recording')]
 
 
+media_metadata_adapter = TypeAdapter(MediaMetadata)
+
+
 class Media(BaseModel):
     filepath: Annotated[
         Path,
@@ -79,7 +82,7 @@ class Media(BaseModel):
     @property
     def metadata(self) -> Optional[MediaMetadata]:
         metadata = load_metadata(self.filepath, cache_busting_key=int(self.filepath.stat().st_mtime))
-        return TypeAdapter(MediaMetadata).validate_python(metadata) if metadata else None
+        return media_metadata_adapter.validate_python(metadata) if metadata else None
 
     def to_segment_validator_context(self, config: Settings):
         segment_container = SegmentContainer()
