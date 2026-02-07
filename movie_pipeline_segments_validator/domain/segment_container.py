@@ -31,6 +31,9 @@ class Segment:
         return self.end - self.start
 
 
+segment_adapter = TypeAdapter(Segment)
+
+
 class SegmentContainer:
     def __init__(self) -> None:
         self._segments: set[Segment] = set()
@@ -44,7 +47,7 @@ class SegmentContainer:
         return not any(segment.is_overlapping(new_segment) for segment in segments)
 
     def __repr__(self) -> str:
-        return humanize_segments(list(map(TypeAdapter(Segment).dump_python, self.segments)))
+        return humanize_segments(list(map(segment_adapter.dump_python, self.segments)))
 
     def add(self, segment: Segment):
         if self.check_validity(self._segments, segment):
