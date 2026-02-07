@@ -15,8 +15,9 @@ def load_metadata(movie_path: Path, cache_busting_key: int):
         return json.loads(movie_metadata_path.read_text(encoding='utf-8'))
 
 
-def extract_title(movie_path: Path, cache_busting_key=0) -> TitleExtractorOutput:
-    metadata = load_metadata(movie_path, cache_busting_key)
+def extract_title(movie_path: Path, metadata: dict | None = None, cache_busting_key = 0) -> TitleExtractorOutput:
+    if metadata is None:
+        metadata = load_metadata(movie_path, cache_busting_key)
 
     def subtitle_title_expander_extractor():
         return expanded_subtitle_title(
