@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel, Field, ValidationError
 from pydantic.types import DirectoryPath
 
-from ....adapters.http.dependencies import get_session, get_session_repository, get_settings
-from ....adapters.repository.resources import Session
-from ....adapters.repository.session_repository import SessionRepository, build_media
 from ....services.media_selector_service import list_medias
 from ....settings import Settings
+from ...repository.resources import Session
+from ...repository.session_repository import SessionRepository, build_media
+from ..dependencies import get_session, get_session_repository, get_settings
 
 router = APIRouter(
     prefix='/sessions',

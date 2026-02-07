@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Response, status
 from pydantic import BaseModel, Field, computed_field
 from pydantic.types import FilePath, NonNegativeFloat
 
-from ....adapters.http.dependencies import get_segment_validator_context, get_session_repository
-from ....adapters.repository.resources import Media, MediaMetadata, StrSegment
-from ....adapters.repository.session_repository import SessionRepository, build_media
 from ....domain import FILENAME_REGEX
 from ....domain.context import SegmentValidatorContext
 from ....lib.video_player.simple_video_only_player import extract_frame
 from ....services import segment_service
+from ...repository.resources import Media, MediaMetadata, StrSegment
+from ...repository.session_repository import SessionRepository, build_media
+from ..dependencies import get_segment_validator_context, get_session_repository
 
 router = APIRouter(
     prefix='/sessions/{session_id}/medias',
