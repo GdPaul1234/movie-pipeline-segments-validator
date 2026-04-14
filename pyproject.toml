@@ -1,6 +1,6 @@
 [project]
 name = "movie-pipeline-segments-validator"
-version = "0.3.4"
+version = "0.3.5"
 description = "A simple GUI to validate detected segments and to generate edit decision files for movie-pipeline"
 readme = "README.md"
 authors = [{email = "GdPaul1234 <paul.godin1234@outlook.fr>"}]
@@ -16,10 +16,9 @@ python = "^3.13"
 PyYAML = "^6.0.3"
 ffmpeg-python = "^0.2.0"
 schema = "^0.7.8"
-deffcode = "^0.2.6"
-pydantic = {version = "^2.12.5"}
-pydantic-settings = "^2.12.0"
-fastapi = {extras = ["standard"], version = "^0.128.4"}
+pydantic = {version = "^2.13.0"}
+pydantic-settings = "^2.13.1"
+fastapi = {extras = ["standard"], version = "^0.135.3"}
 httpx = "^0.28.1"
 
 

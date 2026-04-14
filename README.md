@@ -76,6 +76,9 @@ Given a video named `Channel 1_Serie Name. 'Title..._2022-12-05-2203-20.ts`:
 
 ## Release History
 
+- V0.3.5
+  - Bump dependencies
+
 - V0.3.4
   - Add Title Extractor API endpoint: you can now extract formatted serie title from Tvheadend epg entry
 
