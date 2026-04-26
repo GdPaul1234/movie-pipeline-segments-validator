@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -31,7 +32,7 @@ fun MediaRecordingMetadataCard(
     navigateToDetails: (() -> Unit)?
 ) {
     recordingMetadata.apply {
-        Card {
+        Card(Modifier.widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)) {
             val listItemColors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor)
 
             val metadata = listOf(
@@ -66,8 +67,10 @@ fun MediaRecordingMetadataCard(
                     modifier = Modifier.weight(1f),
                     colors = listItemColors,
                     headlineContent = {
+                        val spacingBetweenTooltipAndAnchor = 4.dp
+
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
                             tooltip = { PlainTooltip { Text(errorMessage) } },
                             state = rememberTooltipState()
                         ) {

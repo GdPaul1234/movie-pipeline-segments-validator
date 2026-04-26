@@ -89,13 +89,15 @@ fun MediaNavigationRail(
         else -> stringResource(Res.string.navigation_drawer)
     }
 
+    val spacingBetweenTooltipAndAnchor = 4.dp
+
     ModalWideNavigationRail(
         state = state,
         colors = WideNavigationRailDefaults.colors(MaterialTheme.colorScheme.inverseOnSurface),
         header = {
             // Header icon button should have a tooltip.
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
                 tooltip = { PlainTooltip { Text(headerDescription) } },
                 state = rememberTooltipState(),
             ) {

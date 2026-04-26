@@ -2,6 +2,7 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsSelectionMode
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.data.SegmentsView
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
@@ -18,8 +19,10 @@ fun MediaActionsTopAppBar(
     importSegments: () -> Unit,
     isReadOnly: Boolean
 ) {
+    val spacingBetweenTooltipAndAnchor = 4.dp
+
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
         tooltip = { PlainTooltip { Text(stringResource(Res.string.segments_multi_selection_mode)) } },
         state = rememberTooltipState()
     ) {
@@ -36,7 +39,7 @@ fun MediaActionsTopAppBar(
     }
 
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
         tooltip = { PlainTooltip { Text(stringResource(Res.string.segments_import)) } },
         state = rememberTooltipState()
     ) {
@@ -49,7 +52,7 @@ fun MediaActionsTopAppBar(
     }
 
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
         tooltip = { PlainTooltip { Text(stringResource(selectionModeDescription)) } },
         state = rememberTooltipState()
     ) {

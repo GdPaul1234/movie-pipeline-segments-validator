@@ -94,11 +94,12 @@ fun SegmentsEditVerticalToolbar(
     isReadOnly: Boolean
 ) {
     val iconButtons = getIconButtons(selectedSegments, segmentsEditOnClick, isReadOnly)
+    val spacingBetweenTooltipAndAnchor = 4.dp
 
     VerticalFloatingToolbar(expanded = true, modifier) {
         iconButtons.forEachIndexed { index, (label, icon, disabled, onClick) ->
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
                 tooltip = { PlainTooltip { Text(label) } },
                 state = rememberTooltipState()
             ) {
@@ -130,10 +131,12 @@ fun SegmentsEditHorizontalToolbar(
         iconButtons.filter { !isSmallScreen || !it.disabled }
     }
 
+    val spacingBetweenTooltipAndAnchor = 4.dp
+
     HorizontalFloatingToolbar(expanded = true) {
         filteredIconButtons.forEachIndexed { index, (label, icon, disabled, onClick) ->
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
                 tooltip = { PlainTooltip { Text(label) } },
                 state = rememberTooltipState()
             ) {

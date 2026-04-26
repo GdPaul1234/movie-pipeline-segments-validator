@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,7 +46,6 @@ import kotlin.time.toJavaDuration
 
 enum class MediaScreenSection { SetSkipBackup, MediaMetadata, MediaPreview, SegmentsEdit }
 
-@Suppress("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MediaScreen(
@@ -83,9 +83,9 @@ fun MediaScreen(
     }
 
     BoxWithConstraints {
-        val isSmallScreen = minWidth < WIDTH_DP_MEDIUM_LOWER_BOUND.dp
-        val canShowEditSegmentsSideToolbar = minWidth >= (WIDTH_DP_LARGE_LOWER_BOUND + 146).dp &&
-                minHeight >= (HEIGHT_DP_MEDIUM_LOWER_BOUND + 48).dp
+        val isSmallScreen = maxWidth < WIDTH_DP_MEDIUM_LOWER_BOUND.dp
+        val canShowEditSegmentsSideToolbar = maxWidth >= (WIDTH_DP_LARGE_LOWER_BOUND + 146).dp &&
+                maxHeight >= (HEIGHT_DP_MEDIUM_LOWER_BOUND + 48).dp
 
         val segmentsEditOnClick = SegmentsEditOnClick(
             onAddSegmentClick = viewModel::addSegmentAtCurrentPosition,
@@ -145,10 +145,6 @@ fun MediaScreen(
                     )
                 }
             },
-            modifier = Modifier
-                .widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)
-                .align(Alignment.TopCenter)
-                .fillMaxSize(),
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         ) { paddingValues ->
             val rootModifier = Modifier
@@ -165,36 +161,41 @@ fun MediaScreen(
                         MediaScreenSection.SegmentsEdit to {
                             uiState.duration?.let { duration ->
                                 uiState.media?.segments?.let { segments ->
-                                    Column {
-                                        if (!isSmallScreen) {
-                                            Box(
-                                                Modifier.layout { measurable, constraints ->
-                                                    val placeable = measurable.measure(constraints)
-                                                    layout(placeable.width, 0) { placeable.place(0, -placeable.height) }
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Column(Modifier.widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)) {
+                                            if (!isSmallScreen) {
+                                                Box(
+                                                    Modifier.layout { measurable, constraints ->
+                                                        val placeable = measurable.measure(constraints)
+                                                        layout(placeable.width, 0) { placeable.place(0, -placeable.height) }
+                                                    }
+                                                ) { MediaPositionToolbar(Modifier, uiState.position, duration, viewModel::setPosition) }
+                                            }
+
+                                            Surface {
+                                                Column {
+                                                    MediaPositionSlider(uiState.position, duration, viewModel::setPosition)
+
+                                                    Spacer(Modifier.height(8.dp))
+
+                                                    SegmentsEditSection(
+                                                        segmentsView = uiState.segmentsView,
+                                                        segments = segments,
+                                                        selectedSegments = uiState.selectedSegments,
+                                                        position = uiState.position,
+                                                        duration = duration,
+                                                        toggleSegment = viewModel::toggleSegment,
+                                                        segmentsEditOnClick = segmentsEditOnClick,
+                                                        canShowEditSegmentsSideToolbar = canShowEditSegmentsSideToolbar,
+                                                        isReadOnly = isReadOnly,
+                                                        isSmallScreen = isSmallScreen
+                                                    )
+
+                                                    Spacer(Modifier.height(if (isSmallScreen) 64.dp else 16.dp))
                                                 }
-                                            ) { MediaPositionToolbar(Modifier, uiState.position, duration, viewModel::setPosition) }
-                                        }
-
-                                        Surface {
-                                            Column {
-                                                MediaPositionSlider(uiState.position, duration, viewModel::setPosition)
-
-                                                Spacer(Modifier.height(8.dp))
-
-                                                SegmentsEditSection(
-                                                    segmentsView = uiState.segmentsView,
-                                                    segments = segments,
-                                                    selectedSegments = uiState.selectedSegments,
-                                                    position = uiState.position,
-                                                    duration = duration,
-                                                    toggleSegment = viewModel::toggleSegment,
-                                                    segmentsEditOnClick = segmentsEditOnClick,
-                                                    canShowEditSegmentsSideToolbar = canShowEditSegmentsSideToolbar,
-                                                    isReadOnly = isReadOnly,
-                                                    isSmallScreen = isSmallScreen
-                                                )
-
-                                                Spacer(Modifier.height(if (isSmallScreen) 64.dp else 16.dp))
                                             }
                                         }
                                     }
@@ -259,9 +260,14 @@ private fun TitleSection(
     title: String,
     setTitle: (String) -> Unit
 ) {
-    Column(Modifier.padding(start = 8.dp, end = 16.dp)) {
-        if (isReadOnly) Text(title)
-        else TextField(modifier = Modifier.fillMaxWidth(), value = title, onValueChange = setTitle, singleLine = true)
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column(Modifier.widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)) {
+            if (isReadOnly) Text(title)
+            else TextField(modifier = Modifier.fillMaxWidth(), value = title, onValueChange = setTitle, singleLine = true)
+        }
     }
 }
 
@@ -271,17 +277,24 @@ private fun SetSkipBackupSection(
     skipBackup: Boolean,
     setSkipBackup: (Boolean) -> Unit
 ) {
-    ListItem(
-        modifier = Modifier.then(if (isReadOnly) Modifier else Modifier.clickable { setSkipBackup(!skipBackup) }),
-        headlineContent = { Text(stringResource(Res.string.skip_backup_label)) },
-        supportingContent = { Text(stringResource(Res.string.skip_backup_supporting_text)) },
-        trailingContent = {
-            Switch(
-                checked = skipBackup,
-                onCheckedChange = if (isReadOnly) null else setSkipBackup
-            )
-        },
-    )
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ListItem(
+            modifier = Modifier
+                .widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)
+                .then(if (isReadOnly) Modifier else Modifier.clickable { setSkipBackup(!skipBackup) }),
+            headlineContent = { Text(stringResource(Res.string.skip_backup_label)) },
+            supportingContent = { Text(stringResource(Res.string.skip_backup_supporting_text)) },
+            trailingContent = {
+                Switch(
+                    checked = skipBackup,
+                    onCheckedChange = if (isReadOnly) null else setSkipBackup
+                )
+            },
+        )
+    }
 }
 
 @Composable
@@ -290,24 +303,29 @@ private fun MediaMetadataSection(
     duration: Double?,
     navigateToDetails: (() -> Unit)?
 ) {
-    recordingMetadata?.let {
-        MediaRecordingMetadataCard(
-            recordingMetadata = it,
-            duration = duration,
-            navigateToDetails = navigateToDetails
-        )
-    } ?: Card {
-        if (navigateToDetails != null) {
-            ListItem(
-                modifier = Modifier.clickable { navigateToDetails() },
-                colors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor),
-                headlineContent = {
-                    Text(
-                        text = stringResource(Res.string.media_more_details_label),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
-                    )
-                }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        recordingMetadata?.let {
+            MediaRecordingMetadataCard(
+                recordingMetadata = it,
+                duration = duration,
+                navigateToDetails = navigateToDetails
             )
+        } ?: Card {
+            if (navigateToDetails != null) {
+                ListItem(
+                    modifier = Modifier.widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp).clickable { navigateToDetails() },
+                    colors = ListItemDefaults.colors(CardDefaults.cardColors().containerColor),
+                    headlineContent = {
+                        Text(
+                            text = stringResource(Res.string.media_more_details_label),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                        )
+                    }
+                )
+            }
         }
     }
 }
@@ -333,9 +351,13 @@ private fun MediaPreviewSection(
             .collect{ frameUrl = it }
     }
 
-    Column {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Box(
             Modifier
+                .widthIn(max = WIDTH_DP_LARGE_LOWER_BOUND.dp)
                 .clip(MaterialTheme.shapes.large)
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .aspectRatio(16f / 9f)

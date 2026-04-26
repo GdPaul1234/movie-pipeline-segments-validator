@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.util.formatSecondsToPeriod
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.*
@@ -27,6 +28,7 @@ fun MediaPositionToolbar(
     isSmallScreen: Boolean = false
 ) {
     val tonalElevation = if (isSmallScreen) 0.dp else 1.dp
+    val spacingBetweenTooltipAndAnchor = 4.dp
 
     Row(
         modifier = modifier
@@ -72,7 +74,7 @@ fun MediaPositionToolbar(
         )  {
             ButtonGroup(
                 overflowIndicator = { menuState ->
-                    IconButton(onClick = { if (menuState.isExpanded) menuState.dismiss() else menuState.show() }) {
+                    IconButton(onClick = { if (menuState.isShowing) menuState.dismiss() else menuState.show() }) {
                         Icon(
                             painter = painterResource(Res.drawable.more_vert_24px),
                             contentDescription = stringResource(Res.string.more_seconds),
@@ -95,7 +97,7 @@ fun MediaPositionToolbar(
             val replayContentDescription = stringResource(Res.string.replay_x_seconds, delta)
 
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
                 tooltip = { PlainTooltip { Text(replayContentDescription) } },
                 state = rememberTooltipState()
             ) {
@@ -119,7 +121,7 @@ fun MediaPositionToolbar(
             val forwardContentDescription = stringResource(Res.string.forward_x_seconds, delta)
 
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above, spacingBetweenTooltipAndAnchor),
                 tooltip = { PlainTooltip { Text(forwardContentDescription) } },
                 state = rememberTooltipState()
             ) {
