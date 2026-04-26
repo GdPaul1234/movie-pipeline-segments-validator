@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.gdpaul1234.movie_pipeline_segments_validator_ui.core.presentation.util.getMediaStem
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.Res
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.arrow_back_24px
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.openapitools.client.models.Media
 import org.openapitools.client.models.Session
 

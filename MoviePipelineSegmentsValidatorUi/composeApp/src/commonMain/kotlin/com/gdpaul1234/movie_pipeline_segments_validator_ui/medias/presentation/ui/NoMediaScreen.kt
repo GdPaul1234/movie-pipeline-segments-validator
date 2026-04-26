@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.Res
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.animated_images_24px
@@ -17,7 +18,6 @@ import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.select_me
 import moviepipelinesegmentsvalidatorui.composeapp.generated.resources.select_media_title
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
