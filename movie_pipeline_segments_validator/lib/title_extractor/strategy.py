@@ -45,7 +45,7 @@ def naive_title(movie_path: Path | None, metadata, **kwargs) -> TitleExtractorOu
 
 
 def expanded_subtitle_title(movie_path: Path | None, metadata, **kwargs) -> TitleExtractorOutput:
-    if not metadata or '...' not in metadata['title']:
+    if not metadata or not metadata['title'].endswith('...'):
         media_id = movie_path.stem if movie_path is not None else 'this entry'
         raise NotSuitableTitleExtractorStrategy(f'Not suitable "expanded_subtitle_title" strategy for "{media_id}" ({kwargs})')
 

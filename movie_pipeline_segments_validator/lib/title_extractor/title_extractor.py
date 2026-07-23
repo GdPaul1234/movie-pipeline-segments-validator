@@ -24,7 +24,7 @@ def extract_title(movie_path: Path | None = None, metadata: dict | None = None, 
             movie_path,
             metadata,
             title_pattern=re.compile(r"([^.]+)\."),
-            episode_pattern=re.compile(r"\. (.+) Série \(\w+\)\.")
+            episode_pattern=re.compile(r"\. (.+) (Mini-){,1}[sS]érie \(\w+\)\.")
         )
 
     def serie_subtitle_aware_title_extractor():
