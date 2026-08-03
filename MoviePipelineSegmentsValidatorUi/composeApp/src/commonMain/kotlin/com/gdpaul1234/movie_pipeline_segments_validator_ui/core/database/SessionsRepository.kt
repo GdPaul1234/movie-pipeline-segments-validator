@@ -11,7 +11,6 @@ import kotlinx.serialization.json.Json
 import org.openapitools.client.models.Media
 import org.openapitools.client.models.Session
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 class SessionsRepository(
     private val dataStore: DataStore<Preferences>
@@ -48,7 +47,6 @@ class SessionsRepository(
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     @Throws(NoSuchElementException::class)
     suspend fun updateMedia(endpoint: String, sessionId: String, media: Media) {
         dataStore.edit { sessions ->

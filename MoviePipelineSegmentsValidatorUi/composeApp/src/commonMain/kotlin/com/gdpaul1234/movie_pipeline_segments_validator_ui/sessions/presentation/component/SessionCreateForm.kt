@@ -2,7 +2,6 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentatio
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -22,7 +21,7 @@ import java.net.URISyntaxException
 import java.nio.file.InvalidPathException
 import java.nio.file.Paths
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 @Preview
 fun SessionCreateForm (

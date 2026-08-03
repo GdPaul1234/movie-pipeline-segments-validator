@@ -3,7 +3,6 @@ package com.gdpaul1234.movie_pipeline_segments_validator_ui.medias.presentation.
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -18,12 +17,11 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.openapitools.client.models.MediaMetadata
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 private data class MetadataField (val fieldName: String, val value: String, val weight: Float, val minWidth: Dp? = null)
 
-@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun MediaRecordingMetadataCard(

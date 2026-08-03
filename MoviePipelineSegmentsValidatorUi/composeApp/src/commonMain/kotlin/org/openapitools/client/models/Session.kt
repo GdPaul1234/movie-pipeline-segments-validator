@@ -15,12 +15,9 @@
 
 package org.openapitools.client.models
 
-import org.openapitools.client.models.Media
-
-import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
-import kotlin.time.ExperimentalTime
+import kotlinx.serialization.Required
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * 
@@ -31,7 +28,6 @@ import kotlin.time.ExperimentalTime
  * @param rootPath root path for medias
  * @param medias medias to process in root_path indexed by stem (filename without extension).  `imported_segments` and `segments` is empty unless you query media from `medias` or `segments` endpoints
  */
-@OptIn(ExperimentalTime::class)
 @Serializable
 
 data class Session (

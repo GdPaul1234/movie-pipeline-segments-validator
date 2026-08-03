@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalTime::class)
-
 package com.gdpaul1234.movie_pipeline_segments_validator_ui.sessions.presentation.component
 
 import androidx.compose.foundation.clickable
@@ -25,7 +23,6 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
