@@ -16,9 +16,9 @@ python = "^3.13"
 PyYAML = "^6.0.3"
 ffmpeg-python = "^0.2.0"
 schema = "^0.7.8"
-pydantic = {version = "^2.13.0"}
-pydantic-settings = "^2.13.1"
-fastapi = {extras = ["standard"], version = "^0.135.3"}
+pydantic = {version = "^2.13.4"}
+pydantic-settings = "^2.14.2"
+fastapi = {extras = ["standard"], version = "^0.139.2"}
 httpx = "^0.28.1"
 
 
