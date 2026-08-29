@@ -104,7 +104,7 @@ class TestSessionRepository(unittest.TestCase):
 
             serie_context.title = serie_context.title.replace('.mp4', '.invalid_ext')
 
-            expected_error_message = re.escape("String should match pattern '^[\\w&àéèï'!()\\[\\], #-.:]+\\.mp4$' [type=string_pattern_mismatch, input_value='Serie Name S01E16.invalid_ext', input_type=str]")
+            expected_error_message = re.escape("String should match pattern '^[\\w&àéèïô'!()\\[\\], #-.]+\\.mp4$' [type=string_pattern_mismatch, input_value='Serie Name S01E16.invalid_ext', input_type=str]")
             with self.assertRaisesRegex(ValidationError, expected_error_message):
                 session_repository.update_media(session.id, serie_context)
 

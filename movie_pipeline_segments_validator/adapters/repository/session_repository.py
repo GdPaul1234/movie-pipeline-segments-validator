@@ -1,12 +1,13 @@
-from contextlib import contextmanager
 import dbm
 import dbm.sqlite3
 import logging
-from pathlib import Path
-from threading import Lock
+import re
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from itertools import islice
+from pathlib import Path
+from threading import Lock
 from typing import Any, Optional
 
 import yaml
@@ -14,6 +15,7 @@ from pydantic import TypeAdapter
 from pydantic.types import DirectoryPath
 
 from ...adapters.repository.resources import Media, Segment, Session
+from ...domain import FORBIDDEN_FILENAME_CHAR_REGEX
 from ...domain.context import SegmentValidatorContext, import_media_segments
 from ...domain.media_path import MediaPath
 from ...domain.movie_segments import MovieSegments
@@ -76,7 +78,7 @@ def build_media(
     return Media(
         filepath=filepath,
         state=state,
-        title=f"{title.removesuffix('.mp4')}.mp4",
+        title=f"{re.sub(FORBIDDEN_FILENAME_CHAR_REGEX, '_', title.removesuffix('.mp4'))}.mp4",
         skip_backup=skip_backup,
         segments=imported_detector_segments
     )
